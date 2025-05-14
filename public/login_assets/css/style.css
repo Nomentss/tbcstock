@@ -100,8 +100,9 @@ path {
 }
 
 .form_register {
-  margin: 15px;
+  margin: 30px;
   position: absolute;
+  margin-top: -8px;
 }
 
 label {
@@ -128,7 +129,7 @@ input::-moz-focus-inner {
 #submit {
   text-align: center;
   color: #ffffff;
-  margin-top: 40px;
+  margin-top: 20px;
   transition: color 300ms;
 }
 #submit:hover {

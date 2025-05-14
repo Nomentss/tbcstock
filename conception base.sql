@@ -2,44 +2,59 @@
 
 saison
     id
-    nom_saison
+    debut
+    fin
+    nom_saison 2024-2025
 
 artisan 
     id
     nom
     telephone
     mail
-
+    
 couleur
     id
     nom
 
-commande
-    id
+produit
+    id_produit
     id_artisan
     designation_produit
-    designation_david
+
+produit_couleur
+    id_produit
+    id_couleur
+
+commande
+    id
+    id_produit
     type_commande
     id_couleur
     qte
     prix_unitaire
     date_commande
-    nom_commande
 
 bon de commande
     id
-    nom
+    reference
     id_commande
+    id_saison
 
 livraison
     id
     type_livraison (entree ou sortie)
     id_artisan
-    designation_produit
-    designation_david
-    bon_reception
+    id_produit
+    qte_livre
     date_livraison
 
+bon de livraison
+    id
+    nom(reference)
+    id_livraison
+    id_saison
+
+--stock
 
 payement_artisan
     id
@@ -48,6 +63,6 @@ payement_artisan
     montant
     date_payement
 
+    ---------------------------------------------------------------------------------
 
-reste a voir
-saison, bon de reception(livraison), bon de commande
+    

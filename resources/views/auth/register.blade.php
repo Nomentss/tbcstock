@@ -1,5 +1,6 @@
 <link rel="stylesheet" href="{{ asset('login_assets/css/style.css') }}" >
 <div class="page">
+  <form action="{{ route('AuthController.registerAction') }}" method="GET">
     <div class="container">
         
       <div class="left">
@@ -11,14 +12,29 @@
         </svg>
         <div class="form_register">
           <label for="email">User</label>
-          <input type="email" id="email" style=" border:solid 0.5px">
+          <input id="email" name="username" style="border:solid 0.5px">
+            <label style="margin-top: 2px">
+              @error('username')
+                  <span style="color: red">{{ $message }}</span>
+              @enderror
+            </label>
           <label for="password">Password</label>
-          <input type="password" id="password" style=" border:solid 1px">
+          <input type="password" id="password" name="password" style="border:solid 1px">
+            <label style="margin-top: 2px">
+              @error('password')
+                  <span style="color: red">{{ $message }}</span>
+              @enderror
+            </label>
           <label for="password">Confirm Password</label>
-          <input type="password" id="password" style=" border:solid 1px">
-
-          <input type="submit" id="submit" value="Submit">
+          <input type="password" id="password" name="confirm_password" style="border:solid 1px">
+            <label style="margin-top: 2px">
+              @error('confirm_password')
+                  <span style="color: red">{{ $message }}</span>
+              @enderror
+            </label>
+          <input type="submit" id="submit" style="margin-top: -4px" value="Submit">
         </div>
       </div>
     </div>
+  </form>
 </div>
