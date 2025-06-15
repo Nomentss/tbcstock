@@ -18,16 +18,23 @@ class PageController extends Controller
         return view('auth.register');
     }
 
-    // public function saisonFormulaire() {
-    //     return view('Formulaire.saison');
-    // }
+    public function saisonFormulaire() {
+        return view('Formulaire.saison');
+    }
 
-    // public function CouleurFormulaire() {
-    //     return view('Formulaire.Couleur');
-    // }
+    public function CouleurFormulaire() {
+        return view('Formulaire.Couleur');
+    }
 
-    // public function LivraisonFormulaire() {
-    //     return view('Formulaire.Livraison');
-    // }
+    public function LivraisonFormulaire() {
+        return view('Formulaire.Livraison');
+    }
 
+    public function payementFormulaire() {
+        return view('Formulaire.Payement');   
+    }
+
+    public function ArtisanFormulaire() {
+        return view('Formulaire.Artisan');
+    }
 }
