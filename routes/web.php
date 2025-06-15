@@ -23,10 +23,11 @@ Route::middleware(['auth', 'role:0'])->group(function () {
     Route::controller(PageController::class)->group(function () {
         Route::get('/Acceuil', 'home')->name('PageController.home');
         // Route::get('/login', 'loginform')->name('PageController.loginform');
-        Route::get('/register', 'registerform')->name('PageController.registerform');
+
     });
 
 });
+Route::get('/register', [PageController::class,'registerform'])->name('PageController.registerform');
 
 Route::controller(PageController::class)->group(function () {
     Route::get('/login', 'loginform')->name('PageController.loginform');

@@ -3,7 +3,7 @@
 <head>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <!-- Icon Font Stylesheet -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
@@ -11,7 +11,7 @@
     <!-- Libraries Stylesheet -->
     <link href="{{ asset('dashboard_assets/lib/owlcarousel/assets/owl.carousel.min.css') }}" rel="stylesheet">
     <link href="{{ asset('dashboard_assets/lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css') }}" rel="stylesheet">
-    
+
 
     <!-- Customized Bootstrap Stylesheet -->
     <link href="{{ asset('dashboard_assets/css/bootstrap.min.css') }}" rel="stylesheet">
@@ -68,7 +68,7 @@
 
 
             <!-- Footer Start -->
-            @include('Layout.footer')   
+            @include('Layout.footer')
             <!-- Footer End -->
         </div>
         <!-- Content End -->
@@ -85,7 +85,7 @@
     <script src="{{ asset('dashboard_assets/lib/chart/chart.min.js') }}"></script>
 
     <script src="{{ asset('dashboard_assets/lib/easing/easing.min.js') }}"></script>
-    
+
     <script src="{{ asset('dashboard_assets/lib/waypoints/waypoints.min.js') }}"></script>
 
     <script src="{{ asset('dashboard_assets/lib/owlcarousel/owl.carousel.min.js') }}"></script>

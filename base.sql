@@ -1,3 +1,4 @@
+insert into users(username,password) values ('kanty','1234');
 
 create table saison(
     id serial primary key,
@@ -20,7 +21,7 @@ create table couleur(
     nom varchar(50)
 
 );
-
+/* Kanty */
 create table produit(
     id_produit serial primary key,
     id_artisan int,
@@ -30,6 +31,7 @@ create table produit(
 
 );
 
+/* Kanty */
 create table produit_couleur(
     id_produit int,
     id_couleur int,
@@ -38,6 +40,7 @@ create table produit_couleur(
 
 );
 
+/* Kanty */
 create table commande(
     id serial primary key,
     id_produit int,
@@ -51,6 +54,7 @@ create table commande(
 
 );
 
+/* Kanty */
 create table bon_de_commande(
     id serial primary key,
     reference varchar(150),
@@ -61,6 +65,7 @@ create table bon_de_commande(
 
 );
 
+/* Kanty */
 create table type_livraison(
     id serial primary key,
     nom varchar(10)
@@ -92,7 +97,7 @@ create table bon_de_livraison(
 create table payement_artisan(
     id serial primary key,
     id_artisan int,
-    detail_payement varchar(255), 
+    detail_payement varchar(255),
     montant double precision,
     date_payement date,
     FOREIGN KEY (id_artisan) REFERENCES artisan(id)
