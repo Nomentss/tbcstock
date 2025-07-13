@@ -10,6 +10,7 @@ use App\Models\Saison;
 use App\Models\Artisan;
 use App\Models\Couleur;
 use App\Models\Produit;
+use App\Models\Stock;
 use App\Models\Expedition;
 use App\Models\Expedition_detail;
 
@@ -97,12 +98,31 @@ class ExpeditionController extends Controller
             'expedition' => $expedition_depot,
         ]);
 
+        // boucle pour verifier l'etat de stock avant l'insertion
+        $messages = [];
+        for ($i=0; $i <= $maxCounter; $i++) { 
+            $id_produit = $request->input('id_produit_'.$i);
+            $id_couleur = $request->input('couleur_'.$i);
+            $quantite = $request->input('qte_'.$i);
+
+            $erreur = $this->verifierStock($id_produit, $id_couleur, $quantite);
+            if($erreur != null){
+                $messages[] = $erreur;
+            }
+        }
+        if (!empty($messages)) {
+            return back()->with('fail', $messages);
+        }
+        // fin de verification
+
+        // boucle pour insertion
         for ($i=0; $i <= $maxCounter; $i++) { 
             $id_artisan = $request->input('id_artisan_'.$i);
             $id_produit = $request->input('id_produit_'.$i);
             $id_couleur = $request->input('couleur_'.$i);
             $quantite = $request->input('qte_'.$i);
 
+            $this->updateStock($id_produit, $id_couleur, $quantite);
             
             $expedition_detail= Expedition_detail::create([
                 'id_expedition' => $expedition->id,
@@ -177,6 +197,37 @@ class ExpeditionController extends Controller
         $couleur = Couleur::all();
 
         return view('Expedition.ListeExpedition', compact('expedition', 'artisan', 'designationCatalogue', 'couleur'));
+
+    }
+
+    public function updateStock($id_produit, $id_couleur, $quantite){
+        // verification de stock
+            $stock = Stock::create([
+                'id_produit' => $id_produit,
+                'id_couleur' => $id_couleur,
+                'qte_livre' => -$quantite,
+            ]);
+    }
+
+    public function verifierStock($id_produit, $id_couleur, $quantite){
+        $stockRestant = DB::table('v_stock')
+        ->select('qte_livre', 'designation_produit', 'artisan', 'qte_livre')
+        ->where('id_produit', $id_produit)
+        ->where('id_couleur', $id_couleur)
+        ->first();
+
+        if($stockRestant->qte_livre < $quantite){
+            // return back()->with('fail', 'stock insuffisant pour le produit : "'.$stockRestant->designation_produit. '" de : "' .$stockRestant->artisan. '" stock restant:'.$stockRestant->qte_livre);
+            return 'Stock insuffisant pour le produit : "' . 
+            $stockRestant->designation_produit . 
+            '" de : "' . 
+            $stockRestant->artisan. 
+            '", Stock restant : ' . 
+            $stockRestant->qte_livre;
+        }
+        else{
+            return null;
+        }
 
     }
 }

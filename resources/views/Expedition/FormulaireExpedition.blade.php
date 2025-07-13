@@ -47,9 +47,17 @@
             </div>
             @endif
             @if(session('fail'))
-                <div class="alert alert-danger">
-                    {{ session('fail') }}
-                </div>
+            <div class="alert alert-danger">
+                @if(is_array(session('fail')))
+                    <ul>
+                        @foreach (session('fail') as $message)
+                            <li>{{ $message }}</li>
+                        @endforeach
+                    </ul>
+                @else
+                    <p>{{ session('fail') }}</p>
+                @endif
+            </div>
             @endif
             <br>
             @if($errors->any())

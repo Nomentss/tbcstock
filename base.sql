@@ -243,13 +243,14 @@ group by vp.id_saison, vp.nom_saison, vp.id_artisan, vp.artisan, vt.valeur;
 
 -- vue pour stock globale
 create view v_stock as
-select s.id, p.id_artisan, a.nom as artisan, s.id_produit, p.designation_produit, p.designation_catalogue, s.id_couleur, c.nom as couleur, s.qte_livre, s.date_livraison from stock s
+select p.id_artisan, a.nom as artisan, s.id_produit, p.designation_produit, p.designation_catalogue, s.id_couleur, c.nom as couleur, sum(s.qte_livre)as qte_livre from stock s
 join produit p on
 p.id = s.id_produit
 join couleur c on
 c.id = s.id_couleur
 join artisan a on 
-a.id = p.id_artisan;
+a.id = p.id_artisan
+group by p.id_artisan, a.nom, s.id_produit, p.designation_produit, p.designation_catalogue, s.id_couleur, c.nom;
 
 -- vue pour avoir le stock groupé par couleur
 create view v_regroupement_stock as

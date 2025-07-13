@@ -52,7 +52,7 @@
                     <a href="{{ route('PayementController.payementFormulaire')}}" class="dropdown-item {{ request()->routeIs('PayementController.payementFormulaire') ? 'active' : '' }}">Payement artisan</a>
                 </div>
             </div>
-            <a href="#" class="nav-item nav-link"><i class="fa fa-keyboard me-2"></i>Import</a>
+            {{-- <a href="#" class="nav-item nav-link"><i class="fa fa-keyboard me-2"></i>Import</a> --}}
         </div>
     </nav>
 </div>
