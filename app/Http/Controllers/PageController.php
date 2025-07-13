@@ -37,4 +37,9 @@ class PageController extends Controller
     public function ArtisanFormulaire() {
         return view('Formulaire.Artisan');
     }
+
+    public function ExpeditionForm(){
+        return view ('Expedition.FormulaireExpedition');
+    }  
+    
 }

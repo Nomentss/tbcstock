@@ -36,6 +36,16 @@
 
     <br>
     <div class="col-12">
+        @if(session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+        @endif
+        @if(session('fail'))
+            <div class="alert alert-danger">
+                {{ session('fail') }}
+            </div>
+        @endif
         <div class="bg-light rounded h-100 p-4">
             <h6 class="mb-4">Liste Saison</h6>
             <div class="table-responsive">
@@ -50,20 +60,15 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @foreach ($saison as $saisons)
                         <tr>
-                            <th scope="row">1</th>
-                            <td>204-2025</td>
-                            <td>10-02-24</td>
-                            <td>10-02-24</td>
-                            <td>delete</td>
+                            <th scope="row">{{ $saisons->id }}</th>
+                            <td>{{ $saisons->nom_saison }}</td>
+                            <td>{{ $saisons->debut }}</td>
+                            <td>{{ $saisons->fin }}</td>
+                            <td><a href="{{ route('SaisonController.delete', ['id' => $saisons->id]) }}">delete</a></td>
                         </tr>
-                        <tr>
-                            <th scope="row">2</th>
-                            <td>204-2025</td>
-                            <td>10-02-24</td>
-                            <td>10-02-24</td>
-                            <td>delete</td>                            
-                        </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>

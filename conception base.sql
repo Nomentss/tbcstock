@@ -63,6 +63,9 @@ payement_artisan
     montant
     date_payement
 
-    ---------------------------------------------------------------------------------
-
+stock_artisan
+    id
+    id_produit
+    id_couleur
+    quantite
     

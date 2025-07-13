@@ -18,15 +18,20 @@
             <div class="nav-item dropdown">
                 <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Consulter</a>
                 <div class="dropdown-menu bg-transparent border-0">
-                    <a href="#" class="dropdown-item">Stock</a>
-                    <a href="#" class="dropdown-item">Livraison</a>
-                    <a href="#" class="dropdown-item">Commande</a>
-                    <a href="#" class="dropdown-item">Payement artisan</a>
+                    <a href="{{ route('LivraisonController.listeLivraison') }}" class="dropdown-item {{ request()->routeIs('LivraisonController.listeLivraison') ? 'active' : '' }}">Livraison</a>
+                    <a href="{{ route('CommandeController.listeCommande')}}" class="dropdown-item {{ request()->routeIs('CommandeController.listeCommande') ? 'active' : '' }}">Commande</a>
+                    <a href="{{ route('PayementController.payementListe') }}" class="dropdown-item {{ request()->routeIs('PayementController.payementListe') ? 'active' : '' }}">Payement artisan</a>
                 </div>
             </div>
-            <a href="#" class="nav-item nav-link"><i class="fa fa-th me-2"></i>Historique</a>
-            {{-- <a href="table.html" class="nav-item nav-link"><i class="fa fa-table me-2"></i>Tables</a>
-            <a href="chart.html" class="nav-item nav-link"><i class="fa fa-chart-bar me-2"></i>Charts</a> --}}
+            <a href="{{ route('StockController.choix')}}" class="nav-item nav-link"><i class="fa fa-laptop me-2"></i>Stock</a>
+
+            <div class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-th me-2"></i>Expedition</a>
+                <div class="dropdown-menu bg-transparent border-0">
+                    <a href="{{ route('ExpeditionController.ExpeditionForm')}}" class="dropdown-item {{ request()->routeIs('ExpeditionController.ExpeditionForm') ? 'active' : '' }}">Formulaire expedition</a>
+                    <a href="{{ route('ExpeditionController.listeExpedition')}}" class="dropdown-item {{ request()->routeIs('ExpeditionController.listeExpedition') ? 'active' : '' }}">Liste expedition</a>
+                </div>
+            </div>
             @php
                 $formRoutes = [
                     'PageController.saisonFormulaire',
@@ -39,11 +44,12 @@
             <div class="nav-item dropdown ">
                 <a href="#" class="nav-link dropdown-toggle {{ in_array(Route::currentRouteName(), $formRoutes) ? 'active' : '' }}" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Formulaire</a>
                 <div class="dropdown-menu bg-transparent border-0">
-                    <a href="{{ route('PageController.saisonFormulaire')}}" class="dropdown-item {{ request()->routeIs('PageController.saisonFormulaire') ? 'active' : '' }}">Saison</a>
-                    <a href="{{ route('PageController.livraisonFormulaire')}}" class="dropdown-item {{ request()->routeIs('PageController.livraisonFormulaire') ? 'active' : '' }}">Livraison</a>
+                    <a href="{{ route('SaisonController.saisonFormulaire')}}" class="dropdown-item {{ request()->routeIs('SaisonController.saisonFormulaire') ? 'active' : '' }}">Saison</a>
+                    <a href="{{ route('LivraisonController.livraisonFormulaire')}}" class="dropdown-item {{ request()->routeIs('LivraisonController.livraisonFormulaire') ? 'active' : '' }}">Livraison</a>
+                    <a href="{{ route('CommandeController.CommandeFormulaire')}}" class="dropdown-item {{ request()->routeIs('CommandeController.CommandeFormulaire') ? 'active' : '' }}">Commande</a>
                     <a href="{{ route('ArtisanController.ArtisanFormulaire')}}" class="dropdown-item {{ request()->routeIs('ArtisanController.ArtisanFormulaire') ? 'active' : '' }}">Artisan</a>
-                    <a href="{{ route('PageController.couleurFormulaire')}}" class="dropdown-item {{ request()->routeIs('PageController.couleurFormulaire') ? 'active' : '' }}">Coloration</a>
-                    <a href="{{ route('PageController.payementFormulaire')}}" class="dropdown-item {{ request()->routeIs('PageController.payementFormulaire') ? 'active' : '' }}">Payement artisan</a>
+                    <a href="{{ route('CouleurController.couleurFormulaire')}}" class="dropdown-item {{ request()->routeIs('CouleurController.couleurFormulaire') ? 'active' : '' }}">Coloration</a>
+                    <a href="{{ route('PayementController.payementFormulaire')}}" class="dropdown-item {{ request()->routeIs('PayementController.payementFormulaire') ? 'active' : '' }}">Payement artisan</a>
                 </div>
             </div>
             <a href="#" class="nav-item nav-link"><i class="fa fa-keyboard me-2"></i>Import</a>

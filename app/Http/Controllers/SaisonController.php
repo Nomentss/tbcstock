@@ -34,4 +34,18 @@ class SaisonController extends Controller
 
         return back()->with('success', 'saison ajoutée');
     }
+
+    public function saisonFormulaire(){
+
+        $saison = Saison::all();
+        return view('Formulaire.Saison', compact('saison'));
+
+    }
+
+    public function deleteSaison($id){
+        $saison = Saison::find($id);
+        $saison->delete();
+        return back()->with('success', 'saison supprimée');
+        
+    }
 }
