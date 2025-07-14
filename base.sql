@@ -43,8 +43,8 @@ create table commande(
     id_artisan int,
     type_commande varchar(50),
     date_commande date,
-    FOREIGN KEY (id_artisan) REFERENCES artisan(id),
-    FOREIGN KEY (id_saison) REFERENCES saison(id)
+    FOREIGN KEY (id_artisan) REFERENCES artisan(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_saison) REFERENCES saison(id) ON DELETE CASCADE
 );
 
 create table commande_detail(
@@ -54,16 +54,16 @@ create table commande_detail(
     id_couleur int,
     qte double precision,
     prix_unitaire double precision,
-    FOREIGN KEY (id_commande) REFERENCES commande(id),
-    FOREIGN KEY (id_produit) REFERENCES produit(id),
-    FOREIGN KEY (id_couleur) REFERENCES couleur(id)
+    FOREIGN KEY (id_commande) REFERENCES commande(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_produit) REFERENCES produit(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_couleur) REFERENCES couleur(id) ON DELETE CASCADE
 );
 ------------------------------------------------------
 
 create table type_livraison(
     id serial primary key,
     nom varchar(10)
-)
+);
 
 -- correction de la table livraison
 create table livraison(
@@ -72,8 +72,8 @@ create table livraison(
     id_artisan int,
     created_at timestamp,
     updated_at timestamp,
-    FOREIGN KEY (id_artisan) REFERENCES artisan(id),
-    FOREIGN KEY (id_saison) REFERENCES saison(id)
+    FOREIGN KEY (id_artisan) REFERENCES artisan(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_saison) REFERENCES saison(id) ON DELETE CASCADE
 );
 
 create table livraison_detail(
@@ -85,9 +85,9 @@ create table livraison_detail(
     date_livraison date,
     created_at timestamp,
     updated_at timestamp,
-    FOREIGN KEY (id_produit) REFERENCES produit(id),
-    FOREIGN KEY (id_couleur) REFERENCES couleur(id),
-    FOREIGN KEY (id_livraison) REFERENCES livraison(id)
+    FOREIGN KEY (id_produit) REFERENCES produit(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_couleur) REFERENCES couleur(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_livraison) REFERENCES livraison(id) ON DELETE CASCADE
 );
 
 ---------------------------------------------------------
@@ -278,6 +278,14 @@ c.id = ed.id_couleur
 join artisan a on
 a.id = ed.id_artisan;
 
+-- vue pour la somme dans commande par artisan
+create view v_somme_commande as
+select id_artisan, id_saison, sum(qte) as total_qte, sum(total) as total_prix from v_detail_commande
+group by id_artisan, id_saison;
 
+-- vue pour la somme dans commande par type_commande
+create view v_somme_commande_type as
+select type_commande, id_artisan, id_saison, sum(qte) as total_qte, sum(total) as total_prix from v_detail_commande
+group by id_artisan, id_saison, type_commande;
 
- <a href="{{ route('StockController.stockResume')}}" class="dropdown-item {{ request()->routeIs('StockController.stockResume') ? 'active' : '' }}">Stock regroupé</a>
+-- vue pour la somme dans commande globale

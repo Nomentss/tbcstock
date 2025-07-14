@@ -63,18 +63,16 @@
                 </table>
                 <table class="table table-bordered">
                     <thead>
+                        @foreach ($somme as $s)
                         <tr>
-                            <th scope="col" style="text-align: center">TOTAL PAYEMENT</th>
-                            <th scope="col">125000</th>
+                            <th scope="col" style="text-align: center">TOTAL COMMANDE</th>
+                            <th scope="col" style="text-align: center">{{ number_format($s->total_qte, 0, ',', ' ') }}</th>
                         </tr>
                         <tr>
-                            <th scope="col" style="text-align: center">VALEUR PRODUIT LIVRE</th>
-                            <th scope="col">12650</th>
+                            <th scope="col" style="text-align: center">VALEUR TOTAL PRODUIT</th>
+                            <th scope="col" style="text-align: center">{{ number_format($s->total_prix, 0, ',', ' ') }} AR</th>
                         </tr>
-                        <tr>
-                            <th scope="col" style="text-align: center">RESTE A PAYER</th>
-                            <th scope="col">0</th>
-                        </tr>
+                        @endforeach
                     </thead>
                 </table>
                 

@@ -9,15 +9,20 @@
     <div class="bg-light rounded h-100 p-4" id="content">
         <h5 class="mb-4 text-center">Formulaire Commande</h5>
         <div class="form-floating mb-3">
-            <select class="form-select" id="floatingSelect" aria-label="Floating label select example" name="id_artisan">
+            <select class="form-select @error('id_artisan') is-invalid @enderror" id="floatingSelect" aria-label="Floating label select example" name="id_artisan">
                 @foreach ($artisan as $artisans)
                     <option value="{{ $artisans->id }}">{{ $artisans->nom }}</option>
                 @endforeach
             </select>
             <label for="floatingSelect">Artisan</label>
+            @error('id_artisan')
+                <div class="invalid-feedback">
+                    {{ $message }}
+                </div>
+            @enderror
         </div>
         <div class="form-floating mb-3">
-            <input type="date" class="form-control @error('date_commande') is-invalid @enderror" id="floatingInput" name="date_commande">
+            <input type="date" class="form-control @error('date_commande') is-invalid @enderror" id="floatingInput" name="date_commande" value="{{ old('date_commande') }}">
             <label for="floatingInput">Date commande</label>
             @error('date_commande')
                 <div class="invalid-feedback">
@@ -26,7 +31,7 @@
             @enderror
         </div>
         <div class="form-floating mb-3">
-            <input type="text" class="form-control @error('type_commande') is-invalid @enderror" id="floatingInput" name="type_commande">
+            <input type="text" class="form-control @error('type_commande') is-invalid @enderror" id="floatingInput" name="type_commande" value="{{ old('type_commande') }}">
             <label for="floatingInput">Type commande</label>
             @error('type_commande')
                 <div class="invalid-feedback">
@@ -68,8 +73,13 @@
             </div>
             <div class="col-md-4">
                 <div class="form-floating mb-3">
-                    <input type="text" class="form-control" id="floatingInput" name="designation_0">
+                    <input type="text" class="form-control @error('designation_0') is-invalid @enderror" id="floatingInput" name="designation_0">
                     <label for="floatingInput">Designation catalogue</label>
+                    @error('designation_0')
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
+                    @enderror
                 </div>
             </div>
             <div class="col-md-4">
@@ -81,9 +91,9 @@
                     </select>
                     <label for="floatingSelect">Couleur</label>
                     @error('id_couleur_0')
-                    <div class="invalid-feedback">
-                        {{ $message }}
-                    </div>
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
                     @enderror
                 </div>
             </div>
@@ -92,9 +102,9 @@
                     <input type="number" class="form-control @error('qte_commande_0') is-invalid @enderror" id="floatingInput" name="qte_commande_0">
                     <label for="floatingInput">Quantité</label>
                     @error('qte_commande_0')
-                    <div class="invalid-feedback">
-                        {{ $message }}
-                    </div>
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
                     @enderror
                 </div>
             </div>
@@ -103,9 +113,9 @@
                     <input type="text" class="form-control  @error('prix_unitaire_0') is-invalid @enderror" id="floatingInput" name="prix_unitaire_0">
                     <label for="floatingInput">Prix unitaire</label>
                     @error('prix_unitaire_0')
-                    <div class="invalid-feedback">
-                        {{ $message }}
-                    </div>
+                        <div class="invalid-feedback">
+                            {{ $message }}
+                        </div>
                     @enderror
                 </div>
             </div>

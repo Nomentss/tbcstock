@@ -30,13 +30,13 @@
             </div>
             </form>
             <div class="table-responsive">
-                <table class="table">
+                <table class="table table-hover">
                     <thead>
                         <tr>
                             <td scope="col">Saison</td>
                             <td scope="col">Artisan</td>
-                            <td scope="col">option</td>
-                            <td scope="col">option</td>
+                            <td scope="col" style="text-align: center">option</td>
+                            <td scope="col" style="text-align: center">option</td>
                         </tr>
                     </thead>
                     <tbody>
@@ -44,8 +44,8 @@
                         <tr>
                             <th>{{$l->nom_saison }}</th>
                             <th>{{$l->artisan }}</th>
-                            <th><a href="{{ route('LivraisonController.detailLivraison', ['id_artisan' => $l->id_artisan, 'id_saison' => $l->id_saison]) }}">Voir detail par date</a></th>
-                            <th><a href="{{ route('LivraisonController.resumeLivraison', ['id_artisan' => $l->id_artisan, 'id_saison' => $l->id_saison]) }}">Voir resume quantites livrees</a></th>                        
+                            <th style="text-align: center"><a href="{{ route('LivraisonController.detailLivraison', ['id_artisan' => $l->id_artisan, 'id_saison' => $l->id_saison]) }}"  class="btn btn-primary w-55">Voir detail par date</a></th>
+                            <th style="text-align: center"><a href="{{ route('LivraisonController.resumeLivraison', ['id_artisan' => $l->id_artisan, 'id_saison' => $l->id_saison]) }}"  class="btn btn-primary w-5">Voir resume quantites livrees</a></th>                        
                         </tr>
                         @endforeach                   
                     </tbody>

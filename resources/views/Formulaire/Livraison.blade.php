@@ -10,7 +10,7 @@
     <div class="bg-light rounded h-100 p-4" id="content">
         <h5 class="mb-4 text-center">Formulaire Livraison</h5>
         <div class="form-floating mb-3">
-            <select class="form-select @error('id_saison') is-invalid @enderror" aria-label="Floating label select example" name="id_saison">
+            <select class="form-select @error('id_saison') is-invalid @enderror" aria-label="Floating label select example" name="id_saison" value="{{ old('id_saison') }}">
                 @foreach ($saison as $s)
                 <option value={{$s->id}}>{{ $s->nom_saison }}</option>
                 @endforeach
@@ -23,7 +23,7 @@
             @enderror
         </div>
         <div class="form-floating mb-3">
-            <input type="date" class="form-control @error('date_livraison') is-invalid @enderror" id="floatingInput" name="date_livraison">
+            <input type="date" class="form-control @error('date_livraison') is-invalid @enderror" id="floatingInput" name="date_livraison" value="{{ old('date_livraison') }}">
             <label for="floatingInput">Date de livraison</label>
             @error('date_livraison')
             <div class="invalid-feedback">
@@ -148,7 +148,7 @@
                 .then(r => r.json())
                 .then(produits => {
                     produitSel.innerHTML =
-                        '<option value=""></option>';
+                        '';
 
                     produits.forEach(p => {
                         const opt = document.createElement('option');

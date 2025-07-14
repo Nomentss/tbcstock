@@ -38,16 +38,16 @@ class CommandeController extends Controller
         // gestion validator
         for ($i = 0; $i <= $maxCounter; $i++) {
             $rules['produit_' . $i] = 'required';
-            $messages['produit_' . $i . '.required'] = 'Le produit ' . ($i + 1) . ' est requis.';
+            $messages['produit_' . $i . '.required'] = 'Le produit est requis.';
     
             $rules['designation_' . $i] = 'required';
-            $messages['designation_' . $i . '.required'] = 'La désignation du produit ' . ($i + 1) . ' est requise.';
+            $messages['designation_' . $i . '.required'] = 'La désignation du produit est requise.';
     
             $rules['id_couleur_' . $i] = 'required';
-            $messages['id_couleur_' . $i . '.required'] = 'La couleur du produit ' . ($i + 1) . ' est requise.';
+            $messages['id_couleur_' . $i . '.required'] = 'La couleur du produit est requise.';
     
             $rules['qte_commande_' . $i] = 'required|numeric|min:1';
-            $messages['qte_commande_' . $i . '.required'] = 'La quantité du produit ' . ($i + 1) . ' est requise.';
+            $messages['qte_commande_' . $i . '.required'] = 'La quantité du produit est requise.';
             $messages['qte_commande_' . $i . '.numeric'] = 'La quantité doit être un nombre.';
             $messages['qte_commande_' . $i . '.min'] = 'La quantité doit être au moins 1.';
     
@@ -237,10 +237,15 @@ class CommandeController extends Controller
                 ->where('id_artisan', $id_artisan)
                 ->where('id_saison', $id_saison);
 
+        $somme = DB::table('v_somme_commande')
+                ->where('id_artisan', $id_artisan)
+                ->where('id_saison', $id_saison)
+                ->get();
+
         // $detail= $query->get();
-        $detail= $query->paginate(5);
+        $detail= $query->paginate(50);
         
-        return view('Consultation.CommandeDetail', compact('detail', 'type_commande'));
+        return view('Consultation.CommandeDetail', compact('detail', 'type_commande', 'somme'));
     }
 
     public function filtreCommande(Request $request){
@@ -270,6 +275,18 @@ class CommandeController extends Controller
 
         if ($type_commande_select) {
             $query->where('type_commande', $type_commande_select);
+
+            $somme = DB::table('v_somme_commande_type')
+            ->where('id_artisan', $id_artisan)
+            ->where('id_saison', $id_saison)
+            ->where('type_commande', $type_commande_select)
+            ->get();
+        }else{
+            $somme = DB::table('v_somme_commande')
+            ->where('id_artisan', $id_artisan)
+            ->where('id_saison', $id_saison)
+            ->get();
+
         }
 
         if ($recherche){
@@ -282,12 +299,15 @@ class CommandeController extends Controller
                   ->orWhere('couleur',              'ilike', $pattern);
             });
         }
+    
+        $detail= $query->paginate(50);
+
         
-        // $detail= $query->get();
-        $detail= $query->paginate(5);
+
         
         
-        return view('Consultation.CommandeDetail', compact('detail', 'type_commande'));
+        
+        return view('Consultation.CommandeDetail', compact('detail', 'type_commande', 'somme'));
 
     }
 }

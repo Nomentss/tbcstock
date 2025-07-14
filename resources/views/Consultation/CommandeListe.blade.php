@@ -30,11 +30,12 @@
             </div>
             </form>
             <div class="table-responsive">
-                <table class="table">
+                <table class="table table-hover">
                     <thead>
                         <tr>
                             <td scope="col">Artisans</td>
                             <td scope="col">Saison</td>
+                            <td scope="col" style="text-align: center">Option</td>
                         </tr>
                     </thead>
                     <tbody>
@@ -42,7 +43,7 @@
                         <tr>
                             <th>{{$commande-> artisan}}</th>
                             <th>{{$commande-> saison}}</th>
-                            <th><a href="{{ route('CommandeController.detailCommande', ['id_artisan' => $commande->id_artisan, 'id_saison' => $commande->id_saison]) }}">Voir detail</a></th>                        
+                            <th style="text-align: center"><a href="{{ route('CommandeController.detailCommande', ['id_artisan' => $commande->id_artisan, 'id_saison' => $commande->id_saison]) }}" class="btn btn-primary w-50">Voir detail</a></th>                        
                         </tr>
                         @endforeach                   
                     </tbody>
