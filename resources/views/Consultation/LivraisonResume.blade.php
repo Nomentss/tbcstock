@@ -1,6 +1,28 @@
 @extends('Layout.app')
 @section('contents')
 
+<style>
+
+    .table thead th {
+        background-color: #a2a2a2;
+        color: rgb(246, 246, 246);
+    }
+
+    th{
+        text-align: center;
+        font-family::Arial, Helvetica, sans-serif;
+        font-size: 90%;
+        white-space: nowrap;
+    }
+
+    td{
+        font-size: 90%;
+        font-family::Arial, Helvetica, sans-serif;
+        white-space: nowrap;
+        
+    }
+
+</style>
 <div class="col-sm-12 col-xl-12">
     <div class="col-12">
         <div class="bg-light rounded h-100 p-4">
@@ -23,30 +45,27 @@
                 <table class="table table-bordered">
                     <thead>
                         <tr>
-                            <th scope="col">#</th>
                             <th scope="col">DESIGNATION</th>
                             <th scope="col">DESIGNATION CATALOGUE</th>
-                            <th scope="col">NB Coloris</th>
+                            <th scope="col">NB COLORIS</th>
                             <th scope="col">PRIX UNITAIRE</th>
-                            <th scope="col">Commande</th>
-                            <th scope="col">Quantite livre</th>
-                            <th scope="col">Valeur livre</th>
-                            <th scope="col">Reste a livrer</th>
+                            <th scope="col">COMMANDE</th>
+                            <th scope="col">QUANTITE LIVRE</th>
+                            <th scope="col">VALEUR LIVRE</th>
+                            <th scope="col">RESTE A LIVRER</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @php $i = 1; @endphp
                         @foreach ($resume as $r)    
                             <tr>
-                                <td>{{$i++}}</td>
-                                <td>{{$r->designation_produit }}</td>
-                                <td>{{$r->designation_catalogue }}</td>
-                                <td>{{$r->nb_couleur }}</td>
-                                <td>{{number_format($r->prix_unitaire, 0, ',', ' ') }}</td>
-                                <td>{{number_format($r->commande, 0, ',', ' ') }}</td>
+                                <td style="text-align: center">{{$r->designation_produit }}</td>
+                                <td style="text-align: center">{{$r->designation_catalogue }}</td>
+                                <td style="text-align: center">{{$r->nb_couleur }}</td>
+                                <td style="color:rgb(0, 0, 0)">{{number_format($r->prix_unitaire, 0, ',', ' ') }} AR</td>
+                                <td style="text-align: center">{{number_format($r->commande, 0, ',', ' ') }}</td>
                                 <td style="text-align: center">{{$r->qte_livre }}</td>
-                                <td>{{number_format($r->valeur, 0, ',', ' ')}}</td>
-                                <td>{{$r->delta}}</td>
+                                <td style="color: black">{{number_format($r->valeur, 0, ',', ' ')}} AR</td>
+                                <td style="text-align: center">{{$r->delta}}</td>
                             </tr>
                         @endforeach                      
                     </tbody>
@@ -56,20 +75,20 @@
                     <thead>
                         @foreach ($total as $t) 
                         <tr>
-                            <th scope="col" style="text-align: center">TOTAL COMMANDE</th>
-                            <th scope="col" style="text-align: center">{{number_format($t->commande, 0, ',', ' ')}}</th>
+                            <th scope="col">TOTAL COMMANDE</th>
+                            <td scope="col" style="text-align: center">{{number_format($t->commande, 0, ',', ' ')}}</td>
                         </tr>
                         <tr>
-                            <th scope="col" style="text-align: center">TOTAL PRODUIT LIVRE</th>
-                            <th scope="col" style="text-align: center">{{number_format($t->qte_livre, 0, ',', ' ')}}</th>
+                            <th scope="col">TOTAL PRODUIT LIVRE</th>
+                            <td scope="col" style="text-align: center">{{number_format($t->qte_livre, 0, ',', ' ')}}</td>
                         </tr>
                         <tr>
-                            <th scope="col" style="text-align: center">TOTAL VALEUR PRODUIT LIVRE</th>
-                            <th scope="col"style="text-align: center">{{number_format($t->valeur, 0, ',', ' ')}}</th>
+                            <th scope="col">TOTAL VALEUR PRODUIT LIVRE</th>
+                            <td scope="col"style="text-align: center">{{number_format($t->valeur, 0, ',', ' ')}} AR</td>
                         </tr>
                         <tr>
-                            <th scope="col" style="text-align: center">TOTAL RESTE A LIVRER</th>
-                            <th scope="col"style="text-align: center">{{number_format($t->delta, 0, ',', ' ')}}</th>
+                            <th scope="col">TOTAL RESTE A LIVRER</th>
+                            <td scope="col"style="text-align: center">{{number_format($t->delta, 0, ',', ' ')}}</td>
                         </tr>
                         @endforeach
                     </thead>

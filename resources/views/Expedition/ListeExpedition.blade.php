@@ -1,6 +1,26 @@
 @extends('Layout.app')
 @section('contents')
+<style>
+    .table thead th {
+        background-color: #a2a2a2;
+        color: rgb(246, 246, 246);
+    }
 
+    th{
+        text-align: center;
+        font-family::Arial, Helvetica, sans-serif;
+        font-size: 90%;
+        white-space: nowrap;
+    }
+
+    td{
+        font-size: 90%;
+        font-family::Arial, Helvetica, sans-serif;
+        white-space: nowrap;
+        
+    }
+
+</style>
 <div class="col-sm-12 col-xl-12">
     <div class="col-12">
         <div class="bg-light rounded h-100 p-4">
@@ -62,11 +82,11 @@
                         <tr>
                             <td style="text-align: center">{{ $e->expedition}}</td>
                             <td>{{ $e->artisan}}</td>
-                            <td style="text-align: center">{{ $e->designation_produit}}</td>
-                            <td style="text-align: center">{{ $e->designation_catalogue}}</td>
+                            <td>{{ $e->designation_produit}}</td>
+                            <td>{{ $e->designation_catalogue}}</td>
                             <td>{{ $e->couleur}}</td>
-                            <td>{{ $e->qte}}</td>
-                            <td>{{ $e->date_expedition}}</td>                         
+                            <td style="text-align: center">{{ $e->qte}}</td>
+                            <td>{{ \Carbon\Carbon::parse($e->date_expedition)->translatedFormat('d F Y')}}</td>                      
                         </tr>
                         @endforeach
                     </tbody>

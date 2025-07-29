@@ -1,6 +1,26 @@
 @extends('Layout.app')
 @section('contents')
+<style>
+    .table thead th {
+        background-color: #a2a2a2;
+        color: rgb(246, 246, 246);
+    }
 
+    th{
+        text-align: center;
+        font-family::Arial, Helvetica, sans-serif;
+        font-size: 90%;
+        white-space: nowrap;
+    }
+
+    td{
+        font-size: 90%;
+        font-family::Arial, Helvetica, sans-serif;
+        white-space: nowrap;
+        
+    }
+
+</style>
 <div class="col-sm-12 col-xl-12">
     <div class="col-12">
         <div class="bg-light rounded h-100 p-4">
@@ -57,8 +77,8 @@
                                 <td>{{$s->artisan }}</td>
                                 <td>{{$s->designation_produit }}</td>
                                 <td>{{$s->designation_catalogue }}</td>
-                                <td>{{$s->nb_couleur }}</td>
-                                <td>{{number_format($s->qte_livre, 0, ',', ' ') }}</td>
+                                <td style="text-align: center">{{$s->nb_couleur }}</td>
+                                <td style="text-align: center">{{number_format($s->qte_livre, 0, ',', ' ') }}</td>
                             </tr>
                         @endforeach                      
                     </tbody>

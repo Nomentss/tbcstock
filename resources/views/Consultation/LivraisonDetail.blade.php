@@ -1,11 +1,33 @@
 @extends('Layout.app')
 @section('contents')
+<style>
+    .table thead th {
+        background-color: #a2a2a2;
+        color: rgb(246, 246, 246);
+    }
 
+    th{
+        text-align: center;
+        font-family::Arial, Helvetica, sans-serif;
+        font-size: 90%;
+        white-space: nowrap;
+    }
+
+    td{
+        font-size: 90%;
+        font-family::Arial, Helvetica, sans-serif;
+        white-space: nowrap;
+        
+    }
+
+</style>
 <div class="col-sm-12 col-xl-12">
-    <div class="col-12">
+
         <div class="bg-light rounded h-100 p-4">
             <h5 class="mb-4" style="text-align: center">Detail des livraison de l'artisan "{{ session('nom_artisan') }}"</h5>
             <form action="{{ route('LivraisonController.filtreLivraison') }}" method="GET">
+            <input type="hidden" value={{$id_artisan}} name="id_artisan">
+            <input type="hidden" value={{$id_saison}} name="id_saison">
             <div class="row mb-3">
                 <!-- Recherche texte -->
                 <div class="col-md-10 mb-3">
@@ -24,9 +46,9 @@
                             <th scope="col">DESIGNATION</th>
                             <th scope="col">DESIGNATION CATALOGUE</th>
                             <th scope="col">COULEUR</th>
-                            <th scope="col">PRIX UNITAIRE</th>
-                            <th scope="col">Quantite livre</th>
-                            <th scope="col">Valeur produit</th>
+                            <th scope="col">PRIX UNITAIRE </th>
+                            <th scope="col">QUANTITE LIVRE</th>
+                            <th scope="col">VALEUR</th>
                             <th scope="col">DATE LIVRAISON</th>
                         </tr>
                     </thead>
@@ -36,10 +58,12 @@
                                 <td>{{$details->designation_produit }}</td>
                                 <td>{{$details->designation_catalogue }}</td>
                                 <td>{{$details->couleur }}</td>
-                                <td>{{number_format($details->prix_unitaire, 0, ',', ' ') }}</td>
-                                <td>{{$details->qte_livre }}</td>
-                                <td>{{number_format($details->valeur, 0, ',', ' ')}}</td>
-                                <td>{{$details->date_livraison }}</td>
+                                <td style="color:rgb(0, 0, 0)">{{number_format($details->prix_unitaire, 0, ',', ' ') }} AR</td>
+                                <td style="text-align: center">{{$details->qte_livre }}</td>
+                                <td style="color:rgb(0, 0, 0)">{{number_format($details->valeur, 0, ',', ' ')}} AR</td>
+                                <td style="text-align: center">
+                                    {{ \Carbon\Carbon::parse($details->date_livraison)->translatedFormat('d F Y') }}
+                                </td>
                             </tr>
                         @endforeach                      
                     </tbody>
@@ -50,5 +74,5 @@
         {{ $detail->links() }}
         </div>
     </form>
-</div>
+
 @endsection

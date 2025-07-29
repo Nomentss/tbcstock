@@ -76,15 +76,16 @@ class CommandeController extends Controller
             //variable pour inserer dans commande , qui change selon verfication produit 
             $id_produit_commande;
 
-            dump("maxCounter=".$maxCounter, "produit =".$produit, "designation =".$designation, "id_couleur =".$id_couleur, "qte_commande =".$qte_commande, "prix_unitaire =".$prix_unitaire);
-            dump("BOUCLE =".$i);
+            // dump("maxCounter=".$maxCounter, "produit =".$produit, "designation =".$designation, "id_couleur =".$id_couleur, "qte_commande =".$qte_commande, "prix_unitaire =".$prix_unitaire);
+            // dump("BOUCLE =".$i);
 
             // verifier si le produit et id_artisan n'a pas deja ete rentree
             $verifier_produit = $this->verifierProduit($produit, $id_artisan);
 
             if($verifier_produit == -1){
 
-                dump("miditra produit anao");
+                // dump("miditra produit anao");
+
                 // miditra ny couleur avieo
                     $pdt = Produit::create([
                     'id_artisan' => $id_artisan,
@@ -112,11 +113,11 @@ class CommandeController extends Controller
                             'id_produit' => $id_produit,
                             'id_couleur' => $id_couleur,
                         ]);
-                        dump("mi-inserer coulera avec produit");
+                        // dump("mi-inserer coulera avec produit");
                 }
 
                 $id_produit_commande = $id_produit;
-                dump("miverifier coulera");  
+                // dump("miverifier coulera");  
             }
 
             // // verifier saison correspondante
@@ -146,6 +147,7 @@ class CommandeController extends Controller
             }
             // dump("vita lesy dada a!!");
         }
+        return back()->with('success', ' Commande sauvegardée !');
     }
 
     public function SaisonCorrespondante($date){
@@ -243,7 +245,7 @@ class CommandeController extends Controller
                 ->get();
 
         // $detail= $query->get();
-        $detail= $query->paginate(50);
+        $detail= $query->paginate(150);
         
         return view('Consultation.CommandeDetail', compact('detail', 'type_commande', 'somme'));
     }
@@ -299,13 +301,8 @@ class CommandeController extends Controller
                   ->orWhere('couleur',              'ilike', $pattern);
             });
         }
-    
-        $detail= $query->paginate(50);
 
-        
-
-        
-        
+        $detail= $query->paginate(300);
         
         return view('Consultation.CommandeDetail', compact('detail', 'type_commande', 'somme'));
 

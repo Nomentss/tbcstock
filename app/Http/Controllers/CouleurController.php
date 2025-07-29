@@ -22,7 +22,7 @@ class CouleurController extends Controller
             'nom' => $nom_couleur,
         ]);
 
-        return back()->with('success', 'couleur ajoutée');
+        return back()->with('success', 'Couleur ajoutée');
     }
 
     public function CouleurFormulaire(){
@@ -35,6 +35,6 @@ class CouleurController extends Controller
 
         $couleur->delete();
 
-        return back()->with('success', 'couleur supprimée');
+        return back()->with('success', 'Couleur supprimée');
     }
 }

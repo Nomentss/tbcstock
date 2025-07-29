@@ -7,6 +7,8 @@
     <!-- Icon Font Stylesheet -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
 
     <!-- Libraries Stylesheet -->
     <link href="{{ asset('dashboard_assets/lib/owlcarousel/assets/owl.carousel.min.css') }}" rel="stylesheet">
@@ -50,7 +52,7 @@
 
 
             <!-- 404 Start -->
-            <div class="container-fluid pt-4 px-4">
+            <div class="container-fluid pt-4 px-6 ">
                 <div class="row align-items-center justify-content-center mx-0">
                 {{-- <div class="row vh-100 bg-light rounded align-items-center justify-content-center mx-0"> --}}
 

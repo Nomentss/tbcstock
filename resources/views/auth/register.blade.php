@@ -12,11 +12,14 @@
         </svg>
         <div class="form_register">
           <label for="email">User</label>
-          <input id="email" name="username" style="border:solid 0.5px">
+          <input id="email" name="username" style="border:solid 0.5px" value="{{ old('username') }}">
             <label style="margin-top: 2px">
               @error('username')
                   <span style="color: red">{{ $message }}</span>
               @enderror
+              @if(session('fail'))
+                  <div style="color: red">{{ session('fail') }}</div>
+              @endif
             </label>
           <label for="password">Password</label>
           <input type="password" id="password" name="password" style="border:solid 1px">

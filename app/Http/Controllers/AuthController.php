@@ -47,14 +47,20 @@ class AuthController extends Controller
 
         ])-> validate();
 
-        User::create([
-            'username' => $request->username,
-            // 0 par defaut admin
-            'level' => 0,
-            'password' => Hash::make($request->password),
-        ]);
+        $verifier = User::where('username', $request->username)->first();
 
-        return redirect()->route('PageController.home');
+        if($verifier){
+            return back()->with('fail', 'le nom d\'utilisateur existe déja');
+        }else{
+            User::create([
+                'username' => $request->username,
+                // 0 par defaut admin
+                'level' => 0,
+                'password' => Hash::make($request->password),
+            ]);
+        }
+
+        return redirect()->route('PageController.home')->with('success', 'l\'utilisateur a été ajouté');
 
     }
     

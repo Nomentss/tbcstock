@@ -15,43 +15,45 @@
         </div>
         <div class="navbar-nav w-100">
             <a href="{{ route('PageController.home')}}" class="nav-item nav-link {{ request()->routeIs('PageController.home') ? 'active' : '' }}"><i class="fa fa-tachometer-alt me-2"></i>Accueil</a>
-            <div class="nav-item dropdown">
-                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Consulter</a>
-                <div class="dropdown-menu bg-transparent border-0">
-                    <a href="{{ route('LivraisonController.listeLivraison') }}" class="dropdown-item {{ request()->routeIs('LivraisonController.listeLivraison') ? 'active' : '' }}">Livraison</a>
-                    <a href="{{ route('CommandeController.listeCommande')}}" class="dropdown-item {{ request()->routeIs('CommandeController.listeCommande') ? 'active' : '' }}">Commande</a>
-                    <a href="{{ route('PayementController.payementListe') }}" class="dropdown-item {{ request()->routeIs('PayementController.payementListe') ? 'active' : '' }}">Payement artisan</a>
-                </div>
-            </div>
-            <a href="{{ route('StockController.choix')}}" class="nav-item nav-link"><i class="fa fa-laptop me-2"></i>Stock</a>
-
-            <div class="nav-item dropdown">
-                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-th me-2"></i>Expedition</a>
-                <div class="dropdown-menu bg-transparent border-0">
-                    <a href="{{ route('ExpeditionController.ExpeditionForm')}}" class="dropdown-item {{ request()->routeIs('ExpeditionController.ExpeditionForm') ? 'active' : '' }}">Formulaire expedition</a>
-                    <a href="{{ route('ExpeditionController.listeExpedition')}}" class="dropdown-item {{ request()->routeIs('ExpeditionController.listeExpedition') ? 'active' : '' }}">Liste expedition</a>
-                </div>
-            </div>
             @php
-                $formRoutes = [
-                    'PageController.saisonFormulaire',
-                    'PageController.livraisonFormulaire',
-                    'ArtisanController.ArtisanFormulaire',
-                    'PageController.couleurFormulaire',
-                    'PageController.payementFormulaire',
-                ];
+            $formRoutes = [
+                'PageController.saisonFormulaire',
+                'PageController.livraisonFormulaire',
+                'ArtisanController.ArtisanFormulaire',
+                'PageController.couleurFormulaire',
+                'PageController.payementFormulaire',
+            ];
             @endphp
             <div class="nav-item dropdown ">
                 <a href="#" class="nav-link dropdown-toggle {{ in_array(Route::currentRouteName(), $formRoutes) ? 'active' : '' }}" data-bs-toggle="dropdown"><i class="far fa-file-alt me-2"></i>Formulaire</a>
                 <div class="dropdown-menu bg-transparent border-0">
-                    <a href="{{ route('SaisonController.saisonFormulaire')}}" class="dropdown-item {{ request()->routeIs('SaisonController.saisonFormulaire') ? 'active' : '' }}">Saison</a>
-                    <a href="{{ route('LivraisonController.livraisonFormulaire')}}" class="dropdown-item {{ request()->routeIs('LivraisonController.livraisonFormulaire') ? 'active' : '' }}">Livraison</a>
-                    <a href="{{ route('CommandeController.CommandeFormulaire')}}" class="dropdown-item {{ request()->routeIs('CommandeController.CommandeFormulaire') ? 'active' : '' }}">Commande</a>
-                    <a href="{{ route('ArtisanController.ArtisanFormulaire')}}" class="dropdown-item {{ request()->routeIs('ArtisanController.ArtisanFormulaire') ? 'active' : '' }}">Artisan</a>
-                    <a href="{{ route('CouleurController.couleurFormulaire')}}" class="dropdown-item {{ request()->routeIs('CouleurController.couleurFormulaire') ? 'active' : '' }}">Coloration</a>
-                    <a href="{{ route('PayementController.payementFormulaire')}}" class="dropdown-item {{ request()->routeIs('PayementController.payementFormulaire') ? 'active' : '' }}">Payement artisan</a>
+                    <a href="{{ route('SaisonController.saisonFormulaire')}}" class="dropdown-item {{ request()->routeIs('SaisonController.saisonFormulaire') ? 'active' : '' }}"><i class="bi bi-dot me-4"></i>Saison</a>
+                    <a href="{{ route('LivraisonController.livraisonFormulaire')}}" class="dropdown-item {{ request()->routeIs('LivraisonController.livraisonFormulaire') ? 'active' : '' }}"><i class="bi bi-dot me-4"></i>Livraison</a>
+                    <a href="{{ route('CommandeController.CommandeFormulaire')}}" class="dropdown-item {{ request()->routeIs('CommandeController.CommandeFormulaire') ? 'active' : '' }}"><i class="bi bi-dot me-4"></i>Commande</a>
+                    <a href="{{ route('ArtisanController.ArtisanFormulaire')}}" class="dropdown-item {{ request()->routeIs('ArtisanController.ArtisanFormulaire') ? 'active' : '' }}"><i class="bi bi-dot me-4"></i>Artisan</a>
+                    <a href="{{ route('CouleurController.couleurFormulaire')}}" class="dropdown-item {{ request()->routeIs('CouleurController.couleurFormulaire') ? 'active' : '' }}"><i class="bi bi-dot me-4"></i>Coloration</a>
+                    <a href="{{ route('PayementController.payementFormulaire')}}" class="dropdown-item {{ request()->routeIs('PayementController.payementFormulaire') ? 'active' : '' }}"><i class="bi bi-dot me-4"></i>Payement artisan</a>
                 </div>
             </div>
+            <div class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="fa fa-laptop me-2"></i>Consulter</a>
+                <div class="dropdown-menu bg-transparent border-0">
+                    <a href="{{ route('LivraisonController.listeLivraison') }}" class="dropdown-item {{ request()->routeIs('LivraisonController.listeLivraison') ? 'active' : '' }}"><i class="bi bi-dot me-4"></i>Livraison</a>
+                    <a href="{{ route('CommandeController.listeCommande')}}" class="dropdown-item {{ request()->routeIs('CommandeController.listeCommande') ? 'active' : '' }}"><i class="bi bi-dot me-4"></i>Commande</a>
+                    <a href="{{ route('PayementController.payementListe') }}" class="dropdown-item {{ request()->routeIs('PayementController.payementListe') ? 'active' : '' }}"><i class="bi bi-dot me-4"></i>Payement artisan</a>
+                </div>
+            </div>
+            <a href="{{ route('StockController.choix')}}" class="nav-item nav-link"><i class="bi bi-grid-3x2 me-2"></i>Stock</a>
+
+
+            <div class="nav-item dropdown">
+                <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown"><i class="bi bi-box-seam me-2"></i>Expedition</a>
+                <div class="dropdown-menu bg-transparent border-0">
+                    <a href="{{ route('ExpeditionController.ExpeditionForm')}}" class="dropdown-item {{ request()->routeIs('ExpeditionController.ExpeditionForm') ? 'active' : '' }}"><i class="bi bi-dot me-4"></i>Formulaire expedition</a>
+                    <a href="{{ route('ExpeditionController.listeExpedition')}}" class="dropdown-item {{ request()->routeIs('ExpeditionController.listeExpedition') ? 'active' : '' }}"><i class="bi bi-dot me-4"></i>Liste expedition</a>
+                </div>
+            </div>
+           
             {{-- <a href="#" class="nav-item nav-link"><i class="fa fa-keyboard me-2"></i>Import</a> --}}
         </div>
     </nav>

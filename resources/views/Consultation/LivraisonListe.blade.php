@@ -1,6 +1,27 @@
 @extends('Layout.app')
 @section('contents')
+<style>
+    .table thead th {
+        background-color: #a2a2a2;
+        color: rgb(246, 246, 246);
+    }
 
+    th{
+        text-align: center;
+        font-family::Arial, Helvetica, sans-serif;
+        font-size: 90%;
+        white-space: nowrap;
+    }
+
+    td{
+        text-align: center;
+        font-size: 90%;
+        font-family::Arial, Helvetica, sans-serif;
+        white-space: nowrap;
+        
+    }
+
+</style>
 <div class="col-sm-12 col-xl-12">
     <div class="col-12">
         <div class="bg-light rounded h-100 p-4">
@@ -33,10 +54,10 @@
                 <table class="table table-hover">
                     <thead>
                         <tr>
-                            <td scope="col">Saison</td>
-                            <td scope="col">Artisan</td>
-                            <td scope="col" style="text-align: center">option</td>
-                            <td scope="col" style="text-align: center">option</td>
+                            <th scope="col">SAISON</th>
+                            <th scope="col">ARTISAN</th>
+                            <th scope="col" style="text-align: center">OPTION</th>
+                            <th scope="col" style="text-align: center">OPTION</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -44,8 +65,8 @@
                         <tr>
                             <th>{{$l->nom_saison }}</th>
                             <th>{{$l->artisan }}</th>
-                            <th style="text-align: center"><a href="{{ route('LivraisonController.detailLivraison', ['id_artisan' => $l->id_artisan, 'id_saison' => $l->id_saison]) }}"  class="btn btn-primary w-55">Voir detail par date</a></th>
-                            <th style="text-align: center"><a href="{{ route('LivraisonController.resumeLivraison', ['id_artisan' => $l->id_artisan, 'id_saison' => $l->id_saison]) }}"  class="btn btn-primary w-5">Voir resume quantites livrees</a></th>                        
+                            <th style="text-align: center"><a href="{{ route('LivraisonController.detailLivraison', ['id_artisan' => $l->id_artisan, 'id_saison' => $l->id_saison]) }}"  class="btn btn-primary w-55">Voir détail par date</a></th>
+                            <th style="text-align: center"><a href="{{ route('LivraisonController.resumeLivraison', ['id_artisan' => $l->id_artisan, 'id_saison' => $l->id_saison]) }}"  class="btn btn-primary w-5">Voir résumé quantités livrées</a></th>                        
                         </tr>
                         @endforeach                   
                     </tbody>

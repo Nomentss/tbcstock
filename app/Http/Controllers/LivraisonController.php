@@ -169,7 +169,7 @@ class LivraisonController extends Controller
                  ->orderBy('date_livraison', 'asc')
                  ->paginate(40);
 
-                return view('Consultation.LivraisonDetail', compact('detail','type_livraison'));
+                return view('Consultation.LivraisonDetail', compact('detail', 'type_livraison', 'id_artisan', 'id_saison'));
     }
 
     public function filtreLivraison(Request $request){
@@ -181,19 +181,16 @@ class LivraisonController extends Controller
         $nom_artisan = Artisan::find($id_artisan);
 
         if($id_artisan != null){
-            session(['nom_artisan' => $nom_artisan->nom]);
-            session(['id_artisan' => $id_artisan]);
-            session(['id_saison' => $id_saison]);            
+            session(['nom_artisan' => $nom_artisan->nom]);         
         }
 
-
         $query = DB::table('v_commande_livraison')
-                ->where('id_artisan', session('id_artisan'))
-                ->where('id_saison', session('id_saison'));
+                ->where('id_artisan', $id_artisan)
+                ->where('id_saison', $id_saison);
 
-                if ($request->filled('type_livraison_select')) {
-                    $query->where('id_type_livraison', $request->type_livraison_select);
-                }
+                // if ($request->filled('type_livraison_select')) {
+                //     $query->where('id_type_livraison', $request->type_livraison_select);
+                // }
                 
                 if ($request->filled('recherche')) {
                     $query->where(function ($q) use ($recherche) {
@@ -208,7 +205,7 @@ class LivraisonController extends Controller
 
                 $detail= $query->paginate(50);
 
-        return view('Consultation.LivraisonDetail', compact('detail','type_livraison'));
+        return view('Consultation.LivraisonDetail', compact('detail', 'id_artisan', 'id_saison'));
 
     }
 

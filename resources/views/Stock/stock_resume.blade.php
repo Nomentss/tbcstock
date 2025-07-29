@@ -1,6 +1,26 @@
 @extends('Layout.app')
 @section('contents')
+<style>
+    .table thead th {
+        background-color: #a2a2a2;
+        color: rgb(246, 246, 246);
+    }
 
+    th{
+        text-align: center;
+        font-family::Arial, Helvetica, sans-serif;
+        font-size: 90%;
+        white-space: nowrap;
+    }
+
+    td{
+        font-size: 90%;
+        font-family::Arial, Helvetica, sans-serif;
+        white-space: nowrap;
+        
+    }
+
+</style>
 <div class="col-sm-12 col-xl-12">
     <div class="col-12">
         <div class="bg-light rounded h-100 p-4">
@@ -34,16 +54,15 @@
             <table class="table table-bordered">
                 <thead>
                     <tr>
-                        <th scope="col">#</th>
+                
                         <th scope="col">DESIGNATION CATALOGUE</th>
                         <th scope="col" style="text-align: center">Totale Quantite</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @php $i = 1; @endphp
                     @foreach ($total as $t)    
                         <tr>
-                            <td>{{$i++}}</td>
+                    
                             <td>{{$t->designation_catalogue }}</td>
                             <td style="text-align: center">{{number_format($t->sum, 0, ',', ' ') }}</td>
                         </tr>

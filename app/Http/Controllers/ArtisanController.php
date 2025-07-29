@@ -38,7 +38,7 @@ class ArtisanController extends Controller
     public function deleteArtisan($id){
         $artisan = Artisan::find($id);
         $artisan->delete();
-        return back()->with('success', 'artisan supprimé');
+        return back()->with('success', 'Artisan supprimé');
     }
 
     public function updateArtisan(){

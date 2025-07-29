@@ -29,11 +29,14 @@ class PayementController extends Controller
 
 
         Validator::make($request->all(), [ 
-            'montant' => 'required',
+            'montant' => 'required|numeric|min:1',
             'date_payement' => 'required',
+            'detail_payement' => 'required',
         ],[
             'montant.required' => 'montant requis',
+            'montant.min' => 'le montant doit etre superieur à 0',
             'date_payement.required' => 'la date est requise',
+            'detail_payement.required' => 'detail requis',
         ])-> validate();
 
         $payement = Payement::create([
@@ -43,7 +46,7 @@ class PayementController extends Controller
             'montant' => $montant,
             'date_payement' => $date_payement,
         ]);
-        return back()->with('success', 'payement sauvegardé');
+        return back()->with('success', 'Payement sauvegardé');
     }
 
     public function payementListe(){

@@ -11,16 +11,19 @@
           </svg>
           <div class="form">
             <label for="email">User</label>
-            <input id="email" name="username" style="border:solid 0.5px">
+            <input id="email" name="username" style="border:solid 0.5px" value="{{ old('username') }}">
               <label style="margin-top: 2px">
                 @error('username')
                     <span style="color: red">{{ $message }}</span>
                 @enderror
               </label>
             <label for="password">Password</label>
-            <input type="password" id="password" name="password" style="border:solid 1px">
+            <input type="password" id="password" name="password" style="border:solid 1px" >
               <label style="margin-top: 2px">
                 @error('password')
+                    <span style="color: red">{{ $message }}</span>
+                @enderror
+                @error('connexion')
                     <span style="color: red">{{ $message }}</span>
                 @enderror
               </label>

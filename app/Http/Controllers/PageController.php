@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 class PageController extends Controller
 {
     public function home(){
-        return view('Layout.app');
+        return view('Home.home');
     }
 
     public function loginform(){
@@ -38,8 +38,8 @@ class PageController extends Controller
         return view('Formulaire.Artisan');
     }
 
-    public function ExpeditionForm(){
-        return view ('Expedition.FormulaireExpedition');
-    }  
+    public function importPage(){
+        return view('Import.test_import');
+    }
     
 }

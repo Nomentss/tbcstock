@@ -1,6 +1,26 @@
 @extends('Layout.app')
 @section('contents')
+<style>
+    .table thead th {
+        background-color: #a2a2a2;
+        color: rgb(246, 246, 246);
+    }
 
+    th{
+        text-align: center;
+        font-family::Arial, Helvetica, sans-serif;
+        font-size: 90%;
+        white-space: nowrap;
+    }
+
+    td{
+        font-size: 90%;
+        font-family::Arial, Helvetica, sans-serif;
+        white-space: nowrap;
+        
+    }
+
+</style>
 <div class="col-sm-12 col-xl-12">
     <div class="col-12">
         <div class="bg-light rounded h-100 p-4">
@@ -43,20 +63,20 @@
                             <th scope="col">DESIGNATION CATALOGUE</th>
                             <th scope="col">COULEUR</th>
                             <th scope="col">PRIX UNITAIRE</th>
-                            <th scope="col">quantite</th>
-                            <th scope="col">Total</th>
+                            <th scope="col">QUANTITE</th>
+                            <th scope="col">TOTAL</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($detail as $details)    
                             <tr>
-                                <td>{{$details->type_commande }}</td>
+                                <td >{{$details->type_commande }}</td>
                                 <td>{{$details->designation_produit }}</td>
                                 <td>{{$details->designation_catalogue }}</td>
                                 <td>{{$details->couleur }}</td>
-                                <td>{{number_format($details->prix_unitaire, 0, ',', ' ') }}</td>
+                                <td style="color: black">{{number_format($details->prix_unitaire, 0, ',', ' ') }} AR</td>
                                 <td>{{$details->qte }}</td>
-                                <td>{{ number_format($details->total, 0, ',', ' ') }}</td>
+                                <td style="color: black">{{ number_format($details->total, 0, ',', ' ') }} AR</td>
                             </tr>
                         @endforeach                      
                     </tbody>
@@ -66,11 +86,11 @@
                         @foreach ($somme as $s)
                         <tr>
                             <th scope="col" style="text-align: center">TOTAL COMMANDE</th>
-                            <th scope="col" style="text-align: center">{{ number_format($s->total_qte, 0, ',', ' ') }}</th>
+                            <td scope="col" style="text-align: center; color:black">{{ number_format($s->total_qte, 0, ',', ' ') }}</td>
                         </tr>
                         <tr>
                             <th scope="col" style="text-align: center">VALEUR TOTAL PRODUIT</th>
-                            <th scope="col" style="text-align: center">{{ number_format($s->total_prix, 0, ',', ' ') }} AR</th>
+                            <td scope="col" style="text-align: center; color:black">{{ number_format($s->total_prix, 0, ',', ' ') }} AR</td>
                         </tr>
                         @endforeach
                     </thead>

@@ -19,6 +19,16 @@
     </div>
     </form>
     <br>
+    @if(session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if(session('fail'))
+        <div class="alert alert-danger">
+            {{ session('fail') }}
+        </div>
+    @endif
     <div class="col-12">
         <div class="bg-light rounded h-100 p-4">
             <h6 class="mb-4">Couleur existant</h6>

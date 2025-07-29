@@ -11,6 +11,7 @@ use App\Http\Controllers\LivraisonController;
 use App\Http\Controllers\CommandeController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\ExpeditionController;
+use App\Http\Controllers\ImportController;
 
 
 /*
@@ -118,6 +119,11 @@ Route::middleware(['auth', 'role:0'])->group(function () {
 
 Route::controller(PageController::class)->group(function () {
     Route::get('/login', 'loginform')->name('PageController.loginform');
+    Route::get('/import', 'importPage')->name('PageController.importPage');
+});
+
+Route::controller(ImportController::class)->group(function () {
+    Route::post('/importAction', 'importAction')->name('ImportController.importAction');
 });
 
 // // controlleur pour login
