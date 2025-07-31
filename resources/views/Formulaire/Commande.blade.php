@@ -21,7 +21,21 @@
                 </div>
             @enderror
         </div>
+        
         <div class="form-floating mb-3">
+            <select class="form-select @error('saison') is-invalid @enderror" id="floatingSelect" aria-label="Floating label select example" name="saison">
+                @foreach ($saison as $s)
+                    <option value="{{ $s->id }}">{{ $s->nom_saison }}</option>
+                @endforeach
+            </select>
+            <label for="floatingSelect">Saison</label>
+            @error('saison')
+                <div class="invalid-feedback">
+                    {{ $message }}
+                </div>
+            @enderror
+        </div>
+        {{-- <div class="form-floating mb-3">
             <input type="date" class="form-control @error('date_commande') is-invalid @enderror" id="floatingInput" name="date_commande" value="{{ old('date_commande') }}">
             <label for="floatingInput">Date commande</label>
             @error('date_commande')
@@ -29,7 +43,7 @@
                     {{ $message }}
                 </div>
             @enderror
-        </div>
+        </div> --}}
         <div class="form-floating mb-3">
             <input type="text" class="form-control @error('type_commande') is-invalid @enderror" id="floatingInput" name="type_commande" value="{{ old('type_commande') }}">
             <label for="floatingInput">Type commande</label>

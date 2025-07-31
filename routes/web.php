@@ -72,6 +72,9 @@ Route::middleware(['auth', 'role:0'])->group(function () {
         Route::get('/livraisonForm', 'livraisonFormulaire')->name('LivraisonController.livraisonFormulaire');
         Route::post('/insert_livraison', 'insertLivraison')->name('LivraisonController.insert');
         Route::get('/get-produits/{id_artisan}', 'getProduits')->name('LivraisonController.getProduits');
+// changement
+        Route::get('/get-catalogues/{id_produit}', 'getCatalogues')->name('LivraisonController.getCatalogues');
+// fin changement
         Route::get('/get-couleurs/{id_produit}', 'getCouleurs')->name('LivraisonController.getCouleurs');
         Route::get('/listeLivraison', 'listeLivraison')->name('LivraisonController.listeLivraison');
         Route::get('/listeDetail/{id_artisan}/{id_saison}', 'detailLivraison')->name('LivraisonController.detailLivraison');
@@ -107,7 +110,6 @@ Route::middleware(['auth', 'role:0'])->group(function () {
         Route::get('/get-couleurs/{artisan_id}/{produit_id}', 'getCouleurs')->name('ExpeditionController.getCouleurs');
         Route::post('/insert_expedition', 'insertExpedition')->name('ExpeditionController.insertExpedition');
         Route::get('/liste_expedition', 'listeExpedition')->name('ExpeditionController.listeExpedition');
-        Route::get('/filtre_expedition', 'listeExpedition')->name('ExpeditionController.filtreExpedition');
     });
 
         // controlleur pour login

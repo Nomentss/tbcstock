@@ -84,6 +84,7 @@ class LivraisonController extends Controller
             ]);
 
             $stock = Stock::create([
+                'id_saison' => $id_saison,
                 'id_produit' => $id_produit,
                 'id_couleur' => $id_couleur,
                 'qte_livre' => $qte_livre,
@@ -127,6 +128,16 @@ class LivraisonController extends Controller
         return response()->json($produits);
     }
 
+    public function getCatalogues($id_produit){
+
+        $catalogues = Produit::select('designation_catalogue')
+                            ->where('id', $id_produit)
+                            ->first();
+
+        return response()->json($catalogues);
+
+    }
+
     
     public function getCouleurs($id_produit)
     {
@@ -152,7 +163,10 @@ class LivraisonController extends Controller
         $saison = Saison::all();
         $artisan = Artisan::all();
 
-        return view('Consultation.LivraisonListe', compact('livraison','saison','artisan'));
+        $selectionArtisan = $request->input('artisan_select');
+        $selectionSaison = $request->input('saison_select');
+
+        return view('Consultation.LivraisonListe', compact('livraison','saison','artisan','selectionArtisan','selectionSaison'));
         
     }
 

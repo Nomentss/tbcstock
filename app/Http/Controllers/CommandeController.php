@@ -21,14 +21,18 @@ class CommandeController extends Controller
         $artisan = Artisan::all();
 
         $couleur = Couleur::all();
-        return view('Formulaire.commande', compact('artisan','couleur'));  
+
+        $saison = Saison::all();
+
+        return view('Formulaire.commande', compact('artisan','couleur','saison'));  
     }
 
     public function insertCommande(Request $request){
         $id_artisan = $request->input('id_artisan');
         $date_commande = $request->input('date_commande');
+        $saison = $request->input('saison');
         $type_commande = $request->input('type_commande');
-        
+    
         $maxCounter = $request->input('maxCounter');
 
         $rules = [];
@@ -56,10 +60,12 @@ class CommandeController extends Controller
         }
         
         Validator::make($request->all(), [
-            'date_commande' => 'required',
+            // 'date_commande' => 'required',
+            'saison' => 'required',    
             'type_commande' => 'required',    
         ],[
-            'date_commande.required' => 'date requis',
+            // 'date_commande.required' => 'date requis',
+            'saison.required' => 'saison requis',
             'type_commande.required' => 'champ requis',
         ])-> validate();
 
@@ -121,15 +127,15 @@ class CommandeController extends Controller
             }
 
             // // verifier saison correspondante
-            $id_saison= $this->SaisonCorrespondante($date_commande);
+            // $id_saison= $this->SaisonCorrespondante($date_commande);
 
-            if($id_saison != null){
+            // if($id_saison != null){
 
                 $commande = Commande::create([
-                    'id_saison' => $id_saison,
+                    'id_saison' => $saison,
                     'id_artisan' => $id_artisan,
                     'type_commande' => $type_commande,
-                    'date_commande' => $date_commande,
+                    // 'date_commande' => $date_commande,
                 ]);
 
                 $commande_detail = Commande_detail::create([
@@ -141,28 +147,27 @@ class CommandeController extends Controller
                 
                 ]);
                 
-            }
-            else{
-                return back()->with('fail', 'Saison inexistante !');
-            }
-            // dump("vita lesy dada a!!");
+            // }
+            // else{
+            //     return back()->with('fail', 'La date ne correspond pas à une saison !');
+            // }
         }
         return back()->with('success', ' Commande sauvegardée !');
     }
 
-    public function SaisonCorrespondante($date){
-        $saison = Saison::where('debut', '<=', $date)
-                ->where('fin', '>=', $date)
-                ->first();
+    // public function SaisonCorrespondante($date){
+    //     $saison = Saison::where('debut', '<=', $date)
+    //             ->where('fin', '>=', $date)
+    //             ->first();
 
-        if($saison) {
+    //     if($saison) {
 
-            return $saison->id;
-        }
-        else{
-            return null;
-        }
-    }
+    //         return $saison->id;
+    //     }
+    //     else{
+    //         return null;
+    //     }
+    // }
 
     public function verifierProduit($produit, $id_artisan){
     // convertir la chaine en miniscule pour la comparaison 
@@ -219,7 +224,10 @@ class CommandeController extends Controller
         $saison = Saison::all();
         $artisan = Artisan::all();
 
-        return view('Consultation.CommandeListe', compact('commandes', 'saison', 'artisan'));
+        $selectionArtisan = $request->input('artisan_select');
+        $selectionSaison = $request->input('saison_select');
+
+        return view('Consultation.CommandeListe', compact('commandes', 'saison', 'artisan','selectionArtisan','selectionSaison'));
 
     }
 
@@ -246,8 +254,11 @@ class CommandeController extends Controller
 
         // $detail= $query->get();
         $detail= $query->paginate(150);
+
+        // pour eviter la valuer null de selectionType
+        $selectionType = "";
         
-        return view('Consultation.CommandeDetail', compact('detail', 'type_commande', 'somme'));
+        return view('Consultation.CommandeDetail', compact('detail', 'type_commande', 'somme','selectionType'));
     }
 
     public function filtreCommande(Request $request){
@@ -303,8 +314,9 @@ class CommandeController extends Controller
         }
 
         $detail= $query->paginate(300);
-        
-        return view('Consultation.CommandeDetail', compact('detail', 'type_commande', 'somme'));
+
+        $selectionType = $type_commande_select;
+        return view('Consultation.CommandeDetail', compact('detail', 'type_commande', 'somme', 'selectionType'));
 
     }
 }

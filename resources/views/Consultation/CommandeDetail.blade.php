@@ -42,7 +42,7 @@
                     <select id="typeCommandeSelect" class="form-select" name="type_commande_select">
                         <option value="">-- Filtrer par type de commande --</option>
                         @foreach ($type_commande as $tc)
-                            <option value="{{ $tc->type_commande }}">{{ $tc->type_commande }}</option>
+                            <option value="{{ $tc->type_commande }}"  {{ $selectionType == $tc->type_commande ? 'selected' : '' }} >{{ $tc->type_commande }}</option>
                         @endforeach
                     </select>
                 </div>

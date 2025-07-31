@@ -53,6 +53,7 @@
                             <th scope="col">QUANTITE LIVRE</th>
                             <th scope="col">VALEUR LIVRE</th>
                             <th scope="col">RESTE A LIVRER</th>
+                            <th scope="col">%GE LIVRE</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -66,6 +67,7 @@
                                 <td style="text-align: center">{{$r->qte_livre }}</td>
                                 <td style="color: black">{{number_format($r->valeur, 0, ',', ' ')}} AR</td>
                                 <td style="text-align: center">{{$r->delta}}</td>
+                                <td style="text-align: center">{{ number_format($r->pourcentage, 1) }} %</td>
                             </tr>
                         @endforeach                      
                     </tbody>
@@ -85,6 +87,10 @@
                         <tr>
                             <th scope="col">TOTAL VALEUR PRODUIT LIVRE</th>
                             <td scope="col"style="text-align: center">{{number_format($t->valeur, 0, ',', ' ')}} AR</td>
+                        </tr>
+                        <tr>
+                            <th scope="col">TOTAL POURCENTAGE LIVRE</th>
+                            <td scope="col"style="text-align: center">{{ number_format($t->pourcentage, 1) }} %</td>
                         </tr>
                         <tr>
                             <th scope="col">TOTAL RESTE A LIVRER</th>

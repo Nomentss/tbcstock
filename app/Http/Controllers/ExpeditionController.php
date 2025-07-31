@@ -196,7 +196,11 @@ class ExpeditionController extends Controller
 
         $couleur = Couleur::all();
 
-        return view('Expedition.ListeExpedition', compact('expedition', 'artisan', 'designationCatalogue', 'couleur'));
+        $selectionArtisan = $request->input('artisan_select');
+        $selectionCatalogue = $request->input('catalogue_select');
+        $selectionCouleur = $request->input('couleur_select');
+
+        return view('Expedition.ListeExpedition', compact('expedition', 'artisan', 'designationCatalogue', 'couleur', 'selectionArtisan', 'selectionCatalogue', 'selectionCouleur'));
 
     }
 

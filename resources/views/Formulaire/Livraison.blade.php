@@ -60,21 +60,27 @@
         <br>
         <h5 class="mb-4 text-center">Section produit</h5>
         <div class="row">
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <div class="form-floating mb-4">
                     <select class="form-select" aria-label="Floating label select example" id="produitSelect" name="id_produit_0">
                     </select>
                     <label for="floatingSelect">Produit</label>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
+                <div class="form-floating mb-4">
+                    <input type="text" class="form-control" id="catalogueSelect">
+                    <label for="floatingSelect">Designation catalogue</label>
+                </div>
+            </div>
+            <div class="col-md-6">
                 <div class="form-floating mb-3">
                     <select class="form-select" aria-label="Floating label select example" id="couleurSelect" name="couleur_0">
                     </select>
                     <label for="floatingSelect">Couleur</label>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <div class="form-floating mb-3">
                     <input type="number" class="form-control @error('qte_livre_0') is-invalid @enderror" id="floatingInput" name="qte_livre_0">
                     <label for="floatingInput">Quantité</label>
@@ -106,27 +112,34 @@
     let counter= 0;
     document.getElementById('add-section').addEventListener('click', function() {
         counter++;
-        console.log(counter);
+        // console.log(counter);
 
         var newSection = document.createElement('div');
         newSection.className = 'section';
         newSection.innerHTML = `
+        <hr>
         <div class="row" style="margin-top:15px">
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <div class="form-floating mb-3">
                     <select class="form-select produit-select" aria-label="Floating label select example" name="id_produit_${counter}">
                     </select>
                     <label for="floatingSelect">Produit</label>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
+                <div class="form-floating mb-3">
+                    <input type="text" class="form-control catalogue-select" disabled>
+                    <label for="floatingSelect">Designation catalogue</label>
+                </div>
+            </div>
+            <div class="col-md-6">
                 <div class="form-floating mb-3">
                     <select class="form-select couleur-select" aria-label="Floating label select example" name="couleur_${counter}">
                     </select>
                     <label for="floatingInput">Couleur</label>
                 </div>
             </div>
-            <div class="col-md-4">
+            <div class="col-md-6">
                 <div class="form-floating mb-3">
                     <input type="number" class="form-control qte-input" id="floatingInput" name="qte_livre_${counter}">
                     <label for="floatingInput">Quantité</label>
@@ -143,6 +156,8 @@
         const artisaId = document.getElementById('floatingSelect').value;
         const produitSel   = newSection.querySelector('.produit-select');
         const couleurSel   = newSection.querySelector('.couleur-select');
+        const catalogueSel   = newSection.querySelector('.catalogue-select');
+
         if (artisaId) {
             fetch(`/get-produits/${artisaId}`)
                 .then(r => r.json())
@@ -185,6 +200,14 @@
                         couleurSel.appendChild(opt);
                     });
                 });
+
+                fetch(`/get-catalogues/${produitId}`)
+                .then(r => r.json())
+                .then(catalogues => {
+                    catalogueSel.innerHTML ='';
+                    
+                    catalogueSel.value = catalogues.designation_catalogue;
+                });
         });        
 // ---------------------------------------------------
 
@@ -196,8 +219,6 @@
         document.getElementById('remove-section').addEventListener('click', function() {
                 const container = document.getElementById('content');
                 const sections = container.querySelectorAll('.section');
-
-                console.log(sections.length);
 
                 if (sections.length > 0) {
                     const lastSection = sections[sections.length - 1];
@@ -214,7 +235,7 @@
     document.getElementById('floatingSelect').addEventListener('change', function () {
         const artisanId = this.value;
     
-        console.log("miditra");
+        // console.log("miditra");
         if (artisanId) {
             fetch(`/get-produits/${artisanId}`)
                 .then(response => response.json())
@@ -248,7 +269,7 @@
     document.getElementById('produitSelect').addEventListener('change', function () {
         const produitId = this.value;
     
-        console.log("miditra2");
+        // console.log("miditra2");
         if (produitId) {
             fetch(`/get-couleurs/${produitId}`)
                 .then(response => response.json())
@@ -266,8 +287,21 @@
         }
     });
 
+    document.getElementById('produitSelect').addEventListener('change', function () {
+        const produitId = this.value;
     
+        // console.log("miditra5");
+        if (produitId) {
+            fetch(`/get-catalogues/${produitId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const catalogueSelect = document.getElementById('catalogueSelect');
+                    catalogueSelect.innerHTML = ''; // reset
     
-    
+                    catalogueSelect.value = data.designation_catalogue;
+                });
+        }
+    });
+
 </script>
 @endsection

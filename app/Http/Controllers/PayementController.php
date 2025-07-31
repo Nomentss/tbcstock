@@ -49,9 +49,28 @@ class PayementController extends Controller
         return back()->with('success', 'Payement sauvegardé');
     }
 
-    public function payementListe(){
-        $payement = DB::table('v_liste_payement')->get();
-        return view('Consultation.Payement_artisan', compact('payement'));
+    public function payementListe(Request $request){
+        $artisan_select= $request->input('artisan_select');
+        $saison_select= $request->input('saison_select');
+
+        $query = DB::table('v_liste_payement');
+
+        if($saison_select){
+            $query->where('id_saison', $saison_select);
+        }
+
+        if($artisan_select){
+            $query->where('id_artisan', $artisan_select);
+        }
+
+        $payement = $query->get();
+        $saison = Saison::all();
+        $artisan = Artisan::all();
+
+        $selectionSaison = $saison_select; 
+        $selectionArtisan = $artisan_select; 
+
+        return view('Consultation.Payement_artisan', compact('payement', 'saison', 'artisan', 'selectionSaison', 'selectionArtisan'));
     }    
 
     public function detailPayement($id_artisan, $id_saison){

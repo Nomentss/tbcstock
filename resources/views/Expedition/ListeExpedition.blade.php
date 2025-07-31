@@ -25,7 +25,7 @@
     <div class="col-12">
         <div class="bg-light rounded h-100 p-4">
             <h6 class="mb-4" style="text-align: center">Liste des expeditions </h6>
-            <form action="{{ route('ExpeditionController.filtreExpedition') }}" method="GET">
+            <form action="{{ route('ExpeditionController.listeExpedition') }}" method="GET">
                 <div class="row mb-3">
                     <!-- Recherche texte -->
                     <div class="col-md-10 mb-3">
@@ -39,7 +39,7 @@
                         <select id="typeCommandeSelect" class="form-select" name="artisan_select">
                             <option value="">-- Filtrer par artisan --</option>
                             @foreach ($artisan as $a)
-                                <option value="{{ $a->nom }}"> {{ $a->nom }} </option>
+                                <option value="{{ $a->nom }}" {{ $selectionArtisan == $a->nom ? 'selected' : '' }}> {{ $a->nom }} </option>
                             @endforeach
                         </select>
                     </div>
@@ -47,7 +47,7 @@
                         <select id="typeCommandeSelect" class="form-select" name="catalogue_select">
                             <option value="">-- Filtrer par designation catalogue David --</option>
                             @foreach ($designationCatalogue as $p)
-                            <option value="{{$p->designation_catalogue}}">{{$p->designation_catalogue}}</option>
+                            <option value="{{$p->designation_catalogue}}" {{ $selectionCatalogue == $p->designation_catalogue ? 'selected' : '' }}>{{$p->designation_catalogue}}</option>
                         @endforeach
                         </select>
                     </div>
@@ -55,7 +55,7 @@
                         <select id="typeCommandeSelect" class="form-select" name="couleur_select">
                             <option value="">-- Filtrer par couleur --</option>
                             @foreach ($couleur as $c)
-                            <option value="{{ $c->nom}}">{{$c->nom}}</option>
+                            <option value="{{ $c->nom}}" {{ $selectionCouleur == $c->nom ? 'selected' : '' }}>{{$c->nom}}</option>
                         @endforeach
                         </select>
                     </div>

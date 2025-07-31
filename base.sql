@@ -1,23 +1,28 @@
+create database tbc_stock;
 
 create table saison(
     id serial primary key,
     debut date,
     fin date,
-    nom_saison varchar(25)
-
+    nom_saison varchar(25),
+    created_at timestamp,
+    updated_at timestamp
 );
 
 create table artisan(
     id serial primary key,
     nom varchar(150),
     telephone varchar(25),
-    mail varchar(30)
-
+    mail varchar(30),
+    created_at timestamp,
+    updated_at timestamp
 );
 
 create table couleur(
     id serial primary key,
-    nom varchar(50)
+    nom varchar(50),
+    created_at timestamp,
+    updated_at timestamp
 );
 
 create table produit(
@@ -25,15 +30,19 @@ create table produit(
     id_artisan int,
     designation_produit varchar(55),
     designation_catalogue varchar(50),
-    FOREIGN KEY (id_artisan) REFERENCES artisan(id)
+    created_at timestamp,
+    updated_at timestamp,
+    FOREIGN KEY (id_artisan) REFERENCES artisan(id) ON DELETE CASCADE
 );
 
 create table produit_couleur(
     id serial primary key,
     id_produit int,
     id_couleur int,
-    FOREIGN KEY (id_produit) REFERENCES produit(id),
-    FOREIGN KEY (id_couleur) REFERENCES couleur(id)
+    created_at timestamp,
+    updated_at timestamp,
+    FOREIGN KEY (id_produit) REFERENCES produit(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_couleur) REFERENCES couleur(id) ON DELETE CASCADE
 );
 
 -- correction de la table commande
@@ -43,6 +52,8 @@ create table commande(
     id_artisan int,
     type_commande varchar(50),
     date_commande date,
+    created_at timestamp,
+    updated_at timestamp,
     FOREIGN KEY (id_artisan) REFERENCES artisan(id) ON DELETE CASCADE,
     FOREIGN KEY (id_saison) REFERENCES saison(id) ON DELETE CASCADE
 );
@@ -54,6 +65,8 @@ create table commande_detail(
     id_couleur int,
     qte double precision,
     prix_unitaire double precision,
+    created_at timestamp,
+    updated_at timestamp,
     FOREIGN KEY (id_commande) REFERENCES commande(id) ON DELETE CASCADE,
     FOREIGN KEY (id_produit) REFERENCES produit(id) ON DELETE CASCADE,
     FOREIGN KEY (id_couleur) REFERENCES couleur(id) ON DELETE CASCADE
@@ -62,7 +75,9 @@ create table commande_detail(
 
 create table type_livraison(
     id serial primary key,
-    nom varchar(10)
+    nom varchar(10),
+    created_at timestamp,
+    updated_at timestamp
 );
 
 -- correction de la table livraison
@@ -107,6 +122,7 @@ create table payement_artisan(
 
 create table stock(
     id serial primary key,
+    id_saison
     id_produit int,
     id_couleur int,
     qte_livre double precision,
@@ -159,6 +175,17 @@ join couleur co on
 co.id= cd.id_couleur
 group by c.type_commande, c.date_commande, p.designation_produit, p.designation_catalogue, co.nom, cd.prix_unitaire, c.id_saison, c.id_artisan, cd.qte;
 
+-- test
+select c.type_commande, c.date_commande, p.id, p.designation_produit, p.designation_catalogue, co.nom as couleur, cd.prix_unitaire, SUM(cd.qte) as qte, c.id_saison, c.id_artisan, cd.prix_unitaire * SUM(cd.qte) as total from commande_detail cd
+join commande c on 
+c.id= cd.id_commande
+join produit p on
+p.id= cd.id_produit
+join couleur co on
+co.id= cd.id_couleur
+group by c.type_commande, c.date_commande, p.id, p.designation_produit, p.designation_catalogue, co.nom, cd.prix_unitaire, c.id_saison, c.id_artisan, cd.qte;
+-- fin test
+
 -- pour afficher liste de couleur par produit
 create view v_produit_couleur as
 select p.id_produit, p.id_couleur, c.nom from produit_couleur p
@@ -184,22 +211,31 @@ c.id = ld.id_couleur
 join livraison li on
 ld.id_livraison = li.id;
 
+-- vue qui a pour role dans V_commande_livraison
+create view v_livraison as 
+select l.id_saison, ld.id_produit, ld.id_couleur, ld.id_livraison, l.id_artisan, ld.qte_livre, ld.date_livraison from livraison_detail ld
+join livraison l 
+on ld.id_livraison = l.id;
+
+-- vue qui a pour role dans V_commande_livraison
+create view v_commande as
+select c.id_saison, cd.id_produit, cd.id_couleur, cd.prix_unitaire, cd.qte from commande_detail cd
+join commande c
+on c.id = cd.id_commande;
 
 -- combinaison pour affichage de commande et livraison 
 create or replace view v_commande_livraison as
-select ld.id_livraison, li.id_artisan, li.id_saison, ld.id_produit, p.designation_produit,p.designation_catalogue, ld.id_couleur, c.nom as couleur, cd.prix_unitaire as prix_unitaire, cd.qte as commande, sum(ld.qte_livre) as qte_livre, sum(ld.qte_livre)*cd.prix_unitaire as valeur, ld.date_livraison from livraison_detail ld 
+select ld.id_livraison, ld.id_artisan, ld.id_saison, ld.id_produit, p.designation_produit,p.designation_catalogue, ld.id_couleur, c.nom as couleur, cd.prix_unitaire as prix_unitaire, cd.qte as commande, sum(ld.qte_livre) as qte_livre, sum(ld.qte_livre)*cd.prix_unitaire as valeur, ld.date_livraison from v_livraison ld 
 join produit p on
 p.id = ld.id_produit
 join couleur c on 
 c.id = ld.id_couleur
-join livraison li on
-ld.id_livraison = li.id
-join commande_detail cd on
-cd.id_produit = ld.id_produit AND cd.id_couleur = ld.id_couleur
+join v_commande cd on
+cd.id_produit = ld.id_produit AND cd.id_couleur = ld.id_couleur AND cd.id_saison = ld.id_saison
 GROUP BY 
     ld.id_livraison,
-    li.id_artisan,
-    li.id_saison,
+    ld.id_artisan,
+    ld.id_saison,
     ld.id_produit,
     p.designation_produit,
     p.designation_catalogue,
@@ -209,21 +245,21 @@ GROUP BY
     cd.qte,
     ld.date_livraison;
 
+
 -- resume livraison
 create or replace view v_resume_livraison as
-select id_livraison,id_artisan, id_saison, id_produit,designation_produit,designation_catalogue,COUNT(DISTINCT couleur) as nb_couleur, prix_unitaire, commande, sum(qte_livre)as qte_livre, sum(qte_livre)*prix_unitaire as valeur, commande-sum(qte_livre)as delta from v_commande_livraison
+select id_livraison,id_artisan, id_saison, id_produit,designation_produit,designation_catalogue,COUNT(DISTINCT couleur) as nb_couleur, prix_unitaire, sum(commande) as commande, sum(qte_livre)as qte_livre, sum(qte_livre)*prix_unitaire as valeur, sum(commande)-sum(qte_livre)as delta, (sum(qte_livre)*100)/sum(commande) as pourcentage from v_commande_livraison
 group by id_livraison,
         id_artisan,
         id_saison,
         id_produit,
         designation_produit,
         designation_catalogue,
-        prix_unitaire,
-        commande;
+        prix_unitaire;
 
 -- calcul total dans livraison
 create view v_total_resume as
-select id_artisan, id_saison, sum(qte_livre) as qte_livre, sum(commande)as commande, sum(valeur) as valeur, sum(delta) as delta from v_resume_livraison
+select id_artisan, id_saison, sum(qte_livre) as qte_livre, sum(commande)as commande, sum(valeur) as valeur, sum(delta) as delta, (sum(qte_livre)*100)/sum(commande) as pourcentage from v_resume_livraison
 group by id_artisan, id_saison;
 
 -- liste payement
@@ -236,9 +272,10 @@ p.id_artisan = a.id;
 
 -- liste payement avec resume montant total
 create view v_liste_payement as
-select vp.id_saison, vp.nom_saison, vp.id_artisan, vp.artisan, sum(vp.montant)as montant, vt.valeur, vt.valeur - sum(vp.montant) as reste from v_payement vp
-join v_total_resume vt on
+select vp.id_saison, vp.nom_saison, vp.id_artisan, vp.artisan, sum(vp.montant)as montant, COALESCE(vt.valeur, 0) as valeur, COALESCE(vt.valeur, 0) - sum(vp.montant) as reste from v_payement vp
+left join v_total_resume vt on
 vp.id_artisan = vt.id_artisan
+and vp.id_saison = vt.id_saison
 group by vp.id_saison, vp.nom_saison, vp.id_artisan, vp.artisan, vt.valeur;
 
 -- vue pour stock globale
@@ -268,7 +305,7 @@ GROUP BY designation_catalogue;
 
 -- vue pour expedition
 create view v_expedition as
-select ed.id_expedition, e.expedition, ed.id_artisan, a.nom as artisan, ed.id_produit, p.designation_produit, p.designation_catalogue, ed.id_couleur, c.nom as couleur, ed.qte, ed.date_expedition from expedition_detail ed
+select e.expedition, ed.id_artisan, a.nom as artisan, ed.id_produit, p.designation_produit, p.designation_catalogue, ed.id_couleur, c.nom as couleur, sum(ed.qte) as qte, ed.date_expedition from expedition_detail ed
 join expedition e on
 e.id = ed.id_expedition
 join produit p on
@@ -276,7 +313,9 @@ p.id = ed.id_produit
 join couleur c on
 c.id = ed.id_couleur
 join artisan a on
-a.id = ed.id_artisan;
+a.id = ed.id_artisan
+group by e.expedition, ed.id_artisan, a.nom, ed.id_produit, p.designation_produit, p.designation_catalogue, ed.id_couleur, c.nom, ed.date_expedition;
+
 
 -- vue pour la somme dans commande par artisan
 create view v_somme_commande as
@@ -287,5 +326,3 @@ group by id_artisan, id_saison;
 create view v_somme_commande_type as
 select type_commande, id_artisan, id_saison, sum(qte) as total_qte, sum(total) as total_prix from v_detail_commande
 group by id_artisan, id_saison, type_commande;
-
--- vue pour la somme dans commande globale

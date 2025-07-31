@@ -33,7 +33,7 @@
                     <select id="typeCommandeSelect" class="form-select" name="saison_select">
                         <option value="">-- Filtrer par saison --</option>
                         @foreach ($saison as $saisons)
-                            <option value={{$saisons->id}}>{{$saisons->nom_saison}} </option>
+                            <option value={{$saisons->id}} {{ $selectionSaison == $saisons->id ? 'selected' : '' }}>{{$saisons->nom_saison}} </option>
                         @endforeach
                     </select>
                 </div>
@@ -41,7 +41,7 @@
                     <select id="typeCommandeSelect" class="form-select" name="artisan_select">
                         <option value="">-- Filtrer par artisan --</option>
                         @foreach ($artisan as $artisans)
-                            <option value={{$artisans->id}}>{{$artisans->nom}} </option>
+                            <option value={{$artisans->id}} {{ $selectionArtisan == $artisans->id ? 'selected' : '' }}>{{$artisans->nom}} </option>
                         @endforeach>
                     </select>
                 </div>
