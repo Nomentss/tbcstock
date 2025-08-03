@@ -105,11 +105,14 @@ Route::middleware(['auth', 'role:0'])->group(function () {
     
     Route::controller(ExpeditionController::class)->group(function () {
         Route::get('/formulaire_expedition', 'ExpeditionForm')->name('ExpeditionController.ExpeditionForm');
-        Route::get('/get-artisans/{catalogue}', 'getArtisans')->name('ExpeditionController.getArtisans');
-        Route::get('/get-produits/{artisan_id}/{catalogue}', 'getProduits')->name('ExpeditionController.getProduits');
-        Route::get('/get-couleurs/{artisan_id}/{produit_id}', 'getCouleurs')->name('ExpeditionController.getCouleurs');
+        Route::get('/get-artisans/{catalogue}/{saison_id}', 'getArtisans')->name('ExpeditionController.getArtisans');
+        Route::get('/get-produits/{artisan_id}/{catalogue}/{saison_id}', 'getProduits')->name('ExpeditionController.getProduits');
+        Route::get('/get-couleurs/{artisan_id}/{produit_id}/{saison_id}', 'getCouleurs')->name('ExpeditionController.getCouleurs');
+        Route::get('/get-catalogue/{saison_id}', 'getCatalogue')->name('ExpeditionController.getCatalogue');
         Route::post('/insert_expedition', 'insertExpedition')->name('ExpeditionController.insertExpedition');
         Route::get('/liste_expedition', 'listeExpedition')->name('ExpeditionController.listeExpedition');
+        Route::get('/expedition/pdf', 'exportPdf')->name('ExpeditionController.export');
+
     });
 
         // controlleur pour login

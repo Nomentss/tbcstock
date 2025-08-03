@@ -12,6 +12,7 @@ class Expedition_detail extends Model
     protected $table = ('expedition_detail');
 
     protected $fillable = [
+        'id_saison',
         'id_expedition',
         'id_artisan',
         'date_expedition',

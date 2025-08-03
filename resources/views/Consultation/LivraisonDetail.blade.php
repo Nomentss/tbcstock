@@ -36,6 +36,12 @@
                 <div class="col-md-2 mb-2">
                     <button type="submit" class="btn btn-primary">Rechercher</button>
                 </div>
+                <div class="col-md-3 mb-2">
+                    <input type="date" class="form-control" name="date_filtre" value={{$date_value}}>
+                </div>
+                <div class="col-md-2 mb-2">
+                    <button type="submit" class="btn btn-primary"> Filtrer </button>
+                </div>
             </div>
             </form>
 

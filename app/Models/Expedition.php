@@ -12,6 +12,6 @@ class Expedition extends Model
     protected $table = ('expedition');
 
     protected $fillable = [
-        'expedition',
+        'id_conteneur',
     ];
 }

@@ -54,6 +54,15 @@
             @enderror
         </div>
         <div class="form-floating mb-3">
+            <textarea type="text" class="form-control @error('cheque') is-invalid @enderror" id="floatingInput" name="numero_piece" value="{{ old('numero_piece') }}"></textarea>
+            <label for="floatingInput">Numero/piece de cheque</label>
+            @error('numero_piece')
+                <div class="invalid-feedback">
+                    {{ $message }}
+                </div>
+            @enderror
+        </div>
+        <div class="form-floating mb-3">
             <input type="number" class="form-control @error('montant') is-invalid @enderror" id="floatingInput" name="montant" value="{{ old('montant') }}">
             <label for="floatingInput">Montant</label>
             @error('montant')

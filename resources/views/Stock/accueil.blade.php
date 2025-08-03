@@ -15,7 +15,7 @@
                     </thead>
                     <tbody>
                         <tr>
-                            <th>Stock globale</th>
+                            <th>Stock globale et valeur totale</th>
                             <th style="text-align: center"><a href="{{ route('StockController.stockGlobale') }}" class="btn btn-primary w-75"> Voir </a></th>                       
                         </tr>
                         <tr>

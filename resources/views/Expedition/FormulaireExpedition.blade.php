@@ -10,6 +10,19 @@
 
         <div class="bg-light rounded h-100 p-4" id="content">
             <div class="form-floating mb-3">
+                <select class="form-select @error('id_saison') is-invalid @enderror" aria-label="Floating label select example" id="saisonSelect" name="id_saison">
+                    @foreach ($saison as $s)
+                        <option value={{$s->id}}>{{ $s->nom_saison }}</option>
+                    @endforeach
+                </select>
+                <label for="floatingSelect">Choix de saison</label>
+                @error('id_saison')
+                <div class="invalid-feedback">
+                    {{ $message }}
+                </div>
+                @enderror
+            </div>
+            <div class="form-floating mb-3">
                 <input type="date" class="form-control  @error('date_expedition') is-invalid @enderror" id="floatingInput" placeholder="name@example.com" name="date_expedition" value="{{ old('date_expedition') }}">
                 <label for="floatingInput">Date expedition</label>
                 @error('date_expedition')
@@ -19,12 +32,16 @@
                 @enderror
             </div>
 
-            @error('nom_saison')
+            {{-- @error('nom_saison')
             <span style="color: red">{{ $message }}</span>
-            @enderror
+            @enderror --}}
             <div class="form-floating mb-3">
-                <input type="text" class="form-control @error('expedition') is-invalid @enderror" id="floatingInput" placeholder="nom_saison" name="expedition" value="{{ old('expedition') }}">
-                <label for="floatingInput">Expedie dans</label>
+                <select class="form-select @error('expedition') is-invalid @enderror" aria-label="Floating label select example" id="saisonSelect" name="expedition">
+                    @foreach ($conteneur as $e)
+                        <option value={{$e->id}}>{{ $e->nom }}</option>
+                    @endforeach
+                </select>
+                <label for="floatingSelect">Expedié dans</label>
                 @error('expedition')
                 <div class="invalid-feedback">
                     {{ $message }}
@@ -34,9 +51,9 @@
 
             <div class="form-floating mb-3">
                 <select class="form-select" aria-label="Floating label select example" id="catalogueSelect" name="catalogue">
-                    @foreach ($catalogue as $c)
+                    {{-- @foreach ($catalogue as $c)
                         <option value="{{ $c->designation_catalogue }}">{{ $c->designation_catalogue }}</option>
-                    @endforeach
+                    @endforeach --}}
                 </select>
                 <label for="floatingSelect">Designation catalogue David</label>
             </div>
@@ -123,6 +140,7 @@ let counter= 0;
         var newSection = document.createElement('div');
         newSection.className = 'section';
         newSection.innerHTML = `
+        <hr>
         <div class="row" style="margin-top:15px">
                 <div class="col-md-12">
                     <div class="form-floating mb-4">
@@ -164,12 +182,13 @@ let counter= 0;
 
         // ajouter dans les input js
         const catalogue = document.getElementById('catalogueSelect').value;
+        const id_saison = document.getElementById('saisonSelect').value; // valeur dans saison
         const artisanSel  = newSection.querySelector('.artisan-select');
         const produitSel  = newSection.querySelector('.produit-select');
         const couleurSel  = newSection.querySelector('.couleur-select');
 
-        if (catalogue) {
-            fetch(`/get-artisans/${catalogue}`)
+        if (catalogue && id_saison) {
+            fetch(`/get-artisans/${catalogue}/${id_saison}`)
                 .then(r => r.json())
                 .then(artisans => {
                     artisanSel.innerHTML =
@@ -191,13 +210,10 @@ let counter= 0;
         }
         artisanSel.addEventListener('change', function () {
             const artisaId = artisanSel.value;
-            // if (!artisaId) {
-            //     couleurSel.innerHTML =
-            //         '<option value="">-- Choisir une couleur --</option>';
-            //     return;
-            // }
+            const id_saison = document.getElementById('saisonSelect').value; // valeur dans saison
 
-            fetch(`/get-produits/${artisaId}/${catalogue}`)
+
+            fetch(`/get-produits/${artisaId}/${catalogue}/${id_saison}`)
                 .then(r => r.json())
                 .then(produit => {
                     produitSel.innerHTML =
@@ -220,16 +236,10 @@ let counter= 0;
         produitSel.addEventListener('change', function () {
             const produitId = this.value;
             const artisaId = artisanSel.value;
+            const id_saison = document.getElementById('saisonSelect').value; // valeur dans saison
             console.log(artisaId);
 
-            // if (!artisaId) {
-                
-            //     couleurSel.innerHTML =
-            //         '<option value="">-- Choisir une couleur --</option>';
-            //     return;
-            // }
-
-            fetch(`/get-couleurs/${artisaId}/${produitId}`)
+            fetch(`/get-couleurs/${artisaId}/${produitId}/${id_saison}`)
                 .then(r => r.json())
                 .then(couleur => {
                     couleurSel.innerHTML =
@@ -266,13 +276,50 @@ let counter= 0;
                 }
         });
 
+    // pour l'input saison dans formulaire non js
+    document.getElementById('saisonSelect').addEventListener('change', function () {
+        console.log("miditra32");
+        const id_saison = this.value;
+
+        if (id_saison) {
+
+            fetch(`/get-catalogue/${id_saison}`)
+                .then(response => response.json())
+                .then(data => {
+                    const catalogueSelect = document.getElementById('catalogueSelect');
+                    catalogueSelect.innerHTML = ''; // reset
+    
+                    data.forEach(catalogue => {
+                        const option = document.createElement('option');
+                        option.value = catalogue.designation_catalogue;
+                        option.textContent = catalogue.designation_catalogue;
+                        catalogueSelect.appendChild(option);
+                    });
+
+                    if (data.length > 0) {
+                        catalogueSelect.value = data[0].designation_catalogue;
+                        catalogueSelect.dispatchEvent(new Event('change'));
+                    }
+                });
+        }
+    });
+
+    //  Déclenche automatiquement le changement dès le chargement de la page
+    window.addEventListener('DOMContentLoaded', function () {
+        const selectSaison = document.getElementById('saisonSelect');
+        if (selectSaison.value) {
+            selectSaison.dispatchEvent(new Event('change'));
+        }    
+    });
+
     // pour l'input catalogue dans formulaire non js
     document.getElementById('catalogueSelect').addEventListener('change', function () {
+        const id_saison = document.getElementById('saisonSelect').value; // valeur dans saison
         const catalogue = this.value;
     
         console.log("miditra");
-        if (catalogue) {
-            fetch(`/get-artisans/${catalogue}`)
+        if (catalogue && id_saison) {
+            fetch(`/get-artisans/${catalogue}/${id_saison}`)
                 .then(response => response.json())
                 .then(data => {
                     const artisanSelect = document.getElementById('artisanSelect');
@@ -293,23 +340,16 @@ let counter= 0;
         }
     });
 
-    //  Déclenche automatiquement le changement dès le chargement de la page
-    window.addEventListener('DOMContentLoaded', function () {
-        const selectCatalogue = document.getElementById('catalogueSelect');
-        if (selectCatalogue.value) {
-            selectCatalogue.dispatchEvent(new Event('change'));
-        }    
-    });
-     
 
     // pour l'input produit non js
     document.getElementById('artisanSelect').addEventListener('change', function () {
         const artisaId = this.value;
         const catalogue = document.getElementById('catalogueSelect').value; // valeur dans catalogue
+        const id_saison = document.getElementById('saisonSelect').value; // valeur dans saison
     
-        console.log("miditra2");
-        if (artisaId && catalogue) {
-            fetch(`/get-produits/${artisaId}/${catalogue}`)
+        // console.log("miditra2");
+        if (artisaId && catalogue && id_saison) {
+            fetch(`/get-produits/${artisaId}/${catalogue}/${id_saison}`)
                 .then(response => response.json())
                 .then(data => {
                     const produitSelect = document.getElementById('produitSelect');
@@ -332,10 +372,12 @@ let counter= 0;
     document.getElementById('produitSelect').addEventListener('change', function () {
         const produitId = this.value;
         const artisanId = document.getElementById('artisanSelect').value; // valeur dans idArtisan
+        const id_saison = document.getElementById('saisonSelect').value; // valeur dans saison
+
         console.log("miditra 3");
     
         if (artisanId && produitId) {
-            fetch(`/get-couleurs/${artisanId}/${produitId}`)
+            fetch(`/get-couleurs/${artisanId}/${produitId}/${id_saison}`)
                 .then(response => response.json())
                 .then(data => {
                     const couleurSelect = document.getElementById('couleurSelect');

@@ -37,6 +37,14 @@
                     </div>
                     <!-- Filtre par type commande -->
                     <div class="col-md-3 mb-2">
+                        <select id="typeCommandeSelect" class="form-select" name="saison_select">
+                            <option value="">-- Filtrer par saison --</option>
+                            @foreach ($saison as $saisons)
+                                <option value={{$saisons->id}} {{ $selectionSaison == $saisons->id ? 'selected' : '' }}>{{$saisons->nom_saison}} </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-2">
                         <select id="typeCommandeSelect" class="form-select" name="artisan_select">
                             <option value="">-- Filtrer par artisan --</option>
                             @foreach ($artisan as $a)
@@ -44,7 +52,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-5 mb-2">
+                    <div class="col-md-4 mb-2">
                         <select id="typeCommandeSelect" class="form-select" name="catalogue_select">
                             <option value="">-- Filtrer par designation catalogue David --</option>
                             @foreach ($designationCatalogue as $p)
@@ -52,7 +60,7 @@
                         @endforeach
                         </select>
                     </div>
-                    <div class="col-md-3 mb-2">
+                    <div class="col-md-2 mb-2">
                         <button type="submit" class="btn btn-primary"> Filtrer </button>
                     </div>
                 </div>
@@ -64,6 +72,7 @@
                 <table class="table table-bordered">
                     <thead>
                         <tr>
+                            <th scope="col" style="text-align: center">SAISON</th>
                             <th scope="col" style="text-align: center">ARTISAN</th>
                             <th scope="col" style="text-align: center">DESIGNATION</th>
                             <th scope="col" style="text-align: center">DESIGNATION CATALOGUE</th>
@@ -74,6 +83,7 @@
                     <tbody>
                         @foreach ($stock as $s)    
                             <tr>
+                                <td>{{$s->nom_saison }}</td>
                                 <td>{{$s->artisan }}</td>
                                 <td>{{$s->designation_produit }}</td>
                                 <td>{{$s->designation_catalogue }}</td>

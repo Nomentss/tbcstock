@@ -24,7 +24,7 @@
 <div class="col-sm-12 col-xl-12">
     <div class="col-12">
         <div class="bg-light rounded h-100 p-4">
-            <h6 class="mb-4" style="text-align: center">Liste des expeditions </h6>
+            <h5 class="mb-4" style="text-align: center">Liste des expeditions </h5>
             <form action="{{ route('ExpeditionController.listeExpedition') }}" method="GET">
                 <div class="row mb-3">
                     <!-- Recherche texte -->
@@ -35,15 +35,31 @@
                         <button type="submit" class="btn btn-primary">Rechercher</button>
                     </div>
                     <!-- Filtre par type commande -->
+                    <div class="col-md-2 mb-2">
+                        <select id="typeCommandeSelect" class="form-select" name="saison_select">
+                            <option value="">-- Filtre saison --</option>
+                            @foreach ($saison as $saisons)
+                                <option value={{$saisons->id}} {{ $selectionSaison == $saisons->id ? 'selected' : '' }} >{{$saisons->nom_saison}} </option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <select id="typeCommandeSelect" class="form-select" name="conteneur_select">
+                            <option value="">-- Filtre conteneur --</option>
+                            @foreach ($conteneur as $c)
+                                <option value={{$c->id}}  {{ $selectionConteneur == $c->id ? 'selected' : '' }}>{{$c->nom}}</option>
+                            @endforeach
+                        </select>
+                    </div>
                     <div class="col-md-3 mb-2">
                         <select id="typeCommandeSelect" class="form-select" name="artisan_select">
-                            <option value="">-- Filtrer par artisan --</option>
+                            <option value="">-- Filtre artisan --</option>
                             @foreach ($artisan as $a)
                                 <option value="{{ $a->nom }}" {{ $selectionArtisan == $a->nom ? 'selected' : '' }}> {{ $a->nom }} </option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-3 mb-2">
+                    <div class="col-md-4 mb-2">
                         <select id="typeCommandeSelect" class="form-select" name="catalogue_select">
                             <option value="">-- Filtrer par designation catalogue David --</option>
                             @foreach ($designationCatalogue as $p)
@@ -53,13 +69,13 @@
                     </div>
                     <div class="col-md-3 mb-2">
                         <select id="typeCommandeSelect" class="form-select" name="couleur_select">
-                            <option value="">-- Filtrer par couleur --</option>
+                            <option value="">-- Filtre couleur --</option>
                             @foreach ($couleur as $c)
                             <option value="{{ $c->nom}}" {{ $selectionCouleur == $c->nom ? 'selected' : '' }}>{{$c->nom}}</option>
                         @endforeach
                         </select>
                     </div>
-                    <div class="col-md-3 mb-2">
+                    <div class="col-md-2 mb-2">
                         <button type="submit" class="btn btn-primary"> Filtrer </button>
                     </div>
                 </div>
@@ -68,6 +84,7 @@
                 <table class="table table-bordered">
                     <thead>
                         <tr>
+                            <th scope="col" style="text-align: center">Saison</th>
                             <th scope="col" style="text-align: center">Expedié Dans</th>
                             <th scope="col" style="text-align: center">Artisan</th>
                             <th scope="col" style="text-align: center">Designation produit</th>
@@ -78,9 +95,11 @@
                         </tr>
                     </thead>
                     <tbody>
+                    @if ($expedition->isNotEmpty())
                         @foreach ($expedition as $e)
                         <tr>
-                            <td style="text-align: center">{{ $e->expedition}}</td>
+                            <td>{{ $e->nom_saison}}</td>
+                            <td style="text-align: center">{{ $e->conteneur}}</td>
                             <td>{{ $e->artisan}}</td>
                             <td>{{ $e->designation_produit}}</td>
                             <td>{{ $e->designation_catalogue}}</td>
@@ -89,8 +108,31 @@
                             <td>{{ \Carbon\Carbon::parse($e->date_expedition)->translatedFormat('d F Y')}}</td>                      
                         </tr>
                         @endforeach
+                    @else
+                        <tr>
+                            <td colspan="8" class="text-center">Aucune donnée disponible.</td>
+                        </tr>
+                    @endif
                     </tbody>
                 </table>
+                @if ($expedition->isNotEmpty())
+                <table class="table table-bordered">
+                    <thead>
+                        @foreach ($total as $s)
+                        <tr>
+                            <th scope="col" style="text-align: center">TOTAL QUANTITE EXPEDIE</th>
+                            <td scope="col" style="text-align: center; color:black">{{ $s->qte }}</td>
+                        </tr>
+                        <tr>
+                            <th scope="col" style="text-align: center">VALEUR TOTAL EXPEDITION</th>
+                            <td scope="col" style="text-align: center; color:black">{{ number_format($s->total, 0, ',', ' ') }} AR</td>
+                        </tr>
+                        @endforeach
+                    </thead>
+                </table>
+                @endif
+                <!-- Bouton pour exporter -->
+            <a href="{{ route('ExpeditionController.export')}}" class="btn btn-primary">Exporter en PDF</a>
             </div>
         </div>
     </div>

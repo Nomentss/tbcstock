@@ -35,12 +35,21 @@
                 <div class="col-md-2 mb-2">
                     <button type="submit" class="btn btn-primary">Rechercher</button>
                 </div>
+                {{-- filtre --}}
+                <div class="col-md-3 mb-2">
+                    <select id="typeCommandeSelect" class="form-select" name="saison_select">
+                        <option value="">-- Filtrer par saison --</option>
+                        @foreach ($saison as $saisons)
+                            <option value={{$saisons->id}} {{ $selectionSaison == $saisons->id ? 'selected' : '' }}>{{$saisons->nom_saison}} </option>
+                        @endforeach
+                    </select>
+                </div>
                 <div class="col-md-5 mb-2">
                     <select id="typeCommandeSelect" class="form-select" name="catalogue_select">
                         <option value="">-- Filtrer par designation catalogue David --</option>
                         @foreach ($designationCatalogue as $p)
-                        <option value="{{$p->designation_catalogue}}">{{$p->designation_catalogue}}</option>
-                    @endforeach
+                            <option value="{{$p->designation_catalogue}}">{{$p->designation_catalogue}}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="col-md-3 mb-2">
@@ -54,7 +63,7 @@
             <table class="table table-bordered">
                 <thead>
                     <tr>
-                
+                        <th scope="col">SAISON</th>
                         <th scope="col">DESIGNATION CATALOGUE</th>
                         <th scope="col" style="text-align: center">Totale Quantite</th>
                     </tr>
@@ -62,7 +71,7 @@
                 <tbody>
                     @foreach ($total as $t)    
                         <tr>
-                    
+                            <td>{{$t->nom_saison }}</td>
                             <td>{{$t->designation_catalogue }}</td>
                             <td style="text-align: center">{{number_format($t->sum, 0, ',', ' ') }}</td>
                         </tr>
@@ -70,7 +79,6 @@
                 </tbody>
             </table>
         </div>
-        <hr>
     </div>
     <div>
         {{ $total->links() }}

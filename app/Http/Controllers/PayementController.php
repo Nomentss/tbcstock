@@ -26,23 +26,27 @@ class PayementController extends Controller
         $montant = $request->input('montant');
         $detail_payement = $request->input('detail_payement');
         $date_payement = $request->input('date_payement');
+        $numero_piece = $request->input('numero_piece');
 
 
         Validator::make($request->all(), [ 
             'montant' => 'required|numeric|min:1',
             'date_payement' => 'required',
             'detail_payement' => 'required',
+            'numero_piece' => 'required',
         ],[
             'montant.required' => 'montant requis',
             'montant.min' => 'le montant doit etre superieur à 0',
             'date_payement.required' => 'la date est requise',
             'detail_payement.required' => 'detail requis',
+            'numero_piece.required' => 'numero ou piece de cheque requis',
         ])-> validate();
 
         $payement = Payement::create([
             'id_saison' => $id_saison,
             'id_artisan' => $id_artisan,
             'detail_payement' => $detail_payement,
+            'numero_piece_cheque' => $numero_piece,
             'montant' => $montant,
             'date_payement' => $date_payement,
         ]);

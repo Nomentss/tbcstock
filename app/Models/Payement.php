@@ -15,6 +15,7 @@ class Payement extends Model
         'id_saison',
         'id_artisan',
         'detail_payement',
+        'numero_piece_cheque',
         'montant',
         'date_payement',
     ];

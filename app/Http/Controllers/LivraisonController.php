@@ -175,6 +175,8 @@ class LivraisonController extends Controller
         $nom_artisan = Artisan::find($id_artisan);
         session(['nom_artisan' => $nom_artisan->nom ]);
 
+        $date_value = "";
+
         $type_livraison = DB::table('type_livraison')->get();
 
         $detail= DB::table('v_commande_livraison')
@@ -183,14 +185,15 @@ class LivraisonController extends Controller
                  ->orderBy('date_livraison', 'asc')
                  ->paginate(40);
 
-                return view('Consultation.LivraisonDetail', compact('detail', 'type_livraison', 'id_artisan', 'id_saison'));
+                return view('Consultation.LivraisonDetail', compact('detail', 'type_livraison', 'id_artisan', 'id_saison', 'date_value'));
     }
 
     public function filtreLivraison(Request $request){
         $id_saison = $request->input('id_saison');
         $id_artisan = $request->input('id_artisan');
         $recherche = $request->input('recherche');
-        $type_livraison = DB::table('type_livraison')->get();
+        $date_filtre = $request->input('date_filtre');
+        $date_value = "";
 
         $nom_artisan = Artisan::find($id_artisan);
 
@@ -201,10 +204,6 @@ class LivraisonController extends Controller
         $query = DB::table('v_commande_livraison')
                 ->where('id_artisan', $id_artisan)
                 ->where('id_saison', $id_saison);
-
-                // if ($request->filled('type_livraison_select')) {
-                //     $query->where('id_type_livraison', $request->type_livraison_select);
-                // }
                 
                 if ($request->filled('recherche')) {
                     $query->where(function ($q) use ($recherche) {
@@ -216,10 +215,14 @@ class LivraisonController extends Controller
                           ->orWhereRaw('CAST(prix_unitaire AS TEXT) LIKE ?', [$pattern]);
                     }); 
                 }
+                if ($request->filled('date_filtre')) {
+                    $date_value = $date_filtre;
+                    $query->where('date_livraison', $date_filtre);
+                }
 
                 $detail= $query->paginate(50);
 
-        return view('Consultation.LivraisonDetail', compact('detail', 'id_artisan', 'id_saison'));
+        return view('Consultation.LivraisonDetail', compact('detail', 'id_artisan', 'id_saison', 'date_value'));
 
     }
 
