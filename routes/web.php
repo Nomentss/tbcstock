@@ -66,21 +66,24 @@ Route::middleware(['auth', 'role:0'])->group(function () {
     // -------------------------------------- consulter Payment -------------------------------------
         Route::get('/payementListe', 'payementListe')->name('PayementController.payementListe');
         Route::get('/payementDetail/{id_artisan}/{id_saison}', 'DetailPayement')->name('PayementController.payementDetail');
+        Route::get('/payement/pdf', 'exportPdfPayement')->name('PayementController.export');
     });
     
     Route::controller(LivraisonController::class)->group(function () {
         Route::get('/livraisonForm', 'livraisonFormulaire')->name('LivraisonController.livraisonFormulaire');
         Route::post('/insert_livraison', 'insertLivraison')->name('LivraisonController.insert');
         Route::get('/get-produits/{id_artisan}', 'getProduits')->name('LivraisonController.getProduits');
-// changement
         Route::get('/get-catalogues/{id_produit}', 'getCatalogues')->name('LivraisonController.getCatalogues');
-// fin changement
         Route::get('/get-couleurs/{id_produit}', 'getCouleurs')->name('LivraisonController.getCouleurs');
         Route::get('/listeLivraison', 'listeLivraison')->name('LivraisonController.listeLivraison');
         Route::get('/listeDetail/{id_artisan}/{id_saison}', 'detailLivraison')->name('LivraisonController.detailLivraison');
         Route::get('/listeDetail/filtre', 'filtreLivraison')->name('LivraisonController.filtreLivraison');
         Route::get('/listeResumeLivraison/{id_artisan}/{id_saison}', 'resumeLivraison')->name('LivraisonController.resumeLivraison');
         Route::get('/listeDetail/filtreResume', 'filtreResumeLivraison')->name('LivraisonController.filtreResumeLivraison');
+        Route::get('/livraison/pdfDetail', 'exportPdfDetail')->name('LivraisonController.exportDetail');
+        Route::get('/livraison/pdfResume', 'exportPdfResume')->name('LivraisonController.exportResume');
+
+        
         
     });  
     
@@ -90,6 +93,7 @@ Route::middleware(['auth', 'role:0'])->group(function () {
         Route::get('/liste_commande', 'listeCommande')->name('CommandeController.listeCommande');
         Route::get('/detail_commande/{id_artisan}/{id_saison}', 'detailCommande')->name('CommandeController.detailCommande');
         Route::get('/filtre_commande', 'filtreCommande')->name('CommandeController.filtreCommande');
+        Route::get('/commande/pdf', 'exportPdf')->name('CommandeController.export');
     });  
     
     Route::controller(StockController::class)->group(function () {
@@ -100,7 +104,10 @@ Route::middleware(['auth', 'role:0'])->group(function () {
         Route::get('/stock_resume', 'stockResume')->name('StockController.stockResume');
         Route::get('/stock_filtre_pc', 'StockProduitCouleur')->name('StockController.filtreStockProduitCouleur');
         Route::get('/stock_filtre_resume', 'StockResume')->name('StockController.filtreStockResume');
-    
+        Route::get('/stock/pdf_globale', 'exportPdfGlobale')->name('StockController.exportGlobale');
+        Route::get('/stock/pdf_regroupe', 'exportPdfRegroupe')->name('StockController.exportRegroupe');
+        Route::get('/stock/pdf_regroupe_couleur', 'exportPdfRegroupeCouleur')->name('StockController.exportRegroupeCouleur');
+
     });  
     
     Route::controller(ExpeditionController::class)->group(function () {

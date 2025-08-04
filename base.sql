@@ -288,7 +288,7 @@ group by id_artisan, id_saison;
 
 -- liste payement
 create or replace view v_payement as
-select p.id, p.id_saison, s.nom_saison, p.id_artisan, a.nom as artisan, p.detail_payement, p.montant, p.date_payement from payement_artisan p
+select p.id, p.id_saison, s.nom_saison, p.id_artisan, a.nom as artisan, p.detail_payement, p.numero_piece_cheque, p.montant, p.date_payement from payement_artisan p
 join saison s on
 p.id_saison = s.id
 join artisan a on

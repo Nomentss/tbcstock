@@ -4,10 +4,41 @@
     <meta charset="utf-8">
     <title>Expéditions PDF</title>
     <style>
-        body { font-family: sans-serif; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #000; padding: 8px; text-align: center; }
-        th { background-color: #f0f0f0; }
+        @page {
+            size: A4;
+            margin: 10mm;
+        }
+    
+        body {
+            font-family: sans-serif;
+            font-size: 10px; /* plus petit pour mieux tenir */
+        }
+    
+        h2 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+    
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed; /* important pour que les colonnes s'adaptent */
+            margin-top: 10px;
+        }
+    
+        th, td {
+            border: 1px solid #000;
+            padding: 4px;
+            text-align: center;
+            font-size: 10px;
+            word-wrap: break-word; /* coupe les longs mots */
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    
+        th {
+            background-color: #f0f0f0;
+        }
     </style>
 </head>
 <body>
@@ -39,6 +70,20 @@
                 </tr>
             @endforeach
         </tbody>
+    </table>
+    <table class="table table-bordered">
+        <thead>
+            @foreach ($total as $s)
+            <tr>
+                <th scope="col" style="text-align: center">TOTAL QUANTITE EXPEDIE</th>
+                <td scope="col" style="text-align: center; color:black">{{ $s->qte }}</td>
+            </tr>
+            <tr>
+                <th scope="col" style="text-align: center">VALEUR TOTAL EXPEDITION</th>
+                <td scope="col" style="text-align: center; color:black">{{ number_format($s->total, 0, ',', ' ') }} AR</td>
+            </tr>
+            @endforeach
+        </thead>
     </table>
 </body>
 </html>

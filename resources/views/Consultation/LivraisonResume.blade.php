@@ -99,6 +99,13 @@
                         @endforeach
                     </thead>
                 </table>
+                <!-- Bouton pour exporter -->
+                <form id="form2" method="GET" action="{{ route('LivraisonController.exportResume')}}">
+                    <input type="hidden" name="id_artisan" value={{$id_artisan}}>
+                    <input type="hidden" name="id_saison" value={{$id_saison}}>
+                 
+                    <button type="submit" class="btn btn-primary" id="btnExport"> Exporter en PDF </button>
+                </form>
             </div>
         </div>
         <div>

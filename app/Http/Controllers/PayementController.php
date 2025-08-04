@@ -9,6 +9,7 @@ use Illuminate\Validation\ValidationException;
 use App\Models\Payement;
 use App\Models\Artisan;
 use App\Models\Saison;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PayementController extends Controller
 {
@@ -91,6 +92,25 @@ class PayementController extends Controller
         $nom_artisan = Artisan::find($id_artisan);
         session(['nom_artisan' => $nom_artisan->nom ]);
 
-        return view('Consultation.Detail_payement', compact('detail','resume'));
+        return view('Consultation.Detail_payement', compact('detail','resume', 'id_artisan', 'id_saison'));
+    }
+
+    public function exportPdfPayement(Request $request) {
+
+        $id_artisan = $request->input('id_artisan');
+        $id_saison = $request->input('id_saison');
+
+        $detail = DB::table('v_payement')
+        ->where('id_artisan', $id_artisan)
+        ->where('id_saison', $id_saison)
+        ->get();
+
+        $resume = DB::table('v_liste_payement')
+        ->where('id_artisan', $id_artisan)
+        ->where('id_saison', $id_saison)
+        ->get();
+
+        $pdf = Pdf::loadView('PDF.payement', compact('detail','resume'));
+        return $pdf->download('payement_detail.pdf'); 
     }
 }

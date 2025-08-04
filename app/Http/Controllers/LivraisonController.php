@@ -13,6 +13,7 @@ use App\Models\Saison;
 use App\Models\Produit;
 use App\Models\Produit_couleur;
 use App\Models\Stock;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class LivraisonController extends Controller
 {
@@ -274,5 +275,44 @@ class LivraisonController extends Controller
         session(['nom_artisan' => $nom_artisan->nom ]);
 
         return view('Consultation.LivraisonResume', compact('resume', 'total', 'id_artisan' ,'id_saison'));
+    }
+
+    public function exportPdfDetail(Request $request) {
+        $date_select = $request->input('date_select');
+        $id_artisan = $request->input('id_artisan'); 
+        $id_saison = $request->input('id_saison');
+
+        $query = DB::table('v_commande_livraison')
+                 ->where('id_artisan', $id_artisan)
+                 ->where('id_saison', $id_saison)
+                 ->orderBy('date_livraison', 'asc');
+
+        if($date_select){
+            $query->where('date_livraison', $date_select);
+        }
+
+        $detail = $query->get();
+
+        $pdf = Pdf::loadView('PDF.livraison_detail', compact('detail'));
+        return $pdf->download('livraison_detail.pdf');
+    }
+
+    public function exportPdfResume(Request $request){
+        $id_artisan = $request->input('id_artisan'); 
+        $id_saison = $request->input('id_saison');
+
+        $resume = DB::table('v_resume_livraison')
+        ->where('id_artisan', $id_artisan)
+        ->where('id_saison', $id_saison)
+        ->get();
+
+        $total =  DB::table('v_total_resume')
+        ->where('id_artisan', $id_artisan)
+        ->where('id_saison', $id_saison)
+        ->get();
+
+        $pdf = Pdf::loadView('PDF.livraison_resume', compact('resume', 'total'));
+        return $pdf->download('livraison_resume.pdf');
+
     }
 }

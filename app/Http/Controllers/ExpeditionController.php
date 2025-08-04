@@ -214,9 +214,8 @@ class ExpeditionController extends Controller
                     ->orWhereRaw('UPPER(couleur) LIKE  UPPER(?)', [$pattern])
                     ->orWhereRaw('CAST(qte AS TEXT) LIKE ?', [$pattern]);
             });
-
         }
-        // test ultra pro max
+
         if($request->filled('saison_select') && empty($conteneur)){
             $saisonSelect = $request->input('saison_select');
             $selectionSaison = $saisonSelect;
@@ -335,10 +334,37 @@ class ExpeditionController extends Controller
         }
 
     }
-    
-    public function exportPdf() {
-        $expedition = DB::table('v_expedition')->get();
-        $pdf = Pdf::loadView('Expedition.pdf', compact('expedition'));
+
+    public function exportPdf(Request $request) {
+        $saisonSelect = $request->input('saison_select');
+        $conteneurSelect = $request->input('conteneur_select');
+        $artisanSelect = $request->input('artisan_select');
+        $catalogueSelect = $request->input('catalogue_select');
+
+        $query = DB::table('v_expedition');
+
+
+        if($saisonSelect){
+            $query->where('id_saison', $saisonSelect);
+        }
+
+        if($conteneurSelect){
+            $query->where('id_conteneur', $conteneurSelect);
+        }
+
+        if($artisanSelect){
+            $query->where('id_artisan', $artisanSelect);
+        }
+
+        if($catalogueSelect){
+            $query->whereRaw('UPPER(designation_catalogue) = UPPER(?)', [$catalogueSelect]);
+        }
+
+        $expedition = $query->get();
+
+        $total = DB::table('v_somme_expedition_all')->get();
+
+        $pdf = Pdf::loadView('Expedition.pdf', compact('expedition','total'));
         return $pdf->download('Expedition.pdf');
     }
 }

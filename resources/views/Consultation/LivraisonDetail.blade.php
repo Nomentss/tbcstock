@@ -65,7 +65,7 @@
                                 <td>{{$details->designation_catalogue }}</td>
                                 <td>{{$details->couleur }}</td>
                                 <td style="color:rgb(0, 0, 0)">{{number_format($details->prix_unitaire, 0, ',', ' ') }} AR</td>
-                                <td style="text-align: center">{{$details->qte_livre }}</td>
+                                <td style="text-align: center">{{number_format($details->qte_livre, 0, ',', ' ')}}</td>
                                 <td style="color:rgb(0, 0, 0)">{{number_format($details->valeur, 0, ',', ' ')}} AR</td>
                                 <td style="text-align: center">
                                     {{ \Carbon\Carbon::parse($details->date_livraison)->translatedFormat('d F Y') }}
@@ -74,11 +74,51 @@
                         @endforeach                      
                     </tbody>
                 </table>
+                 <!-- Bouton pour exporter -->
+                 <form id="form2" method="GET" action="{{ route('LivraisonController.exportDetail')}}">
+                    <input type="hidden" name="id_artisan" value={{$id_artisan}}>
+                    <input type="hidden" name="id_saison" value={{$id_saison}}>
+                    <input type="hidden" name="date_select" id="date_select"> <!-- Valeur du select -->
+                 
+                    <button type="button" class="btn btn-primary" id="btnExport"> Exporter en PDF </button>
+                </form>
             </div>
         </div>
         <div>
         {{ $detail->links() }}
         </div>
-    </form>
+
+<!-- Modal ---------------------------------------------------------------------------------------------------------------------------->
+<div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Choisir un filtre de commande</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <label for="selectDate">Sélection date :</label>
+          <input type="date" class="form-control" name="selectDate" id="selectDate">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-primary" id="validerExport">Valider</button>
+        </div>
+      </div>
+    </div>
+  </div>
+<script>
+    document.getElementById('btnExport').addEventListener('click', function () {
+        var myModal = new bootstrap.Modal(document.getElementById('exportModal'));
+        myModal.show();
+        });
+
+    document.getElementById('validerExport').addEventListener('click', function () {
+        const selectDate = document.getElementById('selectDate').value;
+        document.getElementById('date_select').value = selectDate;
+
+        document.getElementById('form2').submit();
+    });
+</script>
 
 @endsection

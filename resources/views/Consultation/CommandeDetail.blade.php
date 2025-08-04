@@ -95,12 +95,59 @@
                         @endforeach
                     </thead>
                 </table>
-                
+                <!-- Bouton pour exporter -->
+                <form id="form2" method="GET" action="{{ route('CommandeController.export')}}">
+                    <input type="hidden" name="id_artisan" value={{ $detail->first()->id_artisan ?? '' }}>
+                    <input type="hidden" name="id_saison" value={{ $detail->first()->id_saison ?? '' }}>
+                    <input type="hidden" name="type_select" id="type_select"> <!-- Valeur du select -->
+                 
+                    <button type="button" class="btn btn-primary" id="btnExport"> Exporter en PDF </button>
+                </form>
             </div>
         </div>
         <div>
             {{ $detail->links() }}
         </div>
     </form>
+
 </div>
+<!-- Modal ---------------------------------------------------------------------------------------------------------------------------->
+<div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Choisir un filtre de commande</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <label for="selectSaison">Sélection type_commande :</label>
+          <select id="selectType" class="form-select">
+            <option value="">Tous</option>
+                @foreach ($type_commande as $tc)
+                <option value="{{ $tc->type_commande }}"  {{ $selectionType == $tc->type_commande ? 'selected' : '' }} >{{ $tc->type_commande }}</option>
+                @endforeach
+          </select>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-primary" id="validerExport">Valider</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('btnExport').addEventListener('click', function () {
+        var myModal = new bootstrap.Modal(document.getElementById('exportModal'));
+        myModal.show();
+        });
+
+    document.getElementById('validerExport').addEventListener('click', function () {
+        const selectSaison = document.getElementById('selectType').value;
+        document.getElementById('type_select').value = selectSaison;
+
+        document.getElementById('form2').submit();
+});
+</script>
+
 @endsection

@@ -13,7 +13,7 @@ use App\Models\Commande;
 use App\Models\Commande_detail;
 use App\Models\Saison;
 use Illuminate\Support\Facades\DB;
-
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class CommandeController extends Controller
 {
@@ -318,5 +318,38 @@ class CommandeController extends Controller
         $selectionType = $type_commande_select;
         return view('Consultation.CommandeDetail', compact('detail', 'type_commande', 'somme', 'selectionType'));
 
+    }
+
+    public function exportPdf(Request $request) {
+        $typeSelect = $request->input('type_select');
+        $id_artisan = $request->input('id_artisan'); 
+        $id_saison = $request->input('id_saison');
+
+        $total = DB::table('v_somme_commande')
+        ->where('id_artisan', $id_artisan)
+        ->where('id_saison', $id_saison)
+        ->get();
+
+        $query = DB::table('v_detail_commande')
+                ->where('id_artisan', $id_artisan)
+                ->where('id_saison', $id_saison);
+
+
+        if($typeSelect){
+            $query->where('type_commande', $typeSelect);
+
+            $query2 =  DB::table('v_somme_commande_type')
+            ->where('id_artisan', $id_artisan)
+            ->where('id_saison', $id_saison)
+            ->where('type_commande', $typeSelect)
+            ->get();
+
+            $total=$query2;
+        }
+
+        $detail = $query->get();
+
+        $pdf = Pdf::loadView('PDF.commande', compact('detail','total'));
+        return $pdf->download('commande.pdf');
     }
 }

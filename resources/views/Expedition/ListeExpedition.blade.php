@@ -25,7 +25,7 @@
     <div class="col-12">
         <div class="bg-light rounded h-100 p-4">
             <h5 class="mb-4" style="text-align: center">Liste des expeditions </h5>
-            <form action="{{ route('ExpeditionController.listeExpedition') }}" method="GET">
+            <form id="form1" action="{{ route('ExpeditionController.listeExpedition') }}" method="GET">
                 <div class="row mb-3">
                     <!-- Recherche texte -->
                     <div class="col-md-10 mb-3">
@@ -64,7 +64,7 @@
                             <option value="">-- Filtrer par designation catalogue David --</option>
                             @foreach ($designationCatalogue as $p)
                             <option value="{{$p->designation_catalogue}}" {{ $selectionCatalogue == $p->designation_catalogue ? 'selected' : '' }}>{{$p->designation_catalogue}}</option>
-                        @endforeach
+                            @endforeach
                         </select>
                     </div>
                     <div class="col-md-3 mb-2">
@@ -78,6 +78,8 @@
                     <div class="col-md-2 mb-2">
                         <button type="submit" class="btn btn-primary"> Filtrer </button>
                     </div>
+                    
+                    
                 </div>
             </form>
             <div class="table-responsive">
@@ -132,9 +134,93 @@
                 </table>
                 @endif
                 <!-- Bouton pour exporter -->
-            <a href="{{ route('ExpeditionController.export')}}" class="btn btn-primary">Exporter en PDF</a>
+                <form id="form2" method="GET" action="{{ route('ExpeditionController.export')}}">
+                    <input type="hidden" name="saison_select" id="saison_select"> <!-- Valeur du select -->
+                    <input type="hidden" name="conteneur_select" id="conteneur_select"> <!-- Valeur du select -->
+                    <input type="hidden" name="artisan_select" id="artisan_select"> <!-- Valeur du select -->
+                    <input type="hidden" name="catalogue_select" id="catalogue_select"> <!-- Valeur du select -->
+
+                    <button type="button" class="btn btn-primary" id="btnExport"> Exporter en PDF </button>
+                </form>
             </div>
+            
+            {{-- <a href="{{ route('ExpeditionController.export')}}" class="btn btn-primary">Exporter en PDF</a> --}}
         </div>
     </div>
 </div>
+<!-- Modal ---------------------------------------------------------------------------------------------------------------------------->
+<div class="modal fade" id="exportModal" tabindex="-1" aria-labelledby="exportModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Choisir un filtre d’export</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <label for="selectSaison">Sélection saison :</label>
+          <select id="selectSaison" class="form-select">
+            <option value="">Tous</option>
+                @foreach ($saison as $saisons)
+                <option value={{$saisons->id}} {{ $selectionSaison == $saisons->id ? 'selected' : '' }}>{{$saisons->nom_saison}} </option>
+                @endforeach
+          </select>
+          <br>
+          <label for="selectExport">Sélection conteneur :</label>
+          <select id="selectConteneur" class="form-select">
+            <option value="">Tous</option>
+                @foreach ($conteneur as $c)
+                <option value={{$c->id}}  {{ $selectionConteneur == $c->id ? 'selected' : '' }}>{{$c->nom}}</option>
+                @endforeach
+          </select>
+
+          <br>
+          <label for="selectExport">Sélection artisan :</label>
+          <select id="selectArtisan" class="form-select">
+            <option value="">Tous</option>
+                @foreach ($artisan as $a)
+                <option value="{{ $a->id }}" {{ $selectionArtisan == $a->nom ? 'selected' : '' }}> {{ $a->nom }} </option>
+                @endforeach
+          </select>
+
+          
+          <br>
+          <label for="selectExport">Sélection designation_catalogue David:</label>
+          <select id="selectCatalogue" class="form-select">
+            <option value="">Tous</option>
+                @foreach ($designationCatalogue as $p)
+                <option value="{{$p->designation_catalogue}}" {{ $selectionCatalogue == $p->designation_catalogue ? 'selected' : '' }}>{{$p->designation_catalogue}}</option>
+                @endforeach
+          </select>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-primary" id="validerExport">Valider</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    document.getElementById('btnExport').addEventListener('click', function () {
+        var myModal = new bootstrap.Modal(document.getElementById('exportModal'));
+        myModal.show();
+    });
+    
+    document.getElementById('validerExport').addEventListener('click', function () {
+        const selectSaison = document.getElementById('selectSaison').value;
+        document.getElementById('saison_select').value = selectSaison;
+
+        const selectConteneur = document.getElementById('selectConteneur').value;
+        document.getElementById('conteneur_select').value = selectConteneur;
+
+        const selectArtisan = document.getElementById('selectArtisan').value;
+        document.getElementById('artisan_select').value = selectArtisan;
+
+        const selectCatalogue = document.getElementById('selectCatalogue').value;
+        document.getElementById('catalogue_select').value = selectCatalogue;
+
+        document.getElementById('form2').submit();
+    });
+    </script>
 @endsection
