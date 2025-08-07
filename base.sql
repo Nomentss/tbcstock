@@ -374,7 +374,7 @@ group by id_artisan, id_saison, type_commande;
 
 -- vue necessaire pour somme total valeur expedition par saison
 create view v_reference_somme_expedition as
-select ve.id_saison, ve.id_conteneur, ve.conteneur, ve.nom_saison, ve.id_artisan, ve.id_produit, ve.id_couleur, ve.qte, ve.designation_produit, ve.designation_catalogue, vc.prix_unitaire from v_expedition ve
+select ve.id_saison, ve.id_conteneur, ve.conteneur, ve.nom_saison, ve.id_artisan, ve.artisan, ve.id_produit, ve.id_couleur, ve.couleur, ve.qte, ve.designation_produit, ve.designation_catalogue, vc.prix_unitaire, ve.date_expedition from v_expedition ve
 join ( 
 select c.id_saison, c.id_artisan, cd.id_produit, cd.id_couleur, cd.prix_unitaire, cd.qte from commande_detail cd
 join commande c
@@ -382,21 +382,3 @@ on c.id = cd.id_commande
 group by c.id_saison, c.id_artisan, cd.id_produit, cd.id_couleur, cd.prix_unitaire, cd.qte
 ) as vc
 on ve.id_saison = vc.id_saison and ve.id_artisan=vc.id_artisan and ve.id_produit = vc.id_produit and ve.id_couleur = vc.id_couleur;
-
--- vue somme valeur expedition rehetra par saison
-create view v_somme_expedition as
-select id_saison, nom_saison, sum(qte) as qte, sum(qte*prix_unitaire) as total from v_reference_somme_expedition
-group by id_saison, nom_saison;
-
--- vue somme valeur expedition par conteneur
-create view v_somme_expedition_conteneur as
-select id_saison, nom_saison, id_conteneur, conteneur, sum(qte) as qte, sum(qte*prix_unitaire) as total from v_reference_somme_expedition
-group by id_saison, nom_saison, id_conteneur, conteneur; 
-
--- vue somme valeur expedition rehetra
-create view v_somme_expedition_all as
-select sum(qte) as qte, sum(qte*prix_unitaire) as total from v_reference_somme_expedition;
-
-
-select sum(qte_livre) as qte, sum(qte_livre*prix_unitaire) from v_stock_commande
-where id_saison = 4;

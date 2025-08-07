@@ -48,7 +48,7 @@
                         <select id="typeCommandeSelect" class="form-select" name="artisan_select">
                             <option value="">-- Filtrer par artisan --</option>
                             @foreach ($artisan as $a)
-                                <option value="{{ $a->id }}"> {{ $a->nom }} </option>
+                                <option value="{{ $a->id }}"  {{ $selectionArtisan == $a->id ? 'selected' : '' }}> {{ $a->nom }} </option>
                             @endforeach
                         </select>
                     </div>
@@ -56,7 +56,7 @@
                         <select id="typeCommandeSelect" class="form-select" name="catalogue_select">
                             <option value="">-- Filtrer par designation catalogue David --</option>
                             @foreach ($designationCatalogue as $p)
-                            <option value="{{$p->designation_catalogue}}">{{$p->designation_catalogue}}</option>
+                            <option value="{{$p->designation_catalogue}}" {{ $selectionCatalogue == $p->designation_catalogue ? 'selected' : '' }}>{{$p->designation_catalogue}}</option>
                         @endforeach
                         </select>
                     </div>

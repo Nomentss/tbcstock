@@ -126,26 +126,57 @@ class CommandeController extends Controller
                 // dump("miverifier coulera");  
             }
 
-            // // verifier saison correspondante
-            // $id_saison= $this->SaisonCorrespondante($date_commande);
+                $verifier_commande = Commande::select('id')
+                                ->where('id_saison', $saison)
+                                ->where('id_artisan', $id_artisan)
+                                ->whereRaw('UPPER(type_commande) = ?', [strtoupper($type_commande)])
+                                ->first();
 
-            // if($id_saison != null){
+                if($verifier_commande){
+                    // dump($verifier_commande->id);
+                    $commande_detail = Commande_detail::create([
+                        'id_commande' => $verifier_commande->id,
+                        'id_produit'=> $id_produit_commande,
+                        'id_couleur'=> $id_couleur,
+                        'qte'=> $qte_commande,
+                        'prix_unitaire'=> $prix_unitaire,
+                    
+                    ]);
 
-                $commande = Commande::create([
-                    'id_saison' => $saison,
-                    'id_artisan' => $id_artisan,
-                    'type_commande' => $type_commande,
-                    // 'date_commande' => $date_commande,
-                ]);
+                }else{
+                    // dump("tsy misy");
+                    $commande = Commande::create([
+                        'id_saison' => $saison,
+                        'id_artisan' => $id_artisan,
+                        'type_commande' => $type_commande,
+                        // 'date_commande' => $date_commande,
+                    ]);
 
-                $commande_detail = Commande_detail::create([
-                    'id_commande' => $commande->id,
-                    'id_produit'=> $id_produit_commande,
-                    'id_couleur'=> $id_couleur,
-                    'qte'=> $qte_commande,
-                    'prix_unitaire'=> $prix_unitaire,
+                    $commande_detail = Commande_detail::create([
+                        'id_commande' => $commande->id,
+                        'id_produit'=> $id_produit_commande,
+                        'id_couleur'=> $id_couleur,
+                        'qte'=> $qte_commande,
+                        'prix_unitaire'=> $prix_unitaire,
+                    
+                    ]);
+                }
+
+                // $commande = Commande::create([
+                //     'id_saison' => $saison,
+                //     'id_artisan' => $id_artisan,
+                //     'type_commande' => $type_commande,
+                //     // 'date_commande' => $date_commande,
+                // ]);
+
+                // $commande_detail = Commande_detail::create([
+                //     'id_commande' => $commande->id,
+                //     'id_produit'=> $id_produit_commande,
+                //     'id_couleur'=> $id_couleur,
+                //     'qte'=> $qte_commande,
+                //     'prix_unitaire'=> $prix_unitaire,
                 
-                ]);
+                // ]);
                 
             // }
             // else{
@@ -313,7 +344,7 @@ class CommandeController extends Controller
             });
         }
 
-        $detail= $query->paginate(300);
+        $detail= $query->paginate(150);
 
         $selectionType = $type_commande_select;
         return view('Consultation.CommandeDetail', compact('detail', 'type_commande', 'somme', 'selectionType'));

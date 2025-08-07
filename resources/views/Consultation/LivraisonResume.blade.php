@@ -72,7 +72,6 @@
                         @endforeach                      
                     </tbody>
                 </table>
-                {{ $resume->links() }}
                 <table class="table table-bordered">
                     <thead>
                         @foreach ($total as $t) 
@@ -109,6 +108,7 @@
             </div>
         </div>
         <div>
+            {{ $resume->links() }}
         </div>
     </form>
 </div>

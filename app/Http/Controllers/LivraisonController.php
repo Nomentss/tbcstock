@@ -159,7 +159,7 @@ class LivraisonController extends Controller
             $query->where('id_saison', $request->saison_select);
         }
 
-        $livraison = $query->paginate(3);
+        $livraison = $query->paginate(150);
 
         $saison = Saison::all();
         $artisan = Artisan::all();
@@ -184,7 +184,7 @@ class LivraisonController extends Controller
                  ->where('id_artisan', $id_artisan)
                  ->where('id_saison', $id_saison)
                  ->orderBy('date_livraison', 'asc')
-                 ->paginate(40);
+                 ->paginate(150);
 
                 return view('Consultation.LivraisonDetail', compact('detail', 'type_livraison', 'id_artisan', 'id_saison', 'date_value'));
     }
@@ -221,7 +221,7 @@ class LivraisonController extends Controller
                     $query->where('date_livraison', $date_filtre);
                 }
 
-                $detail= $query->paginate(50);
+                $detail= $query->paginate(150);
 
         return view('Consultation.LivraisonDetail', compact('detail', 'id_artisan', 'id_saison', 'date_value'));
 
@@ -237,7 +237,7 @@ class LivraisonController extends Controller
         ->where('id_saison', $id_saison)
         ->get();
 
-        $resume= $query->paginate(50);
+        $resume= $query->paginate(150);
 
         $nom_artisan = Artisan::find($id_artisan);
         session(['nom_artisan' => $nom_artisan->nom ]);
@@ -269,7 +269,7 @@ class LivraisonController extends Controller
         ->where('id_saison', $id_saison)
         ->get();
 
-        $resume= $query->paginate(50);
+        $resume= $query->paginate(150);
 
         $nom_artisan = Artisan::find($id_artisan);
         session(['nom_artisan' => $nom_artisan->nom ]);

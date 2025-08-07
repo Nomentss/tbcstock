@@ -55,7 +55,7 @@
                         <select id="typeCommandeSelect" class="form-select" name="artisan_select">
                             <option value="">-- Filtre artisan --</option>
                             @foreach ($artisan as $a)
-                                <option value="{{ $a->nom }}" {{ $selectionArtisan == $a->nom ? 'selected' : '' }}> {{ $a->nom }} </option>
+                                <option value="{{ $a->id }}" {{ $selectionArtisan == $a->nom ? 'selected' : '' }}> {{ $a->nom }} </option>
                             @endforeach
                         </select>
                     </div>
@@ -93,6 +93,7 @@
                             <th scope="col" style="text-align: center">Designation catalogue David</th>
                             <th scope="col" style="text-align: center">Couleur</th>
                             <th scope="col" style="text-align: center">Quantité</th>
+                            <th scope="col" style="text-align: center">P.U</th>
                             <th scope="col" style="text-align: center">Date expedition</th>
                         </tr>
                     </thead>
@@ -107,6 +108,7 @@
                             <td>{{ $e->designation_catalogue}}</td>
                             <td>{{ $e->couleur}}</td>
                             <td style="text-align: center">{{ $e->qte}}</td>
+                            <td style="text-align: center">{{number_format($e->prix_unitaire, 0, ',', ' ')}} AR</td>
                             <td>{{ \Carbon\Carbon::parse($e->date_expedition)->translatedFormat('d F Y')}}</td>                      
                         </tr>
                         @endforeach

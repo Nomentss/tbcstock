@@ -194,14 +194,20 @@ class ExpeditionController extends Controller
         $recherche = $request->input('recherche');
         $selectionSaison = "";
         $selectionConteneur = "";
+        $selectionArtisan = "";
+        $selectionCatalogue = "";
+        $selectionCouleur = "";
         
         $conteneur = $request->input('conteneur_select');
         $saison = $request->input('saison_select');
 
-        $total = DB::table('v_somme_expedition_all')->get();  
+        $query2 = DB::table('v_reference_somme_expedition')
+                  ->selectRaw('SUM(qte) as qte, SUM(qte*prix_unitaire) as total'); 
         
 
-        $query = DB::table('v_expedition');
+        // $query = DB::table('v_expedition');
+        $query = DB::table('v_reference_somme_expedition');
+
 
         if ($request->filled('recherche')) {
             $query->where(function ($q) use ($recherche) {
@@ -216,71 +222,51 @@ class ExpeditionController extends Controller
             });
         }
 
-        if($request->filled('saison_select') && empty($conteneur)){
+        if($request->filled('saison_select')){
             $saisonSelect = $request->input('saison_select');
             $selectionSaison = $saisonSelect;
 
-            $table='v_somme_expedition';
-
-            $query2 = DB::table('v_somme_expedition')
-                    ->where('id_saison', $saisonSelect)        
-                    ->get();
-
-            $total=$query2;
-
             $query->where('id_saison', $saisonSelect);
+            $query2->where('id_saison', $saisonSelect);
+
         }
 
-        if($request->filled('conteneur_select') && empty($saison)){
+        if($request->filled('conteneur_select')){
             $conteneurSelect = $request->input('conteneur_select');
             $selectionConteneur = $conteneurSelect;
-            
-            $query2 = DB::table('v_somme_expedition_conteneur')
-                    ->selectRaw('SUM(qte) as qte, SUM(total) as total')
-                    ->where('id_conteneur', $conteneurSelect)        
-                    ->get();
-
-            $total=$query2;
 
             $query->where('id_conteneur', $conteneurSelect);
+            $query2->where('id_conteneur', $conteneurSelect);
         }
-
-        if($request->filled('saison_select') && $request->filled('conteneur_select')){
-            $saisonSelect = $request->input('saison_select');
-            $conteneurSelect = $request->input('conteneur_select');
-
-            $selectionSaison = $saisonSelect;
-            $selectionConteneur = $conteneurSelect;
-
-            $query2 = DB::table('v_somme_expedition_conteneur')
-            ->selectRaw('SUM(qte) as qte, SUM(total) as total')
-            ->where('id_saison', $saisonSelect)
-            ->where('id_conteneur', $conteneurSelect)        
-            ->get();
-
-            $total=$query2;
-
-            $query->where('id_saison', $saisonSelect);
-            $query->where('id_conteneur', $conteneurSelect);
-        }
-
 
         if($request->filled('artisan_select')){
             $artisanSelect = $request->input('artisan_select');
-            $query->whereRaw('UPPER(artisan) = UPPER(?)', [$artisanSelect]);
+
+            $query->where('id_artisan', $artisanSelect);
+            $query2->where('id_artisan', $artisanSelect);
+
+            $artisaka = Artisan::select('nom')
+                                ->where('id',$artisanSelect)
+                                ->first();
+
+            $selectionArtisan = $artisaka->nom;
+            
         }
 
         if($request->filled('catalogue_select')){
             $catalogueSelect = $request->input('catalogue_select');
+            $selectionCatalogue = $catalogueSelect;
             $query->whereRaw('UPPER(designation_catalogue) = UPPER(?)', [$catalogueSelect]);
+            $query2->whereRaw('UPPER(designation_catalogue) = UPPER(?)', [$catalogueSelect]);
         }
 
         if($request->filled('couleur_select')){
             $couleurSelect = $request->input('couleur_select');
+            $selectionCouleur = $couleurSelect;
             $query->whereRaw('UPPER(couleur) = UPPER(?)', [$couleurSelect]);
         }
 
-        $expedition = $query->paginate(100);
+        $expedition = $query->paginate(150);
 
         $artisan = Artisan::all();
 
@@ -292,11 +278,7 @@ class ExpeditionController extends Controller
         $saison = Saison::all();
         $conteneur = Conteneur::all();
 
-        $selectionArtisan = $request->input('artisan_select');
-        $selectionCatalogue = $request->input('catalogue_select');
-        $selectionCouleur = $request->input('couleur_select');
-
-        
+        $total = $query2->get();
 
         return view('Expedition.ListeExpedition', compact('expedition', 'artisan', 'designationCatalogue', 'couleur', 'selectionArtisan', 'selectionCatalogue', 'selectionCouleur', 'saison','selectionSaison','conteneur', 'selectionConteneur', 'total'));
 
@@ -341,28 +323,34 @@ class ExpeditionController extends Controller
         $artisanSelect = $request->input('artisan_select');
         $catalogueSelect = $request->input('catalogue_select');
 
-        $query = DB::table('v_expedition');
+        $query = DB::table('v_reference_somme_expedition');
 
+        $query2 = DB::table('v_reference_somme_expedition')
+                  ->selectRaw('SUM(qte) as qte, SUM(qte*prix_unitaire) as total'); 
 
         if($saisonSelect){
             $query->where('id_saison', $saisonSelect);
+            $query2->where('id_saison', $saisonSelect);
         }
 
         if($conteneurSelect){
             $query->where('id_conteneur', $conteneurSelect);
+            $query2->where('id_conteneur', $conteneurSelect);
         }
 
         if($artisanSelect){
             $query->where('id_artisan', $artisanSelect);
+            $query2->where('id_artisan', $artisanSelect);
         }
 
         if($catalogueSelect){
             $query->whereRaw('UPPER(designation_catalogue) = UPPER(?)', [$catalogueSelect]);
+            $query2->whereRaw('UPPER(designation_catalogue) = UPPER(?)', [$catalogueSelect]);
         }
 
         $expedition = $query->get();
 
-        $total = DB::table('v_somme_expedition_all')->get();
+        $total = $query2->get();
 
         $pdf = Pdf::loadView('Expedition.pdf', compact('expedition','total'));
         return $pdf->download('Expedition.pdf');

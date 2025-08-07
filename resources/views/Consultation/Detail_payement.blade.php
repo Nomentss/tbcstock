@@ -30,6 +30,7 @@
                     <thead>
                         <tr>
                             <th scope="col">Date payement</th>
+                            <th scope="col">Numero cheque / piece de cheque</th>
                             <th scope="col">Detail</th>
                             <th scope="col">Montant</th>
                         </tr>
@@ -38,6 +39,7 @@
                         @foreach ($detail as $d)
                             <tr>
                                 <th>{{ \Carbon\Carbon::parse($d->date_payement)->translatedFormat('d F Y') }}</th>
+                                <td>{{$d->numero_piece_cheque}}</td>
                                 <td>{{$d->detail_payement}}</td>
                                 <th>{{number_format($d->montant, 0, ',', ' ')}} AR</th>                        
                             </tr> 

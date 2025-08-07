@@ -14,6 +14,9 @@ class StockController extends Controller
 {
     public function stockGlobale (Request $request){
         $selectionSaison = "";
+        $selectionArtisan = "";
+        $selectionCatalogue = "";
+
         $recherche = $request->input('recherche');
 
         $query = DB::table('v_stock_commande');
@@ -44,6 +47,9 @@ class StockController extends Controller
 
         if($request->filled('artisan_select')){
             $artisanSelect = $request->input('artisan_select');
+
+            $selectionArtisan = $artisanSelect;
+
             $query->where('id_artisan', [$artisanSelect]);
 
             $query2->where('id_artisan', $artisanSelect);
@@ -52,12 +58,14 @@ class StockController extends Controller
 
         if($request->filled('catalogue_select')){
             $catalogueSelect = $request->input('catalogue_select');
+            $selectionCatalogue = $catalogueSelect;
+
             $query->whereRaw('UPPER(designation_catalogue) = UPPER(?)', [$catalogueSelect]);
             
             $query2->whereRaw('UPPER(designation_catalogue) = UPPER(?)', [$catalogueSelect]);
         }
 
-        $stock= $query->paginate(50);
+        $stock= $query->paginate(150);
 
         $artisan = Artisan::all();
         $designationCatalogue = Produit::select('designation_catalogue')
@@ -68,11 +76,14 @@ class StockController extends Controller
         
         $total= $query2->get();
 
-        return view('Stock.stock', compact('stock','artisan', 'designationCatalogue','saison','selectionSaison','total'));
+        return view('Stock.stock', compact('stock','artisan', 'designationCatalogue', 'saison', 'selectionSaison', 'selectionArtisan', 'selectionCatalogue', 'total'));
     }
 
     public function stockProduitCouleur(Request $request) {
         $selectionSaison = "";
+        $selectionArtisan = "";
+        $selectionCatalogue = "";
+
         $recherche = $request->input('recherche');
 
         $query = DB::table('v_regroupement_stock');
@@ -97,15 +108,17 @@ class StockController extends Controller
 
         if($request->filled('artisan_select')){
             $artisanSelect = $request->input('artisan_select');
+            $selectionArtisan = $artisanSelect;
             $query->where('id_artisan', $artisanSelect);
         }
 
         if($request->filled('catalogue_select')){
             $catalogueSelect = $request->input('catalogue_select');
+            $selectionCatalogue = $catalogueSelect;
             $query->whereRaw('UPPER(designation_catalogue) = UPPER(?)', [$catalogueSelect]);
         }
 
-        $stock= $query->paginate(50);
+        $stock= $query->paginate(150);
 
         $artisan = Artisan::all();
         $designationCatalogue = Produit::select('designation_catalogue')
@@ -113,11 +126,12 @@ class StockController extends Controller
                                 ->get(); 
 
         $saison = Saison::all();
-        return view('Stock.stock_produit_couleur', compact('stock','artisan', 'designationCatalogue', 'saison', 'selectionSaison'));
+        return view('Stock.stock_produit_couleur', compact('stock','artisan', 'designationCatalogue', 'saison', 'selectionSaison', 'selectionArtisan', 'selectionArtisan','selectionCatalogue'));
     }
 
     public function stockResume(Request $request) {
         $selectionSaison = "";
+        $selectionCatalogue = "";
         $recherche = $request->input('recherche');
 
 
@@ -141,10 +155,11 @@ class StockController extends Controller
 
         if($request->filled('catalogue_select')){
             $catalogueSelect = $request->input('catalogue_select');
+            $selectionCatalogue = $catalogueSelect;
             $query->whereRaw('UPPER(designation_catalogue) = UPPER(?)', [$catalogueSelect]);
         }
 
-        $total= $query->paginate(50);
+        $total= $query->paginate(150);
 
         $designationCatalogue = Produit::select('designation_catalogue')
                                 ->GroupBy('designation_catalogue')
@@ -152,7 +167,7 @@ class StockController extends Controller
 
         $saison = Saison::all();
 
-        return view('Stock.stock_resume', compact('total', 'designationCatalogue', 'saison', 'selectionSaison'));
+        return view('Stock.stock_resume', compact('total', 'designationCatalogue', 'saison', 'selectionSaison', 'selectionCatalogue'));
     }
 
     public function choixStock(){
