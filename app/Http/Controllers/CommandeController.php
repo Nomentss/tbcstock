@@ -161,27 +161,7 @@ class CommandeController extends Controller
                     
                     ]);
                 }
-
-                // $commande = Commande::create([
-                //     'id_saison' => $saison,
-                //     'id_artisan' => $id_artisan,
-                //     'type_commande' => $type_commande,
-                //     // 'date_commande' => $date_commande,
-                // ]);
-
-                // $commande_detail = Commande_detail::create([
-                //     'id_commande' => $commande->id,
-                //     'id_produit'=> $id_produit_commande,
-                //     'id_couleur'=> $id_couleur,
-                //     'qte'=> $qte_commande,
-                //     'prix_unitaire'=> $prix_unitaire,
                 
-                // ]);
-                
-            // }
-            // else{
-            //     return back()->with('fail', 'La date ne correspond pas à une saison !');
-            // }
         }
         return back()->with('success', ' Commande sauvegardée !');
     }
