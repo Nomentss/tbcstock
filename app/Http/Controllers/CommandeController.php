@@ -24,7 +24,7 @@ class CommandeController extends Controller
 
         $saison = Saison::all();
 
-        return view('Formulaire.commande', compact('artisan','couleur','saison'));  
+        return view('Formulaire.Commande', compact('artisan','couleur','saison'));  
     }
 
     public function insertCommande(Request $request){

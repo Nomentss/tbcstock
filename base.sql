@@ -1,5 +1,3 @@
-create database tbc_stock;
-
 create table saison(
     id serial primary key,
     debut date,
@@ -382,3 +380,7 @@ on c.id = cd.id_commande
 group by c.id_saison, c.id_artisan, cd.id_produit, cd.id_couleur, cd.prix_unitaire, cd.qte
 ) as vc
 on ve.id_saison = vc.id_saison and ve.id_artisan=vc.id_artisan and ve.id_produit = vc.id_produit and ve.id_couleur = vc.id_couleur;
+
+insert into users (username, password, level) values ('Admin', '$2y$10$iKXCkqJ7QxLWCZ8BJt1ebeQJ2VC7m8V0Sbu27EWR1ANret52Uqzm2', 0); 
+
+php -r "echo password_hash('@tbc2025', PASSWORD_BCRYPT);"
