@@ -25,7 +25,7 @@
 <div class="col-sm-12 col-xl-12">
     <div class="col-12">
         <div class="bg-light rounded h-100 p-4">
-            <h5 class="mb-4" style="text-align: center">Stock detailé par artisan</h5>
+            <h5 class="mb-4" style="text-align: center">Stock detaillé par artisan</h5>
             <form action="{{ route('StockController.filtreStockGlobale') }}" method="GET">
                 <div class="row mb-3">
                     <!-- Recherche texte -->

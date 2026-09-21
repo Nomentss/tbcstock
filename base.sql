@@ -121,7 +121,7 @@ create table payement_artisan(
 
 create table stock(
     id serial primary key,
-    id_saison
+    id_saison int,
     id_produit int,
     id_couleur int,
     qte_livre double precision,
@@ -241,9 +241,10 @@ on ld.id_livraison = l.id;
 
 -- vue qui a pour role dans V_commande_livraison
 create view v_commande as
-select c.id_saison, cd.id_produit, cd.id_couleur, cd.prix_unitaire, cd.qte from commande_detail cd
+select c.id_saison, cd.id_produit, cd.id_couleur, cd.prix_unitaire, SUM(cd.qte) as qte from commande_detail cd
 join commande c
-on c.id = cd.id_commande;
+on c.id = cd.id_commande
+GROUP BY c.id_saison, cd.id_produit, cd.id_couleur, cd.prix_unitaire, cd.qte;
 
 -- combinaison pour affichage de commande et livraison 
 create or replace view v_commande_livraison as
@@ -381,6 +382,6 @@ group by c.id_saison, c.id_artisan, cd.id_produit, cd.id_couleur, cd.prix_unitai
 ) as vc
 on ve.id_saison = vc.id_saison and ve.id_artisan=vc.id_artisan and ve.id_produit = vc.id_produit and ve.id_couleur = vc.id_couleur;
 
-insert into users (username, password, level) values ('Admin', '$2y$10$iKXCkqJ7QxLWCZ8BJt1ebeQJ2VC7m8V0Sbu27EWR1ANret52Uqzm2', 0); 
+-- insert into users (username, password, level) values ('Admin', '$2y$10$sOuApahdYD3FmIzKE8tZd.9eOznQlAYrxZzs4BisX013VW3l/J5.2', 0); 
 
-php -r "echo password_hash('@tbc2025', PASSWORD_BCRYPT);"
+-- php -r "echo password_hash('0000', PASSWORD_BCRYPT);"
