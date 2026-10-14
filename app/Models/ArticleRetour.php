@@ -5,13 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Conteneur extends Model
+class ArticleRetour extends Model
 {
     use HasFactory;
 
-    protected $table = ('conteneur');
+    protected $table = ('article_retour');
 
     protected $fillable = [
-        'nom',
+        'id_saison',
+        'id_artisan',
+        'id_client',
     ];
+    
 }

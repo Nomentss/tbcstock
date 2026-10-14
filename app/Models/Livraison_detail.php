@@ -17,5 +17,6 @@ class Livraison_detail extends Model
         'id_couleur',
         'qte_livre',
         'date_livraison',
+        'bon_reception',
     ];
 }

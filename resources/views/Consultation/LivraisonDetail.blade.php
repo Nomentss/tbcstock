@@ -56,6 +56,7 @@
                             <th scope="col">QUANTITE LIVRE</th>
                             <th scope="col">VALEUR</th>
                             <th scope="col">DATE LIVRAISON</th>
+                            <th scope="col">Bon reception</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -70,6 +71,7 @@
                                 <td style="text-align: center">
                                     {{ \Carbon\Carbon::parse($details->date_livraison)->translatedFormat('d F Y') }}
                                 </td>
+                                <td>{{$details->bon_reception }}</td
                             </tr>
                         @endforeach                      
                     </tbody>
@@ -81,6 +83,7 @@
                     <input type="hidden" name="date_select" id="date_select"> <!-- Valeur du select -->
                  
                     <button type="button" class="btn btn-primary" id="btnExport"> Exporter en PDF </button>
+                    <button type="button" class="btn btn-primary" id="btnExportExcel"> Exporter en EXCEL </button>
                 </form>
             </div>
         </div>
@@ -108,16 +111,35 @@
     </div>
   </div>
 <script>
+    let routeExport = "";
+
+    // Bouton PDF
     document.getElementById('btnExport').addEventListener('click', function () {
+        routeExport = "{{ route('LivraisonController.exportDetail') }}";
+
         var myModal = new bootstrap.Modal(document.getElementById('exportModal'));
         myModal.show();
-        });
+    });
+
+    // Bouton Excel
+    document.getElementById('btnExportExcel').addEventListener('click', function () {
+        routeExport = "{{ route('LivraisonController.exportDetailExcel') }}";
+
+        var myModal = new bootstrap.Modal(document.getElementById('exportModal'));
+        myModal.show();
+    });
 
     document.getElementById('validerExport').addEventListener('click', function () {
         const selectDate = document.getElementById('selectDate').value;
         document.getElementById('date_select').value = selectDate;
 
-        document.getElementById('form2').submit();
+         const form = document.getElementById('form2');
+
+        // Modifier la route selon le bouton cliqué
+        form.action = routeExport;
+
+        // Envoyer le formulaire
+        form.submit();
     });
 </script>
 

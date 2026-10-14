@@ -29,7 +29,7 @@ class AuthController extends Controller
                 ]);
             }
 
-            return redirect()->route('PageController.home');
+            return redirect()->route('PageController.home')->with('openClientModal', true);
 
     }
 

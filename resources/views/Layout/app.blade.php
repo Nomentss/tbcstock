@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700&display=swap" rel="stylesheet">
     
@@ -96,6 +97,16 @@
 
     <!-- Template Javascript -->
     <script src="{{ asset('dashboard_assets/js/main.js') }}"></script>
+
+    <x-ClientPicker />
+
+    @if (session('openClientModal'))
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            new bootstrap.Modal(document.getElementById('clientPickerModal')).show();
+        });
+    </script>
+    @endif
 
 </body>
 

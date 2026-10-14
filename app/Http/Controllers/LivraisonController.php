@@ -14,18 +14,24 @@ use App\Models\Produit;
 use App\Models\Produit_couleur;
 use App\Models\Stock;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Exports\LivraisonDetailExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Carbon\Carbon;
+use App\Models\Client;
 
 class LivraisonController extends Controller
 {
     public function insertLivraison(Request $request){
         $id_saison= $request->input('id_saison');
         $id_artisan = $request->input('id_artisan');
+        $id_client = session('id_client');
         $date_livraison = $request->input('date_livraison');
+        $bon_reception = $request->input('bon_reception');
         $id_livraison;
 
         $maxCounter = $request->input('maxCounter');
 
-        $verifierBase= $this->verifierBase($id_artisan, $id_saison);
+        $verifierBase= $this->verifierBase($id_artisan, $id_saison, $id_client);
 
         if($verifierBase == false){
 
@@ -34,6 +40,7 @@ class LivraisonController extends Controller
             $livraison= Livraison::create([
                 'id_artisan' => $id_artisan,
                 'id_saison' => $id_saison,
+                'id_client' => $id_client,
             ]);
 
             $id_livraison = $livraison->id;
@@ -60,12 +67,13 @@ class LivraisonController extends Controller
         Validator::make($request->all(), [
             'id_saison' => 'required',
             'id_artisan' => 'required',    
-            'date_livraison' => 'required',    
+            'date_livraison' => 'required',
+            'bon_reception' => 'required',    
         ],[
             'id_saison.required' => 'date requis',
             'id_artisan.required' => 'artisan requis',
             'date_livraison.required' => 'date requise',
-
+            'bon_reception.required' => 'bon reception requis',
         ])-> validate();
 
         $validated = Validator::make($request->all(), $rules, $messages)->validate();       
@@ -82,10 +90,12 @@ class LivraisonController extends Controller
                 'id_couleur' => $id_couleur,
                 'qte_livre' => $qte_livre,
                 'date_livraison' => $date_livraison,
+                'bon_reception' => $bon_reception,
             ]);
 
             $stock = Stock::create([
                 'id_saison' => $id_saison,
+                'id_client' => $id_client,
                 'id_produit' => $id_produit,
                 'id_couleur' => $id_couleur,
                 'qte_livre' => $qte_livre,
@@ -96,9 +106,10 @@ class LivraisonController extends Controller
         return back()->with('success', 'livraison sauvegardé');
     }
 
-    public function verifierBase($id_artisan, $id_saison){
+    public function verifierBase($id_artisan, $id_saison, $id_client){
         $existe = Livraison::where('id_artisan', $id_artisan)
                             -> where('id_saison', $id_saison)
+                            -> where('id_client', $id_client)
                             ->first();
 
         if($existe){
@@ -122,26 +133,29 @@ class LivraisonController extends Controller
 
     }
 
-    public function getProduits($id_artisan)
-    {
-        $produits = Produit::where('id_artisan', $id_artisan)->get();
+    public function getProduits($id_artisan, $id_saison){
+
+        $produits = DB::table('v_detail_commande')->select('id_produit', 'designation_produit')
+        ->where('id_artisan', $id_artisan)
+        ->where('id_saison', $id_saison)
+        ->where('id_client', session('id_client'))
+        ->distinct()->get();
 
         return response()->json($produits);
     }
 
     public function getCatalogues($id_produit){
 
-        $catalogues = Produit::select('designation_catalogue')
-                            ->where('id', $id_produit)
-                            ->first();
+        $catalogues = DB::table('v_detail_commande')->select('designation_catalogue')
+        ->where('id_produit', $id_produit)
+        ->first();
 
         return response()->json($catalogues);
 
     }
 
     
-    public function getCouleurs($id_produit)
-    {
+    public function getCouleurs($id_produit){
         $couleurs = DB::table('v_produit_couleur')
                     ->where('id_produit', $id_produit)->get();
 
@@ -149,7 +163,7 @@ class LivraisonController extends Controller
     }
 
     public function listeLivraison(Request $request){
-        $query = DB::table('v_liste_livraison');
+        $query = DB::table('v_liste_livraison')->where('id_client', session('id_client'));
         
         if ($request->filled('artisan_select')) {
             $query->where('id_artisan', $request->artisan_select);
@@ -171,7 +185,7 @@ class LivraisonController extends Controller
         
     }
 
-    public function detailLivraison($id_artisan, $id_saison){
+    public function detailLivraison($id_artisan, $id_saison, $id_client){
 
         $nom_artisan = Artisan::find($id_artisan);
         session(['nom_artisan' => $nom_artisan->nom ]);
@@ -183,6 +197,7 @@ class LivraisonController extends Controller
         $detail= DB::table('v_commande_livraison')
                  ->where('id_artisan', $id_artisan)
                  ->where('id_saison', $id_saison)
+                 ->where('id_client', $id_client)
                  ->orderBy('date_livraison', 'asc')
                  ->paginate(150);
 
@@ -213,7 +228,8 @@ class LivraisonController extends Controller
                         $q->whereRaw('UPPER(designation_produit)    LIKE UPPER(?)', [$pattern])
                           ->orWhereRaw('UPPER(designation_catalogue) LIKE UPPER(?)', [$pattern])
                           ->orWhereRaw('UPPER(couleur)              LIKE UPPER(?)', [$pattern])
-                          ->orWhereRaw('CAST(prix_unitaire AS TEXT) LIKE ?', [$pattern]);
+                          ->orWhereRaw('CAST(prix_unitaire AS TEXT) LIKE ?', [$pattern])
+                          ->orWhereRaw('CAST(bon_reception AS TEXT) LIKE ?', [$pattern]);
                     }); 
                 }
                 if ($request->filled('date_filtre')) {
@@ -227,14 +243,16 @@ class LivraisonController extends Controller
 
     }
 
-    public function resumeLivraison($id_artisan, $id_saison){
+    public function resumeLivraison($id_artisan, $id_saison, $id_client){
         $query = DB::table('v_resume_livraison')
         ->where('id_artisan', $id_artisan)
-        ->where('id_saison', $id_saison);
+        ->where('id_saison', $id_saison)
+        ->where('id_client', $id_client);
 
         $total =  DB::table('v_total_resume')
         ->where('id_artisan', $id_artisan)
         ->where('id_saison', $id_saison)
+        ->where('id_client', $id_client)
         ->get();
 
         $resume= $query->paginate(150);
@@ -242,17 +260,19 @@ class LivraisonController extends Controller
         $nom_artisan = Artisan::find($id_artisan);
         session(['nom_artisan' => $nom_artisan->nom ]);
 
-        return view('Consultation.LivraisonResume', compact('resume', 'total', 'id_artisan' ,'id_saison'));
+        return view('Consultation.LivraisonResume', compact('resume', 'total', 'id_artisan' ,'id_saison', 'id_client'));
     }
 
     public function filtreResumeLivraison(Request $request){
         $id_artisan = $request->input('id_artisan');
         $id_saison = $request->input('id_saison');
+        $id_client = $request->input('id_client');
         $recherche = $request->input('recherche');
 
         $query = DB::table('v_resume_livraison')
         ->where('id_artisan', $id_artisan)
-        ->where('id_saison', $id_saison);
+        ->where('id_saison', $id_saison)
+        ->where('id_client', $id_client);
 
         if($request->filled('recherche')){
             $query->where(function ($q) use ($recherche) {
@@ -267,6 +287,7 @@ class LivraisonController extends Controller
         $total =  DB::table('v_total_resume')
         ->where('id_artisan', $id_artisan)
         ->where('id_saison', $id_saison)
+        ->where('id_client', $id_client)
         ->get();
 
         $resume= $query->paginate(150);
@@ -274,17 +295,19 @@ class LivraisonController extends Controller
         $nom_artisan = Artisan::find($id_artisan);
         session(['nom_artisan' => $nom_artisan->nom ]);
 
-        return view('Consultation.LivraisonResume', compact('resume', 'total', 'id_artisan' ,'id_saison'));
+        return view('Consultation.LivraisonResume', compact('resume', 'total', 'id_artisan', 'id_saison', 'id_client'));
     }
 
     public function exportPdfDetail(Request $request) {
         $date_select = $request->input('date_select');
         $id_artisan = $request->input('id_artisan'); 
         $id_saison = $request->input('id_saison');
+        $id_client = session('id_client');
 
         $query = DB::table('v_commande_livraison')
                  ->where('id_artisan', $id_artisan)
                  ->where('id_saison', $id_saison)
+                 ->where('id_client', $id_client)
                  ->orderBy('date_livraison', 'asc');
 
         if($date_select){
@@ -294,7 +317,16 @@ class LivraisonController extends Controller
         $detail = $query->get();
 
         $pdf = Pdf::loadView('PDF.livraison_detail', compact('detail'));
-        return $pdf->download('livraison_detail.pdf');
+
+        // pour le nom du fichier
+        $artisan = Artisan::find($id_artisan);
+        $saison = Saison::find($id_saison);
+        $client = Client::find(session('id_client'));
+        $date = Carbon::now()->format('d-m-Y');
+
+        $nomFichier = "Livraison_par_date_{$artisan->nom}_{$saison->nom_saison}_{$client->nom_client}_{$date}.pdf";
+
+        return $pdf->download($nomFichier);
     }
 
     public function exportPdfResume(Request $request){
@@ -314,5 +346,24 @@ class LivraisonController extends Controller
         $pdf = Pdf::loadView('PDF.livraison_resume', compact('resume', 'total'));
         return $pdf->download('livraison_resume.pdf');
 
+    }
+
+    public function exportExcel(Request $request){
+        $date_select = $request->input('date_select');
+        $id_artisan = $request->input('id_artisan'); 
+        $id_saison = $request->input('id_saison');
+
+        // pour le nom du fichier
+        $artisan = Artisan::find($id_artisan);
+        $saison = Saison::find($id_saison);
+        $client = Client::find(session('id_client'));
+        $date = Carbon::now()->format('d-m-Y');
+
+        $nomFichier = "Commande_{$artisan->nom}_{$saison->nom_saison}_{$client->nom_client}_{$date}.xlsx";
+        
+        return Excel::download(
+            new LivraisonDetailExport($date_select, $id_artisan, $id_saison),
+            $nomFichier
+        );
     }
 }

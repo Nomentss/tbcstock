@@ -45,6 +45,27 @@
             @enderror
         </div>
         <div class="form-floating mb-3">
+            <select class="form-select @error('type_payement') is-invalid @enderror" name="type_payement">
+                    <option value="Espèce">Espèce</option>
+                    <option value="Chèque">Chèque</option>
+            </select>
+            <label for="floatingInput">Type paiement</label>
+            @error('type_payement')
+                <div class="invalid-feedback">
+                    {{ $message }}
+                </div>
+            @enderror
+        </div>
+        <div class="form-floating mb-3">
+            <textarea type="text" class="form-control @error('numero_piece') is-invalid @enderror" id="floatingInput" name="numero_piece" value="{{ old('numero_piece') }}"></textarea>
+            <label for="floatingInput">Numero/piece de cheque</label>
+            @error('numero_piece')
+                <div class="invalid-feedback">
+                    {{ $message }}
+                </div>
+            @enderror
+        </div>
+        <div class="form-floating mb-3">
             <textarea type="text" class="form-control @error('detail_payement') is-invalid @enderror" id="floatingInput" name="detail_payement" value="{{ old('detail_payement') }}"></textarea>
             <label for="floatingInput">Detail payement</label>
             @error('detail_payement')
@@ -54,16 +75,7 @@
             @enderror
         </div>
         <div class="form-floating mb-3">
-            <textarea type="text" class="form-control @error('cheque') is-invalid @enderror" id="floatingInput" name="numero_piece" value="{{ old('numero_piece') }}"></textarea>
-            <label for="floatingInput">Numero/piece de cheque</label>
-            @error('numero_piece')
-                <div class="invalid-feedback">
-                    {{ $message }}
-                </div>
-            @enderror
-        </div>
-        <div class="form-floating mb-3">
-            <input type="number" class="form-control @error('montant') is-invalid @enderror" id="floatingInput" name="montant" value="{{ old('montant') }}">
+            <input type="text" class="form-control @error('montant') is-invalid @enderror" id="floatingInput" name="montant" value="{{ old('montant') }}">
             <label for="floatingInput">Montant</label>
             @error('montant')
                 <div class="invalid-feedback">

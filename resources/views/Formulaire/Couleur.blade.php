@@ -49,7 +49,22 @@
                         <tr>
                             <th scope="row">{{ $i++ }}</th>
                             <td>{{ $couleurs->nom}}</td>
-                            <td style="text-align: center"><a href="{{ route('CouleurController.delete', ['id' => $couleurs->id] )}}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ? Cela entrainera la perte de toutes donnees correspondante.')" class="btn btn-danger">Supprimer</a></td>                          
+                            <!-- <td style="text-align: center"><a href="{{ route('CouleurController.delete', ['id' => $couleurs->id] )}}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ? Cela entrainera la perte de toutes donnees correspondante.')" class="btn btn-danger">Supprimer</a></td> -->
+                             <td style="text-align: center;">
+
+                                <!-- Modifier -->
+                                <button type="button" class="btn btn-success btn-sm btn-modifier"
+                                    data-url="{{ route('CouleurController.update', $couleurs->id) }}"
+                                    data-nom="{{ $couleurs->nom }}">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+
+                                <a href="{{ route('CouleurController.delete', ['id' => $couleurs->id]) }}"
+                                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer ? Cela entrainera la perte de toutes donnees correspondante.')"
+                                    class="btn btn-danger btn-sm">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -58,5 +73,46 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="modalModifier" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form id="formModifier" method="POST" action="">
+            @csrf
+            @method('PUT')
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modifier couleur</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <label for="nom_client" class="form-label">Nom couleur</label>
+                    <input type="text" class="form-control" id="nom_couleur" name="nom" required>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 
 @endsection
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const modalEl = document.getElementById('modalModifier');
+    const modal = new bootstrap.Modal(modalEl);
+    const form = document.getElementById('formModifier');
+    const input = document.getElementById('nom_couleur');
+
+    document.querySelectorAll('.btn-modifier').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            form.action = this.dataset.url;   // URL de mise à jour de la ligne
+            input.value = this.dataset.nom;   // pré-remplit l'input
+            modal.show();
+        });
+    });
+});
+</script>

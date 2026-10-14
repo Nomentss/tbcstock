@@ -14,6 +14,10 @@ use App\Models\Commande_detail;
 use App\Models\Saison;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Exports\CommandeExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Carbon\Carbon;
+use App\Models\Client;
 
 class CommandeController extends Controller
 {
@@ -32,6 +36,7 @@ class CommandeController extends Controller
         $date_commande = $request->input('date_commande');
         $saison = $request->input('saison');
         $type_commande = $request->input('type_commande');
+        $id_client = session('id_client');
     
         $maxCounter = $request->input('maxCounter');
 
@@ -129,6 +134,7 @@ class CommandeController extends Controller
                 $verifier_commande = Commande::select('id')
                                 ->where('id_saison', $saison)
                                 ->where('id_artisan', $id_artisan)
+                                ->where('id_client', $id_client)
                                 ->whereRaw('UPPER(type_commande) = ?', [strtoupper($type_commande)])
                                 ->first();
 
@@ -148,6 +154,7 @@ class CommandeController extends Controller
                     $commande = Commande::create([
                         'id_saison' => $saison,
                         'id_artisan' => $id_artisan,
+                        'id_client' => $id_client,
                         'type_commande' => $type_commande,
                         // 'date_commande' => $date_commande,
                     ]);
@@ -165,20 +172,6 @@ class CommandeController extends Controller
         }
         return back()->with('success', ' Commande sauvegardée !');
     }
-
-    // public function SaisonCorrespondante($date){
-    //     $saison = Saison::where('debut', '<=', $date)
-    //             ->where('fin', '>=', $date)
-    //             ->first();
-
-    //     if($saison) {
-
-    //         return $saison->id;
-    //     }
-    //     else{
-    //         return null;
-    //     }
-    // }
 
     public function verifierProduit($produit, $id_artisan){
     // convertir la chaine en miniscule pour la comparaison 
@@ -213,13 +206,17 @@ class CommandeController extends Controller
         $query = DB::table('commande as c')
         ->join('artisan as a', 'a.id', '=', 'c.id_artisan')
         ->join('saison as s', 's.id', '=', 'c.id_saison')
+        ->join('client as cl', 'cl.id', '=', 'c.id_client')
         ->select(
             'c.id_saison',
             'c.id_artisan',
+            'c.id_client',
             'a.nom as artisan',
-            's.nom_saison as saison'
+            's.nom_saison as saison',
+            'cl.nom_client as client',
         )
-        ->groupBy('c.id_saison', 'c.id_artisan', 'a.nom', 's.nom_saison');
+        ->where('c.id_client', session('id_client'))
+        ->groupBy('c.id_saison', 'c.id_artisan', 'a.nom', 's.nom_saison', 'c.id_client', 'cl.nom_client');
 
          // Appliquer les filtres dynamiques
         if ($request->filled('saison_select')) {
@@ -242,7 +239,7 @@ class CommandeController extends Controller
 
     }
 
-    public function detailCommande($id_artisan, $id_saison){
+    public function detailCommande($id_artisan, $id_saison, $id_client){
         $nom_artisan = Artisan::find($id_artisan);
         session(['nom_artisan' => $nom_artisan->nom ]);
 
@@ -251,16 +248,19 @@ class CommandeController extends Controller
                     ->select('type_commande')
                     ->where('id_artisan', $id_artisan)
                     ->where('id_saison', $id_saison)
+                    ->where('id_client', $id_client)
                     ->groupBy('type_commande')
                     ->get();
 
         $query = DB::table('v_detail_commande')
                 ->where('id_artisan', $id_artisan)
-                ->where('id_saison', $id_saison);
+                ->where('id_saison', $id_saison)
+                ->where('id_client', $id_client);
 
         $somme = DB::table('v_somme_commande')
                 ->where('id_artisan', $id_artisan)
                 ->where('id_saison', $id_saison)
+                ->where('id_client', $id_client)
                 ->get();
 
         // $detail= $query->get();
@@ -269,12 +269,13 @@ class CommandeController extends Controller
         // pour eviter la valuer null de selectionType
         $selectionType = "";
         
-        return view('Consultation.CommandeDetail', compact('detail', 'type_commande', 'somme','selectionType'));
+        return view('Consultation.CommandeDetail', compact('detail', 'type_commande', 'somme','selectionType', 'id_artisan', 'id_saison', 'id_client'));
     }
 
     public function filtreCommande(Request $request){
         $id_artisan= $request->input('id_artisan');
         $id_saison= $request->input('id_saison');
+        $id_client= $request->input('id_client');
         $type_commande_select= $request->input('type_commande_select');
         $recherche = $request->input('recherche');
 
@@ -290,12 +291,14 @@ class CommandeController extends Controller
                     ->select('type_commande')
                     ->where('id_artisan', session('id_artisan'))
                     ->where('id_saison', session('id_saison'))
+                    ->where('id_client', session('id_client'))
                     ->groupBy('type_commande')
                     ->get();
 
         $query = DB::table('v_detail_commande')
                 ->where('id_artisan', session('id_artisan'))
-                ->where('id_saison', session('id_saison'));
+                ->where('id_saison', session('id_saison'))
+                ->where('id_client', session('id_client'));
 
         if ($type_commande_select) {
             $query->where('type_commande', $type_commande_select);
@@ -303,12 +306,14 @@ class CommandeController extends Controller
             $somme = DB::table('v_somme_commande_type')
             ->where('id_artisan', $id_artisan)
             ->where('id_saison', $id_saison)
+            ->where('id_client', $id_client)
             ->where('type_commande', $type_commande_select)
             ->get();
         }else{
             $somme = DB::table('v_somme_commande')
             ->where('id_artisan', $id_artisan)
             ->where('id_saison', $id_saison)
+            ->where('id_client', $id_client)
             ->get();
 
         }
@@ -339,11 +344,13 @@ class CommandeController extends Controller
         $total = DB::table('v_somme_commande')
         ->where('id_artisan', $id_artisan)
         ->where('id_saison', $id_saison)
+        ->where('id_client', session('id_client'))
         ->get();
 
         $query = DB::table('v_detail_commande')
                 ->where('id_artisan', $id_artisan)
-                ->where('id_saison', $id_saison);
+                ->where('id_saison', $id_saison)
+                ->where('id_client', session('id_client'));
 
 
         if($typeSelect){
@@ -353,6 +360,7 @@ class CommandeController extends Controller
             ->where('id_artisan', $id_artisan)
             ->where('id_saison', $id_saison)
             ->where('type_commande', $typeSelect)
+            ->where('id_client', session('id_client'))
             ->get();
 
             $total=$query2;
@@ -361,6 +369,98 @@ class CommandeController extends Controller
         $detail = $query->get();
 
         $pdf = Pdf::loadView('PDF.commande', compact('detail','total'));
-        return $pdf->download('commande.pdf');
+
+
+        // pour le nom du fichier
+        $artisan = Artisan::find($id_artisan);
+        $saison = Saison::find($id_saison);
+        $client = Client::find(session('id_client'));
+        $date = Carbon::now()->format('d-m-Y');
+
+        $nomFichier = "Commande_{$artisan->nom}_{$saison->nom_saison}_{$client->nom_client}_{$date}.pdf";
+
+        return $pdf->download($nomFichier);
     }
+
+    public function modifierListe($id_artisan, $id_saison, $id_client){
+        $detail = DB::table('commande_detail as cd')
+            ->join('commande as c', 'c.id', '=', 'cd.id_commande')
+            ->join('produit as p', 'p.id', '=', 'cd.id_produit')
+            ->join('couleur as co', 'co.id', '=', 'cd.id_couleur')
+            ->select(
+                'c.id as id_commande',
+                'c.id_saison as id_saison',
+                'c.id_artisan as id_artisan',
+                'c.id_client as id_client',
+                'cd.id',
+                'p.id as id_produit',
+                'c.type_commande',
+                'c.date_commande',
+                'p.designation_produit',
+                'p.designation_catalogue',
+                'co.nom as couleur',
+                'co.id as id_couleur',
+                'cd.prix_unitaire',
+                'cd.qte',
+                'cd.created_at'
+            )
+            ->where('c.id_saison', $id_saison)
+            ->where('c.id_artisan', $id_artisan)
+            ->where('c.id_client', $id_client)
+            ->get();
+
+        return view('Consultation.CommandeModifier', compact('detail'));
+
+    }
+
+    public function update(Request $request, $id){
+        $validated = $request->validate([
+            'prix_unitaire' => 'required|numeric|min:0',
+            'qte' => 'required|integer|min:0',
+        ]);
+
+        $detail = Commande_detail::findOrFail($id);
+
+        $detail->prix_unitaire = $validated['prix_unitaire'];
+        $detail->qte = $validated['qte'];
+
+        $detail->save();
+
+        return response()->json([
+            'success' => true,
+            'prix_unitaire' => $detail->prix_unitaire,
+            'qte' => $detail->qte
+        ]);
+    }
+
+    public function delete($id){
+        $detail = Commande_detail::findOrFail($id);
+
+        $detail->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Ligne supprimée avec succès'
+        ]);
+    }
+
+    public function exportExcel(Request $request){
+        $typeSelect = $request->input('type_select');
+        $id_artisan = $request->input('id_artisan');
+        $id_saison = $request->input('id_saison');
+
+        // pour le nom du fichier
+        $artisan = Artisan::find($id_artisan);
+        $saison = Saison::find($id_saison);
+        $client = Client::find(session('id_client'));
+        $date = Carbon::now()->format('d-m-Y');
+
+        $nomFichier = "Commande_{$artisan->nom}_{$saison->nom_saison}_{$client->nom_client}_{$date}.xlsx";
+        
+        return Excel::download(
+            new CommandeExport($typeSelect, $id_artisan, $id_saison),
+            $nomFichier
+        );
+    }
+ 
 }

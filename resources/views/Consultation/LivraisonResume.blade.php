@@ -30,6 +30,7 @@
             <form action="{{ route('LivraisonController.filtreResumeLivraison') }}" method="GET">
                 <input type="hidden" value={{$id_artisan}} name="id_artisan">
                 <input type="hidden" value={{$id_saison}} name="id_saison">
+                <input type="hidden" value={{$id_client}} name="id_client">
             <div class="row mb-3">
                 <!-- Recherche texte -->
                 <div class="col-md-10 mb-3">

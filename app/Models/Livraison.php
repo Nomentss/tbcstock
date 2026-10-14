@@ -14,6 +14,6 @@ class Livraison extends Model
     protected $fillable = [
         'id_artisan',
         'id_saison',
-                
+        'id_client',
     ];
 }

@@ -69,7 +69,23 @@
                             <td>{{ $saisons->nom_saison }}</td>
                             <td>{{ $saisons->debut }}</td>
                             <td>{{ $saisons->fin }}</td>
-                            <td style="text-align: center"><a href="{{ route('SaisonController.delete', ['id' => $saisons->id]) }}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer la saison? Cela entrainera la perte de toutes donnees correspondante.')" class="btn btn-danger" >supprimer</a></td>
+                            <td style="text-align: center;">
+
+                                <!-- Modifier -->
+                                <button type="button" class="btn btn-success btn-sm btn-modifier"
+                                    data-url="{{ route('SaisonController.updateSaison', $saisons->id) }}"
+                                    data-nom="{{ $saisons->nom_saison }}"
+                                    data-debut="{{ $saisons->debut }}"
+                                    data-fin="{{ $saisons->fin }}">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+
+                                <a href="{{ route('SaisonController.delete', ['id' => $saisons->id]) }}"
+                                    onclick="return confirm('Êtes-vous sûr de vouloir supprimer ? Cela entrainera la perte de toutes donnees correspondante.')"
+                                    class="btn btn-danger btn-sm">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -78,5 +94,57 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="modalModifier" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form id="formModifier" method="POST" action="">
+            @csrf
+            @method('PUT')
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modifier la saison</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="nom_client" class="form-label">Nom saison</label>
+                        <input type="text" class="form-control" id="nom_saison" name="nom_saison" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="debut" class="form-label">date debut</label>
+                        <input type="date" class="form-control" id="debut" name="debut">
+                    </div>
+                    <div class="mb-3">
+                        <label for="fin" class="form-label">date fin</label>
+                        <input type="date" class="form-control" id="fin" name="fin">
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 
 @endsection
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const modalEl = document.getElementById('modalModifier');
+    const modal = new bootstrap.Modal(modalEl);
+    const form = document.getElementById('formModifier');
+
+    document.querySelectorAll('.btn-modifier').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            form.action = this.dataset.url;   // URL de mise à jour de la ligne
+            document.getElementById('nom_saison').value = this.dataset.nom;   // pré-remplit l'input
+            document.getElementById('debut').value = this.dataset.debut;   // pré-remplit l'input
+            document.getElementById('fin').value = this.dataset.fin;   // pré-remplit l'input
+            modal.show();
+        });
+    });
+});
+</script>

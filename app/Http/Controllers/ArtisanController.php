@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Artisan;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\DB;
+
 
 class ArtisanController extends Controller
 {
@@ -16,10 +18,23 @@ class ArtisanController extends Controller
         $mail = $request->input('mail');
 
         Validator::make($request->all(), [
-            'nom_artisan' => 'required',  
+            'nom_artisan' => 'required|unique:artisan,nom',  
         ],[
             'nom_artisan.required' => 'le nom est requis',
+            'nom_artisan.unique' => 'ce nom existe déjà.',
         ])-> validate();
+
+        $existe = DB::table('artisan')
+            ->whereRaw('LOWER(nom) = LOWER(?)', [
+                $request->nom_artisan
+            ])
+            ->exists();
+
+        if ($existe) {
+            return back()->withErrors([
+                'nom_artisan' => 'Ce nom existe déjà.'
+            ])->withInput();
+        }
 
         $artisan = Artisan::create([
             'nom' => $nom,
@@ -41,12 +56,22 @@ class ArtisanController extends Controller
         return back()->with('success', 'Artisan supprimé');
     }
 
-    public function updateArtisan(){
-        
-    }
-
     public function ArtisanFormulaire(){
         $artisan = Artisan::all();
         return view('Formulaire.Artisan', compact('artisan'));
+    }
+
+    public function updateArtisan(Request $request, $id){
+        $request->validate([
+            'nom' => 'required|string|max:255',
+        ]);
+
+        $artisan = Artisan::findOrFail($id);
+        $artisan->nom = $request->nom;
+        $artisan->telephone = $request->telephone;
+        $artisan->mail = $request->mail;
+        $artisan->save();
+
+        return redirect()->back()->with('success', 'Artisan modifié avec succès.');
     }
 }

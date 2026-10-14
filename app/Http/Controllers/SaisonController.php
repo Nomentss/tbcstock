@@ -18,11 +18,12 @@ class SaisonController extends Controller
         Validator::make($request->all(), [
             'date_debut' => 'required',    
             'date_fin' => 'required',
-            'nom_saison' => 'required',
+            'nom_saison' => 'required|unique:saison,nom_saison',
         ],[
             'date_debut.required' => 'date requise',
             'date_fin.required' => 'date requise',
             'nom_saison.required' => 'le nom de saison est requis',
+            'nom_saison.unique' => 'le nom de saison existe déjà.',
         ])-> validate();
 
         $saison = Saison::create([
@@ -47,5 +48,21 @@ class SaisonController extends Controller
         $saison->delete();
         return back()->with('success', 'saison supprimée');
         
+    }
+
+    public function updateSaison(Request $request, $id){
+        $request->validate([
+            'nom_saison' => 'required|string|max:255',
+            'debut' => 'required',
+            'fin' => 'required',
+        ]);
+
+        $saison = Saison::findOrFail($id);
+        $saison->nom_saison = $request->nom_saison;
+        $saison->debut = $request->debut;
+        $saison->fin = $request->fin;
+        $saison->save();
+
+        return redirect()->back()->with('success', 'Saison modifié avec succès.');
     }
 }

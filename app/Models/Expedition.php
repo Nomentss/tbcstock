@@ -10,8 +10,5 @@ class Expedition extends Model
     use HasFactory;
 
     protected $table = ('expedition');
-
-    protected $fillable = [
-        'id_conteneur',
-    ];
+    
 }

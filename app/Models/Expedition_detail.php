@@ -13,9 +13,10 @@ class Expedition_detail extends Model
 
     protected $fillable = [
         'id_saison',
-        'id_expedition',
         'id_artisan',
+        'id_client',
         'date_expedition',
+        'expedition_route',
         'id_produit',
         'id_couleur',
         'qte',

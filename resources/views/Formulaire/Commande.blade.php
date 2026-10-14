@@ -2,7 +2,7 @@
 @section('contents')
 
 <div class="col-sm-12 col-xl-10">
-    <form action="{{ route('CommandeController.insertCommande') }}" method="POST">
+    <form method="POST" enctype="multipart/form-data">
     @csrf
     <input type="hidden" id="maxCounter" name="maxCounter" value="0">
 
@@ -53,6 +53,16 @@
                 </div>
             @enderror
         </div>
+        <input class="form-control @error('file') is-invalid @enderror" type="file" id="formFile" name="file">
+         @error('file')
+            <div class="invalid-feedback">
+                {{ $message }}
+            </div>
+        @enderror
+        <div style="margin-top: 25px" >
+        <button type="submit" class="btn btn-primary w-100" formaction="{{ route('ImportController.importAction') }}">Importer</button>
+        </div>
+        <br>
         @if(session('success'))
             <div class="alert alert-success">
                 {{ session('success') }}
@@ -113,7 +123,7 @@
             </div>
             <div class="col-md-4">
                 <div class="form-floating mb-3">
-                    <input type="number" class="form-control @error('qte_commande_0') is-invalid @enderror" id="floatingInput" name="qte_commande_0">
+                    <input type="text" class="form-control @error('qte_commande_0') is-invalid @enderror" id="floatingInput" name="qte_commande_0">
                     <label for="floatingInput">Quantité</label>
                     @error('qte_commande_0')
                         <div class="invalid-feedback">
@@ -132,20 +142,19 @@
                         </div>
                     @enderror
                 </div>
-            </div>
-            <div class="row justify-content-center mt-3" style="margin-left: 0px">
-                <div class="col-auto">
-                    <button type="button" id="add-section" class="btn btn-success">+ ajouter section </button>
-                </div>
-                <div class="col-auto">
-                    <button type="button" id="remove-section" class="btn btn-danger">- réduire section </button>
-                </div>
-            </div>
-            
+            </div> 
+        </div>
+    </div>
+    <div class="row justify-content-center mt-3" style="margin-left: 0px">
+        <div class="col-auto">
+            <button type="button" id="add-section" class="btn btn-success">+ ajouter section </button>
+        </div>
+        <div class="col-auto">
+            <button type="button" id="remove-section" class="btn btn-danger">- réduire section </button>
         </div>
     </div>
     <div style="margin-top: 25px" >
-        <button type="submit" class="btn btn-primary"> Enregistrer </button>
+        <button type="submit" class="btn btn-primary" formaction="{{ route('CommandeController.insertCommande') }}"> Enregistrer </button>
     </div>
     </form>
 </div>
@@ -184,7 +193,7 @@ let counter = 0;
             </div>
             <div class="col-md-4">
                 <div class="form-floating mb-3">
-                    <input type="number" class="form-control" id="floatingInput" name="qte_commande_${counter}">
+                    <input type="text" class="form-control" id="floatingInput" name="qte_commande_${counter}">
                     <label for="floatingInput">Quantité</label>
                 </div>
             </div>

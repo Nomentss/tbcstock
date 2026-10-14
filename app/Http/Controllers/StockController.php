@@ -8,21 +8,28 @@ use App\Models\Artisan;
 use App\Models\Produit;
 use App\Models\Saison;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\Client;
+use App\Exports\StockGlobaleExport;
+use Maatwebsite\Excel\Facades\Excel;
+use Carbon\Carbon;
+
 
 
 class StockController extends Controller
 {
     public function stockGlobale (Request $request){
+        $id_client = session('id_client');
         $selectionSaison = "";
         $selectionArtisan = "";
         $selectionCatalogue = "";
 
         $recherche = $request->input('recherche');
 
-        $query = DB::table('v_stock_commande');
+        $query = DB::table('v_stock_commande')->where('id_client', $id_client);
 
         $query2 = DB::table('v_stock_commande')
-                  ->selectRaw('SUM(qte_livre) as qte, SUM(qte_livre*prix_unitaire) as total');
+                  ->selectRaw('SUM(qte_livre) as qte, SUM(qte_livre*prix_unitaire) as total')
+                  ->where('id_client', $id_client);
 
         if ($request->filled('recherche')) {
             $query->where(function ($q) use ($recherche) {
@@ -80,13 +87,14 @@ class StockController extends Controller
     }
 
     public function stockProduitCouleur(Request $request) {
+        $id_client = session('id_client');
         $selectionSaison = "";
         $selectionArtisan = "";
         $selectionCatalogue = "";
 
         $recherche = $request->input('recherche');
 
-        $query = DB::table('v_regroupement_stock');
+        $query = DB::table('v_regroupement_stock')->where('id_client', $id_client);
 
         if ($request->filled('recherche')) {
             $query->where(function ($q) use ($recherche) {
@@ -130,12 +138,13 @@ class StockController extends Controller
     }
 
     public function stockResume(Request $request) {
+        $id_client = session('id_client');
         $selectionSaison = "";
         $selectionCatalogue = "";
         $recherche = $request->input('recherche');
 
 
-        $query = DB::table('v_resume_stock');
+        $query = DB::table('v_resume_stock')->where('id_client', $id_client);
 
         if ($request->filled('recherche')) {
             $query->where(function ($q) use ($recherche) {
@@ -230,7 +239,14 @@ class StockController extends Controller
         $total = $query2->get();
 
         $pdf = Pdf::loadView('PDF.stock_globale', compact('stock', 'total'));
-        return $pdf->download('stock_globale.pdf');
+
+        // pour le nom du Fichier
+        $client = Client::find(session('id_client'));
+        $date = Carbon::now()->format('d-m-Y');
+
+        $nomFichier = "Stock_globale_{$client->nom_client}_{$date}.pdf";
+
+        return $pdf->download($nomFichier);
     }
 
     public function exportPdfRegroupe(Request $request){
@@ -251,5 +267,22 @@ class StockController extends Controller
 
         $pdf = Pdf::loadView('PDF.stock_resume', compact('total'));
         return $pdf->download('stock_resume.pdf');
+    }
+
+     public function exportExcelGlobale(Request $request){
+        $saison_select = $request->input('saison_select');
+        $artisan_select=  $request->input('artisan_select'); 
+        $catalogue_select=  $request->input('catalogue_select');
+
+        // pour le nom fichier
+        $client = Client::find(session('id_client'));
+        $date = Carbon::now()->format('d-m-Y_H-i-s');
+
+        $nomFichier = "Stock_Globale_{$client->nom_client}_{$date}.xlsx";
+        
+        return Excel::download(
+            new StockGlobaleExport($saison_select, $artisan_select, $catalogue_select),
+            $nomFichier
+        );
     }
 }

@@ -81,7 +81,28 @@
             </div>
             </a>
         </div>
+        <div class="col-sm-8 col-xl-4">
+            <a href="{{ route('ArticleRetourController.listeArticleRetour') }}" class="text-decoration-none">
+            <div class="bg-light rounded d-flex align-items-center justify-content-between p-4 hover-card">
+                {{-- <i class="fa fa-chart-pie fa-3x text-primary"></i>--}}
+                <i class="bi bi-box-seam fa-3x text-primary"></i>
+                <div class="ms-3 text-dark">
+                    <p>Article retour</p>
+                    <h6 class="mb-0">Consulter</h6>
+                </div>
+            </div>
+            </a>
+        </div>
     </div>
 </div>
-
+<x-ClientPicker />
+    @unless (session()->has('id_client'))
+        @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                new bootstrap.Modal(document.getElementById('clientPickerModal')).show();
+            });
+        </script>
+        @endpush
+    @endunless
 @endsection

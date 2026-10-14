@@ -69,13 +69,19 @@
                     </tr>
                 </thead>
                 <tbody>
+                    @if ($total->isNotEmpty())
                     @foreach ($total as $t)    
                         <tr>
                             <td>{{$t->nom_saison }}</td>
                             <td>{{$t->designation_catalogue }}</td>
                             <td style="text-align: center">{{number_format($t->sum, 0, ',', ' ') }}</td>
                         </tr>
-                    @endforeach                      
+                    @endforeach
+                    @else
+                        <tr>
+                            <td colspan="8" class="text-center">Aucune donnée disponible.</td>
+                        </tr>
+                    @endif                      
                 </tbody>
             </table>
             <!-- Bouton pour exporter -->

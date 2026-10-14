@@ -28,28 +28,32 @@ class PayementController extends Controller
         $detail_payement = $request->input('detail_payement');
         $date_payement = $request->input('date_payement');
         $numero_piece = $request->input('numero_piece');
-
+        $type_payement = $request->input('type_payement');
+        $id_client = session('id_client');
 
         Validator::make($request->all(), [ 
             'montant' => 'required|numeric|min:1',
-            'date_payement' => 'required',
             'detail_payement' => 'required',
-            'numero_piece' => 'required',
+            // 'numero_piece' => 'required',
+            'date_payement' => 'required',
         ],[
             'montant.required' => 'montant requis',
+            'montant.numeric' => 'montant en chiffre uniquement',
             'montant.min' => 'le montant doit etre superieur à 0',
-            'date_payement.required' => 'la date est requise',
             'detail_payement.required' => 'detail requis',
-            'numero_piece.required' => 'numero ou piece de cheque requis',
+            // 'numero_piece.required' => 'numero ou piece de cheque requis',
+            'date_payement.required' => 'la date est requise',
         ])-> validate();
 
         $payement = Payement::create([
             'id_saison' => $id_saison,
             'id_artisan' => $id_artisan,
+            'type_payement' => $type_payement,
             'detail_payement' => $detail_payement,
             'numero_piece_cheque' => $numero_piece,
             'montant' => $montant,
             'date_payement' => $date_payement,
+            'id_client' => $id_client,
         ]);
         return back()->with('success', 'Payement sauvegardé');
     }
@@ -58,7 +62,7 @@ class PayementController extends Controller
         $artisan_select= $request->input('artisan_select');
         $saison_select= $request->input('saison_select');
 
-        $query = DB::table('v_liste_payement');
+        $query = DB::table('v_liste_payement')->where('id_client', session('id_client'));
 
         if($saison_select){
             $query->where('id_saison', $saison_select);
@@ -82,11 +86,13 @@ class PayementController extends Controller
         $detail = DB::table('v_payement')
                 ->where('id_artisan', $id_artisan)
                 ->where('id_saison', $id_saison)
+                ->where('id_client', session('id_client'))
                 ->get();
 
         $resume = DB::table('v_liste_payement')
                 ->where('id_artisan', $id_artisan)
                 ->where('id_saison', $id_saison)
+                ->where('id_client', session('id_client'))
                 ->get();
 
         $nom_artisan = Artisan::find($id_artisan);

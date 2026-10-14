@@ -66,8 +66,24 @@
                             <td>{{ $artisans->nom }}</td>
                             <td style="text-align: center">{{ $artisans->telephone }}</td>
                             <td style="text-align: center">{{ $artisans->mail }}</td>
-                            <td style="text-align: center"><a href="{{ route('ArtisanController.delete', ['id' => $artisans->id]) }}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ? Cela entrainera la perte de toutes donnees correspondante.')" class="btn btn-danger">Supprimer</a></td>
-                           
+                            <!-- <td style="text-align: center"><a href="{{ route('ArtisanController.delete', ['id' => $artisans->id]) }}" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ? Cela entrainera la perte de toutes donnees correspondante.')" class="btn btn-danger">Supprimer</a></td> -->
+                            <td style="text-align: center;">
+
+                                    <!-- Modifier -->
+                                    <button type="button" class="btn btn-success btn-sm btn-modifier"
+                                        data-url="{{ route('ArtisanController.updateArtisan', $artisans->id) }}"
+                                        data-nom="{{ $artisans->nom }}"
+                                        data-telephone="{{ $artisans->telephone }}"
+                                        data-mail="{{ $artisans->mail }}">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+
+                                    <a href="{{ route('ArtisanController.delete', ['id' => $artisans->id]) }}"
+                                        onclick="return confirm('Êtes-vous sûr de vouloir supprimer ? Cela entrainera la perte de toutes donnees correspondante.')"
+                                        class="btn btn-danger btn-sm">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -76,5 +92,57 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="modalModifier" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+        <form id="formModifier" method="POST" action="">
+            @csrf
+            @method('PUT')
+
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Modifier l'artisan</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="nom_client" class="form-label">Nom</label>
+                        <input type="text" class="form-control" id="nom_artisan" name="nom" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="mail">
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Telephone</label>
+                        <input class="form-control" id="telephone" name="telephone">
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Enregistrer</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 
 @endsection
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const modalEl = document.getElementById('modalModifier');
+    const modal = new bootstrap.Modal(modalEl);
+    const form = document.getElementById('formModifier');
+
+    document.querySelectorAll('.btn-modifier').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            form.action = this.dataset.url;   // URL de mise à jour de la ligne
+            document.getElementById('nom_artisan').value = this.dataset.nom;   // pré-remplit l'input
+            document.getElementById('telephone').value = this.dataset.telephone;   // pré-remplit l'input
+            document.getElementById('email').value = this.dataset.mail;   // pré-remplit l'input
+            modal.show();
+        });
+    });
+});
+</script>

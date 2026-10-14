@@ -36,13 +36,9 @@
             <span style="color: red">{{ $message }}</span>
             @enderror --}}
             <div class="form-floating mb-3">
-                <select class="form-select @error('expedition') is-invalid @enderror" aria-label="Floating label select example" id="saisonSelect" name="expedition">
-                    @foreach ($conteneur as $e)
-                        <option value={{$e->id}}>{{ $e->nom }}</option>
-                    @endforeach
-                </select>
+                <input type="text" class="form-control  @error('expedition_route') is-invalid @enderror" id="floatingInput" placeholder="name@example.com" name="expedition_route" value="{{ old('expedition_route') }}">
                 <label for="floatingSelect">Expedié dans</label>
-                @error('expedition')
+                @error('expedition_route')
                 <div class="invalid-feedback">
                     {{ $message }}
                 </div>
@@ -108,7 +104,7 @@
                 </div>
                 <div class="col-md-3">
                     <div class="form-floating mb-3">
-                        <input type="number" class="form-control @error('qte_0') is-invalid @enderror" id="floatingInput" name="qte_0">
+                        <input type="text" class="form-control @error('qte_0') is-invalid @enderror" id="floatingInput" name="qte_0">
                         <label for="floatingInput">Quantité</label>
                         @error('qte_0')
                         <div class="invalid-feedback">
@@ -118,15 +114,15 @@
                     </div>
                 </div>
             </div>
-            <div class="row justify-content-center mt-3" style="margin-left: 0px">
-                <div class="col-auto">
-                    <button type="button" id="add-section" class="btn btn-success">+ ajouter section </button>
-                </div>
-                <div class="col-auto">
-                    <button type="button" id="remove-section" class="btn btn-danger">- réduire section </button>
-                </div>
+        </div>
+        <div class="row justify-content-center mt-3" style="margin-left: 0px">
+            <div class="col-auto">
+                <button type="button" id="add-section" class="btn btn-success">+ ajouter section </button>
             </div>
+            <div class="col-auto">
+                <button type="button" id="remove-section" class="btn btn-danger">- réduire section </button>
             </div>
+        </div>
             <button type="submit" class="btn btn-primary"> Enregistrer </button>
         </form>
     </div>
@@ -188,7 +184,7 @@ let counter= 0;
         const couleurSel  = newSection.querySelector('.couleur-select');
 
         if (catalogue && id_saison) {
-            fetch(`/get-artisans/${catalogue}/${id_saison}`)
+            fetch(`{{ url('/get-artisans') }}/${catalogue}/${id_saison}`)
                 .then(r => r.json())
                 .then(artisans => {
                     artisanSel.innerHTML =
@@ -213,7 +209,7 @@ let counter= 0;
             const id_saison = document.getElementById('saisonSelect').value; // valeur dans saison
 
 
-            fetch(`/get-produits/${artisaId}/${catalogue}/${id_saison}`)
+            fetch(`{{ url('/get-produits') }}/${artisaId}/${catalogue}/${id_saison}`)
                 .then(r => r.json())
                 .then(produit => {
                     produitSel.innerHTML =
@@ -239,7 +235,7 @@ let counter= 0;
             const id_saison = document.getElementById('saisonSelect').value; // valeur dans saison
             console.log(artisaId);
 
-            fetch(`/get-couleurs/${artisaId}/${produitId}/${id_saison}`)
+            fetch(`{{ url('/get-couleurs') }}/${artisaId}/${produitId}/${id_saison}`)
                 .then(r => r.json())
                 .then(couleur => {
                     couleurSel.innerHTML =
@@ -283,7 +279,7 @@ let counter= 0;
 
         if (id_saison) {
 
-            fetch(`/get-catalogue/${id_saison}`)
+            fetch(`{{ url('/get-catalogue') }}/${id_saison}`)
                 .then(response => response.json())
                 .then(data => {
                     const catalogueSelect = document.getElementById('catalogueSelect');
@@ -319,7 +315,7 @@ let counter= 0;
     
         console.log("miditra");
         if (catalogue && id_saison) {
-            fetch(`/get-artisans/${catalogue}/${id_saison}`)
+            fetch(`{{ url('/get-artisans') }}/${catalogue}/${id_saison}`)
                 .then(response => response.json())
                 .then(data => {
                     const artisanSelect = document.getElementById('artisanSelect');
@@ -349,7 +345,7 @@ let counter= 0;
     
         // console.log("miditra2");
         if (artisaId && catalogue && id_saison) {
-            fetch(`/get-produits/${artisaId}/${catalogue}/${id_saison}`)
+            fetch(`{{ url('/get-produits') }}/${artisaId}/${catalogue}/${id_saison}`)
                 .then(response => response.json())
                 .then(data => {
                     const produitSelect = document.getElementById('produitSelect');
@@ -377,7 +373,7 @@ let counter= 0;
         console.log("miditra 3");
     
         if (artisanId && produitId) {
-            fetch(`/get-couleurs/${artisanId}/${produitId}/${id_saison}`)
+            fetch(`{{ url('/get-couleurs') }}/${artisanId}/${produitId}/${id_saison}`)
                 .then(response => response.json())
                 .then(data => {
                     const couleurSelect = document.getElementById('couleurSelect');

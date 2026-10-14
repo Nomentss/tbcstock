@@ -122,6 +122,7 @@
                 <input type="hidden" name="catalogue_select" id="catalogue_select">
              
                 <button type="button" class="btn btn-primary" id="btnExport"> Exporter en PDF </button>
+                <button type="button" class="btn btn-primary" id="btnExportExcel"> Exporter en EXCEL </button>
             </form>
         </div>
     </div>
@@ -174,10 +175,23 @@
   </div>
 
 <script>
+   let routeExport = "";
+
+    // Bouton PDF
     document.getElementById('btnExport').addEventListener('click', function () {
+        routeExport = "{{ route('StockController.exportGlobale') }}";
+
         var myModal = new bootstrap.Modal(document.getElementById('exportModal'));
         myModal.show();
-        });
+    });
+
+    // Bouton Excel
+    document.getElementById('btnExportExcel').addEventListener('click', function () {
+        routeExport = "{{ route('StockController.exportGlobaleExcel') }}";
+
+        var myModal = new bootstrap.Modal(document.getElementById('exportModal'));
+        myModal.show();
+    });
 
     document.getElementById('validerExport').addEventListener('click', function () {
         const selectSaison = document.getElementById('selectSaison').value;
@@ -189,8 +203,13 @@
         const selectCatalogue = document.getElementById('selectCatalogue').value;
         document.getElementById('catalogue_select').value = selectCatalogue;
 
+        const form = document.getElementById('form2');
 
-        document.getElementById('form2').submit();
+        // Modifier la route selon le bouton cliqué
+        form.action = routeExport;
+
+        // Envoyer le formulaire
+        form.submit();
     });
 </script>
 @endsection

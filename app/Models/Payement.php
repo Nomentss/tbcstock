@@ -14,6 +14,8 @@ class Payement extends Model
     protected $fillable = [
         'id_saison',
         'id_artisan',
+        'id_client',
+        'type_payement',
         'detail_payement',
         'numero_piece_cheque',
         'montant',

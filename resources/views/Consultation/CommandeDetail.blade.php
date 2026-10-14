@@ -39,6 +39,7 @@
                     <!-- Filtre par type commande -->
                     <input type="hidden" name="id_artisan" value={{ $detail->first()->id_artisan ?? '' }}>
                     <input type="hidden" name="id_saison" value={{ $detail->first()->id_saison ?? '' }}>
+                    <input type="hidden" name="id_client" value={{ $detail->first()->id_client ?? '' }}>
                     <select id="typeCommandeSelect" class="form-select" name="type_commande_select">
                         <option value="">-- Filtrer par type de commande --</option>
                         @foreach ($type_commande as $tc)
@@ -101,7 +102,15 @@
                     <input type="hidden" name="id_saison" value={{ $detail->first()->id_saison ?? '' }}>
                     <input type="hidden" name="type_select" id="type_select"> <!-- Valeur du select -->
                  
-                    <button type="button" class="btn btn-primary" id="btnExport"> Exporter en PDF </button>
+                    <button type="button" class="btn btn-primary" id="btnExportPdf"> Exporter en PDF </button>
+                    <button type="button" class="btn btn-primary" id="btnExportExcel"> Exporter en EXCEL </button>
+                    <a href="{{ route('CommandeController.modifierListe', [
+                        'id_artisan' => $id_artisan,
+                        'id_saison' => $id_saison,
+                        'id_client' => $id_client
+                        ]) }}" class="btn btn-success">
+                        Modifier la liste
+                    </a>
                 </form>
             </div>
         </div>
@@ -137,17 +146,39 @@
   </div>
 
   <script>
-    document.getElementById('btnExport').addEventListener('click', function () {
+    let routeExport = "";
+
+    // Bouton PDF
+    document.getElementById('btnExportPdf').addEventListener('click', function () {
+        routeExport = "{{ route('CommandeController.export') }}";
+
         var myModal = new bootstrap.Modal(document.getElementById('exportModal'));
         myModal.show();
-        });
+    });
 
+    // Bouton Excel
+    document.getElementById('btnExportExcel').addEventListener('click', function () {
+        routeExport = "{{ route('CommandeController.exportExcel') }}";
+
+        var myModal = new bootstrap.Modal(document.getElementById('exportModal'));
+        myModal.show();
+    });
+
+    // Bouton Valider du modal
     document.getElementById('validerExport').addEventListener('click', function () {
-        const selectSaison = document.getElementById('selectType').value;
-        document.getElementById('type_select').value = selectSaison;
+        const selectType = document.getElementById('selectType').value;
 
-        document.getElementById('form2').submit();
-});
+        const form = document.getElementById('form2');
+
+        // Récupérer le filtre
+        document.getElementById('type_select').value = selectType;
+
+        // Modifier la route selon le bouton cliqué
+        form.action = routeExport;
+
+        // Envoyer le formulaire
+        form.submit();
+    });
 </script>
 
 @endsection

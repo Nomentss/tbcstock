@@ -23,9 +23,8 @@ class ExpeditionController extends Controller
 
         $catalogue = DB::table('v_resume_stock')->get();
         $saison = Saison::all();
-        $conteneur = Conteneur::all();
 
-        return view('Expedition.FormulaireExpedition',compact('catalogue', 'saison', 'conteneur'));
+        return view('Expedition.FormulaireExpedition',compact('catalogue', 'saison'));
     }
 
 
@@ -33,6 +32,7 @@ class ExpeditionController extends Controller
         $catalogues = DB::table('v_stock')
                     ->select('designation_catalogue', 'id_saison')
                     ->where('id_saison', $id_saison)
+                    ->where('id_client', session('id_client'))
                     ->groupBy('designation_catalogue', 'id_saison')
                     ->get();
 
@@ -46,6 +46,7 @@ class ExpeditionController extends Controller
                     ->select('designation_catalogue', 'id_artisan', 'artisan', 'id_saison')
                     ->where('designation_catalogue', $catalogue)
                     ->where('id_saison', $id_saison)
+                    ->where('id_client', session('id_client'))
                     ->groupBy('designation_catalogue','id_artisan','artisan', 'id_saison')
                     ->get();
 
@@ -58,6 +59,7 @@ class ExpeditionController extends Controller
                     ->where('id_artisan', $id_artisan)
                     ->where('designation_catalogue', $catalogue)
                     ->where('id_saison', $id_saison)
+                    ->where('id_client', session('id_client'))
                     ->groupBy('id_produit','designation_produit','id_artisan','artisan', 'designation_catalogue', 'id_saison')
                     ->get();
 
@@ -70,6 +72,7 @@ class ExpeditionController extends Controller
                     ->where('id_artisan', $id_artisan)
                     ->where('id_produit', $id_produit)
                     ->where('id_saison', $id_saison)
+                    ->where('id_client', session('id_client'))
                     ->get();
 
         return response()->json($couleur);
@@ -79,18 +82,19 @@ class ExpeditionController extends Controller
 
         $maxCounter = $request->input('maxCounter');
         $date_expedition = $request->input('date_expedition');
-        $expedition_depot = $request->input('expedition');
+        $expedition_depot = $request->input('expedition_depot');
         $catalogue = $request->input('designation_catalogue');
         $id_saison =  $request->input('id_saison');
+        $expedition_route =  $request->input('expedition_route');
 
         Validator::make($request->all(), [
             'date_expedition' => 'required',
-            'expedition' => 'required',    
+            'expedition_route' => 'required',    
             'catalogue' => 'required',
             'id_saison' => 'required',    
         ],[
             'date_expedition.required' => 'date expedition requise',
-            'expedition.required' => 'lieu expedition requis',
+            'expedition_route.required' => 'lieu expedition requis',
             'catalogue.required' => 'designation catalogue requise',
             'id_saison.required' => 'saison requise',
 
@@ -114,26 +118,26 @@ class ExpeditionController extends Controller
 
         $validated = Validator::make($request->all(), $rules, $messages)->validate();  
 
-        // verifier si conteneur deja dans expedition
-        $verifierExpedition = Expedition::select('id')
-                            ->where('id_conteneur', $expedition_depot)
-                            ->first();
+        // // verifier si conteneur deja dans expedition
+        // $verifierExpedition = Expedition::select('id')
+        //                     ->where('id_conteneur', $expedition_depot)
+        //                     ->first();
 
-        if($verifierExpedition == null ){
-            // dump("tsy mi existe");
-            $expedition = Expedition::create([
-                'id_conteneur' => $expedition_depot,
-            ]);
+        // if($verifierExpedition == null ){
+        //     // dump("tsy mi existe");
+        //     $expedition = Expedition::create([
+        //         'id_conteneur' => $expedition_depot,
+        //     ]);
 
-            $id_expedition = $expedition->id;
-            // dd($id_expedition);
+        //     $id_expedition = $expedition->id;
+        //     // dd($id_expedition);
 
-        }
-        else{
-            // dump("mi existe");
-            $id_expedition = $verifierExpedition->id;
-            // dd($id_expedition);
-        }
+        // }
+        // else{
+        //     // dump("mi existe");
+        //     $id_expedition = $verifierExpedition->id;
+        //     // dd($id_expedition);
+        // }
 
         // boucle pour verifier l'etat de stock avant l'insertion
         $messages = [];
@@ -163,9 +167,10 @@ class ExpeditionController extends Controller
             
             $expedition_detail= Expedition_detail::create([
                 'id_saison' => $id_saison,
-                'id_expedition' => $id_expedition,
                 'id_artisan' => $id_artisan,
+                'id_client' => session('id_client'),
                 'date_expedition' => $date_expedition,
+                'expedition_route' => $expedition_route,
                 'id_produit' => $id_produit,
                 'id_couleur' => $id_couleur,
                 'qte' => $quantite,  
@@ -198,23 +203,21 @@ class ExpeditionController extends Controller
         $selectionCatalogue = "";
         $selectionCouleur = "";
         
-        $conteneur = $request->input('conteneur_select');
         $saison = $request->input('saison_select');
 
-        $query2 = DB::table('v_reference_somme_expedition')
+        $query2 = DB::table('v_reference_somme_expedition')->where('id_client', session('id_client'))
                   ->selectRaw('SUM(qte) as qte, SUM(qte*prix_unitaire) as total'); 
         
 
         // $query = DB::table('v_expedition');
-        $query = DB::table('v_reference_somme_expedition');
+        $query = DB::table('v_reference_somme_expedition')->where('id_client', session('id_client'));
 
 
         if ($request->filled('recherche')) {
             $query->where(function ($q) use ($recherche) {
                 $pattern = "%{$recherche}%"; 
             
-                $q->whereRaw('UPPER(conteneur) LIKE UPPER(?)', [$pattern])
-                    ->orWhereRaw('UPPER(artisan) LIKE  UPPER(?)', [$pattern])
+                $q->WhereRaw('UPPER(artisan) LIKE  UPPER(?)', [$pattern])
                     ->orWhereRaw('UPPER(designation_produit) LIKE  UPPER(?)', [$pattern])
                     ->orWhereRaw('UPPER(designation_catalogue) LIKE  UPPER(?)', [$pattern])
                     ->orWhereRaw('UPPER(couleur) LIKE  UPPER(?)', [$pattern])
@@ -229,14 +232,6 @@ class ExpeditionController extends Controller
             $query->where('id_saison', $saisonSelect);
             $query2->where('id_saison', $saisonSelect);
 
-        }
-
-        if($request->filled('conteneur_select')){
-            $conteneurSelect = $request->input('conteneur_select');
-            $selectionConteneur = $conteneurSelect;
-
-            $query->where('id_conteneur', $conteneurSelect);
-            $query2->where('id_conteneur', $conteneurSelect);
         }
 
         if($request->filled('artisan_select')){
@@ -276,16 +271,15 @@ class ExpeditionController extends Controller
 
         $couleur = Couleur::all();
         $saison = Saison::all();
-        $conteneur = Conteneur::all();
+        // $conteneur = Conteneur::all();
 
         $total = $query2->get();
 
-        return view('Expedition.ListeExpedition', compact('expedition', 'artisan', 'designationCatalogue', 'couleur', 'selectionArtisan', 'selectionCatalogue', 'selectionCouleur', 'saison','selectionSaison','conteneur', 'selectionConteneur', 'total'));
+        return view('Expedition.ListeExpedition', compact('expedition', 'artisan', 'designationCatalogue', 'couleur', 'selectionArtisan', 'selectionCatalogue', 'selectionCouleur', 'saison','selectionSaison', 'total'));
 
     }
 
     public function updateStock($id_produit, $id_couleur, $quantite, $id_saison){
-        // verification de stock
             $stock = Stock::create([
                 'id_saison' => $id_saison,
                 'id_produit' => $id_produit,

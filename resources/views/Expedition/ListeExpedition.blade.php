@@ -44,14 +44,6 @@
                         </select>
                     </div>
                     <div class="col-md-3 mb-2">
-                        <select id="typeCommandeSelect" class="form-select" name="conteneur_select">
-                            <option value="">-- Filtre conteneur --</option>
-                            @foreach ($conteneur as $c)
-                                <option value={{$c->id}}  {{ $selectionConteneur == $c->id ? 'selected' : '' }}>{{$c->nom}}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-3 mb-2">
                         <select id="typeCommandeSelect" class="form-select" name="artisan_select">
                             <option value="">-- Filtre artisan --</option>
                             @foreach ($artisan as $a)
@@ -102,7 +94,7 @@
                         @foreach ($expedition as $e)
                         <tr>
                             <td>{{ $e->nom_saison}}</td>
-                            <td style="text-align: center">{{ $e->conteneur}}</td>
+                            <td style="text-align: center">{{ $e->expedition_route}}</td>
                             <td>{{ $e->artisan}}</td>
                             <td>{{ $e->designation_produit}}</td>
                             <td>{{ $e->designation_catalogue}}</td>
@@ -167,15 +159,7 @@
                 @endforeach
           </select>
           <br>
-          <label for="selectExport">Sélection conteneur :</label>
-          <select id="selectConteneur" class="form-select">
-            <option value="">Tous</option>
-                @foreach ($conteneur as $c)
-                <option value={{$c->id}}  {{ $selectionConteneur == $c->id ? 'selected' : '' }}>{{$c->nom}}</option>
-                @endforeach
-          </select>
-
-          <br>
+          
           <label for="selectExport">Sélection artisan :</label>
           <select id="selectArtisan" class="form-select">
             <option value="">Tous</option>

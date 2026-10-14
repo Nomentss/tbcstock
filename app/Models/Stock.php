@@ -13,6 +13,7 @@ class Stock extends Model
 
     protected $fillable = [
         'id_saison',
+        'id_client',
         'id_produit',
         'id_couleur',
         'qte_livre',
