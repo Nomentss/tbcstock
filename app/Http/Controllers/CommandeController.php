@@ -275,7 +275,7 @@ class CommandeController extends Controller
     public function filtreCommande(Request $request){
         $id_artisan= $request->input('id_artisan');
         $id_saison= $request->input('id_saison');
-        $id_client= $request->input('id_client');
+        $id_client= session('id_client');
         $type_commande_select= $request->input('type_commande_select');
         $recherche = $request->input('recherche');
 
@@ -332,7 +332,7 @@ class CommandeController extends Controller
         $detail= $query->paginate(150);
 
         $selectionType = $type_commande_select;
-        return view('Consultation.CommandeDetail', compact('detail', 'type_commande', 'somme', 'selectionType'));
+        return view('Consultation.CommandeDetail', compact('detail', 'type_commande', 'somme', 'selectionType', 'id_artisan', 'id_saison', 'id_client'));
 
     }
 

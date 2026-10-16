@@ -285,4 +285,48 @@ class ArticleRetourController extends Controller
 
         return $pdf->download($nomFichier);
     }
+
+    public function filtre(Request $request)
+    {
+        $id_artisan = $request->input('id_artisan');
+        $id_saison  = $request->input('id_saison');
+        $id_client  = session('id_client');
+        $recherche  = $request->input('recherche');
+
+        // ... session ...
+
+        // Filtre de recherche réutilisable
+        $appliquerRecherche = function ($q) use ($recherche) {
+            if ($recherche) {
+                $pattern = "%{$recherche}%";
+                $q->where(function ($sub) use ($pattern) {
+                    $sub->where('designation_produit', 'ilike', $pattern)
+                        ->orWhere('designation_catalogue', 'ilike', $pattern)
+                        ->orWhere('couleur', 'ilike', $pattern)
+                        ->orWhereRaw('CAST(bon_sortie AS TEXT) ILIKE ?', [$pattern]);
+                });
+            }
+            return $q;
+        };
+
+        // Liste détaillée
+        $query = DB::table('v_article_retour_detail')
+            ->where('id_artisan', $id_artisan)
+            ->where('id_saison', $id_saison)
+            ->where('id_client', $id_client);
+        $appliquerRecherche($query);
+
+        // Somme (avec la même recherche)
+        $queryS = DB::table('v_article_retour_detail')
+            ->select('id_artisan', 'id_saison', DB::raw('SUM(qte) as total_qte'))
+            ->where('id_client', $id_client)
+            ->groupBy('id_artisan', 'id_saison');
+        $appliquerRecherche($queryS);
+        $somme = $queryS->get();
+
+        $selectionType = "";
+        $detail = $query->paginate(150)->appends($request->all());
+
+        return view('Consultation.ArticleRetourDetail', compact('detail', 'somme', 'selectionType'));
+    }
 }

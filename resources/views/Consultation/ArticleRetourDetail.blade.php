@@ -25,7 +25,7 @@
     <div class="col-12">
         <div class="bg-light rounded h-100 p-4">
             <h5 class="mb-4" style="text-align: center">Detail des articles retournés de l'artisan "{{ session('nom_artisan') }}"</h5>
-    <form action="#" method="GET">
+    <form action="{{ route('ArticleRetourController.filtre') }}" method="GET">
             <div class="row mb-3">
                 <!-- Recherche texte -->
                 <div class="col-md-10 mb-3">
@@ -35,7 +35,7 @@
                     <button type="submit" class="btn btn-primary">Rechercher</button>
                 </div>
                 <div class="col-md-4 mb-2">
-                <form action="{{ route('CommandeController.filtreCommande') }}" method="GET">
+                <form action="{{ route('ArticleRetourController.filtre') }}" method="GET">
                     <!-- Filtre par type commande -->
                     <input type="hidden" name="id_artisan" value={{ $detail->first()->id_artisan ?? '' }}>
                     <input type="hidden" name="id_saison" value={{ $detail->first()->id_saison ?? '' }}>
