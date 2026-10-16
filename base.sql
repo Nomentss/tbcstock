@@ -2,7 +2,7 @@ create table saison(
     id serial primary key,
     debut date,
     fin date,
-    nom_saison varchar(25),
+    nom_saison varchar(255),
     created_at timestamp,
     updated_at timestamp
 );
@@ -33,8 +33,8 @@ create table couleur(
 create table produit(
     id serial primary key,
     id_artisan int,
-    designation_produit varchar(55),
-    designation_catalogue varchar(50),
+    designation_produit varchar(255),
+    designation_catalogue varchar(255),
     created_at timestamp,
     updated_at timestamp,
     FOREIGN KEY (id_artisan) REFERENCES artisan(id) ON DELETE CASCADE
@@ -56,7 +56,7 @@ create table commande(
     id_saison int,
     id_artisan int,
     id_client int,
-    type_commande varchar(50),
+    type_commande varchar(255),
     date_commande date,
     created_at timestamp,
     updated_at timestamp,
@@ -82,7 +82,7 @@ create table commande_detail(
 
 create table type_livraison(
     id serial primary key,
-    nom varchar(10),
+    nom varchar(255),
     created_at timestamp,
     updated_at timestamp
 );
