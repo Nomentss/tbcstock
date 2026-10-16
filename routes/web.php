@@ -139,6 +139,7 @@ Route::middleware(['auth', 'role:0'])->group(function () {
         Route::post('/insertArticleRetour', 'insertArticleRetour')->name('ArticleRetourController.insertArticleRetour');
         Route::get('/listeArticleRetour', 'listeArticleRetour')->name('ArticleRetourController.listeArticleRetour');
         Route::get('/listeArticleRetourDetail/{id_artisan}/{id_saison}/{id_client}', 'detailArticleRetour')->name('ArticleRetourController.detailArticleRetour');
+        Route::get('/ArticleRetour/pdf', 'exportPdf')->name('ArticleRetourController.exportPdf');
 
     });
 

@@ -86,6 +86,7 @@ class ExpeditionController extends Controller
         $catalogue = $request->input('designation_catalogue');
         $id_saison =  $request->input('id_saison');
         $expedition_route =  $request->input('expedition_route');
+        $id_client =  session('id_client');
 
         Validator::make($request->all(), [
             'date_expedition' => 'required',
@@ -146,7 +147,7 @@ class ExpeditionController extends Controller
             $id_couleur = $request->input('couleur_'.$i);
             $quantite = $request->input('qte_'.$i);
 
-            $erreur = $this->verifierStock($id_produit, $id_couleur, $quantite, $id_saison);
+            $erreur = $this->verifierStock($id_produit, $id_couleur, $quantite, $id_saison, $id_client);
             if($erreur != null){
                 $messages[] = $erreur;
             }
@@ -163,12 +164,12 @@ class ExpeditionController extends Controller
             $id_couleur = $request->input('couleur_'.$i);
             $quantite = $request->input('qte_'.$i);
 
-            $this->updateStock($id_produit, $id_couleur, $quantite, $id_saison);
+            $this->updateStock($id_produit, $id_couleur, $quantite, $id_saison, $id_client);
             
             $expedition_detail= Expedition_detail::create([
                 'id_saison' => $id_saison,
                 'id_artisan' => $id_artisan,
-                'id_client' => session('id_client'),
+                'id_client' => $id_client,
                 'date_expedition' => $date_expedition,
                 'expedition_route' => $expedition_route,
                 'id_produit' => $id_produit,
@@ -279,21 +280,23 @@ class ExpeditionController extends Controller
 
     }
 
-    public function updateStock($id_produit, $id_couleur, $quantite, $id_saison){
+    public function updateStock($id_produit, $id_couleur, $quantite, $id_saison, $id_client){
             $stock = Stock::create([
                 'id_saison' => $id_saison,
                 'id_produit' => $id_produit,
                 'id_couleur' => $id_couleur,
                 'qte_livre' => -$quantite,
+                'id_client' => $id_client,
             ]);
     }
 
-    public function verifierStock($id_produit, $id_couleur, $quantite, $id_saison){
+    public function verifierStock($id_produit, $id_couleur, $quantite, $id_saison, $id_client){
         $stockRestant = DB::table('v_stock')
         ->select('qte_livre', 'designation_produit', 'artisan', 'qte_livre', 'id_saison')
         ->where('id_saison', $id_saison)
         ->where('id_produit', $id_produit)
         ->where('id_couleur', $id_couleur)
+        ->where('id_client', $id_client)
         ->first();
 
         if($stockRestant->qte_livre < $quantite){

@@ -121,6 +121,7 @@ create table payement_artisan(
     id serial primary key,
     id_saison int,
     id_artisan int,
+    id_client int,
     type_payement varchar(255),
     detail_payement varchar(255),
     numero_piece_cheque varchar(255), 
@@ -129,7 +130,8 @@ create table payement_artisan(
     created_at timestamp,
     updated_at timestamp,
     FOREIGN KEY (id_artisan) REFERENCES artisan(id) ON DELETE CASCADE,
-    FOREIGN KEY (id_saison) REFERENCES saison(id) ON DELETE CASCADE
+    FOREIGN KEY (id_saison) REFERENCES saison(id) ON DELETE CASCADE,
+    FOREIGN KEY (id_client) REFERENCES client(id) ON DELETE CASCADE
 );
 
 create table stock(
@@ -186,8 +188,9 @@ create table article_retour_detail(
     id_article_retour int,
     id_produit int,
     id_couleur int,
-    qte_livre double precision,
+    qte double precision,
     date_retour date,
+    bon_sortie int,
     created_at timestamp,
     updated_at timestamp,
     FOREIGN KEY (id_produit) REFERENCES produit(id) ON DELETE CASCADE,
@@ -403,7 +406,7 @@ designation_catalogue;
 -- vue pour somme valeur stock_commande  vue de jointure pour avoir prix dans stock
 create view v_stock_commande as 
 select vs.id_saison, vs.id_client, vs.nom_saison, vs.id_artisan, vs.artisan, vs.id_produit, vs.id_couleur, vs.couleur, vs.designation_produit, vs.designation_catalogue, vs.qte_livre, co.prix_unitaire from v_stock vs
-join (
+left join (
     select c.id_saison, c.id_artisan, c.id_client, cd.id_produit, cd.id_couleur, cd.prix_unitaire, cd.qte from commande_detail cd
     join commande c
     on c.id = cd.id_commande
@@ -438,24 +441,26 @@ group by id_artisan, id_saison, id_client, type_commande;
 
 -- vue necessaire pour somme total valeur expedition par saison
 create view v_reference_somme_expedition as
-select ve.id_saison, ve.nom_saison, ve.id_artisan, ve.artisan, ve.expedition_route, ve.id_client, ve.id_produit, ve.id_couleur, ve.couleur, ve.qte, ve.designation_produit, ve.designation_catalogue, vc.prix_unitaire, ve.date_expedition from v_expedition ve
+select ve.id_saison, ve.nom_saison, ve.id_artisan, ve.artisan, ve.expedition_route, ve.id_client, ve.id_produit, ve.id_couleur, ve.couleur, SUM(ve.qte) as qte, ve.designation_produit, ve.designation_catalogue, vc.prix_unitaire, ve.date_expedition from v_expedition ve
 join ( 
 select c.id_saison, c.id_artisan, c.id_client, cd.id_produit, cd.id_couleur, cd.prix_unitaire, cd.qte from commande_detail cd
 join commande c
 on c.id = cd.id_commande
 group by c.id_saison, c.id_artisan, c.id_client, cd.id_produit, cd.id_couleur, cd.prix_unitaire, cd.qte
 ) as vc
-on ve.id_saison = vc.id_saison and ve.id_artisan=vc.id_artisan and ve.id_produit = vc.id_produit and ve.id_couleur = vc.id_couleur and ve.id_client = vc.id_client;
+on ve.id_saison = vc.id_saison and ve.id_artisan=vc.id_artisan and ve.id_produit = vc.id_produit and ve.id_couleur = vc.id_couleur and ve.id_client = vc.id_client
+group by ve.id_saison, ve.nom_saison, ve.id_artisan, ve.artisan, ve.expedition_route, ve.id_client, ve.id_produit, ve.id_couleur, ve.couleur, ve.designation_produit, ve.designation_catalogue, vc.prix_unitaire, ve.date_expedition;
 
 
 create view v_article_retour_detail as
-select rd.id, rd.id_article_retour, ar.id_artisan, ar.id_saison, ar.id_client, rd.id_produit, p.designation_produit, p.designation_catalogue, rd.id_couleur, c.nom as couleur, rd.qte, rd.date_retour from article_retour_detail rd 
+select rd.id_article_retour, ar.id_artisan, ar.id_saison, ar.id_client, rd.id_produit, p.designation_produit, p.designation_catalogue, rd.id_couleur, c.nom as couleur, SUM(rd.qte) as qte, rd.date_retour, rd.bon_sortie from article_retour_detail rd 
 join produit p on
 p.id = rd.id_produit
 join couleur c on 
 c.id = rd.id_couleur
 join article_retour ar on
-rd.id_article_retour = ar.id;
+rd.id_article_retour = ar.id
+group by rd.id_article_retour, ar.id_artisan, ar.id_saison, ar.id_client, rd.id_produit, p.designation_produit, p.designation_catalogue, rd.id_couleur, c.nom, rd.date_retour, rd.bon_sortie ;
 
 -- vue pour afficher liste commande_detail pour modification
 select c.id as id_commande, c.id_client as id_client, c.id_saison as id_saison, c.id_artisan as id_artisan, cd.id, p.id as id_produit, c.type_commande, c.date_commande, p.designation_produit, p.designation_catalogue, co.nom as couleur, co.id as id_couleur, cd.prix_unitaire, cd.qte, cd.created_at from commande_detail cd

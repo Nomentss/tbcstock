@@ -25,7 +25,7 @@
     <div class="col-12">
         <div class="bg-light rounded h-100 p-4">
             <h5 class="mb-4" style="text-align: center">Detail des articles retournés de l'artisan "{{ session('nom_artisan') }}"</h5>
-    <form action="{{ route('CommandeController.filtreCommande') }}" method="GET">
+    <form action="#" method="GET">
             <div class="row mb-3">
                 <!-- Recherche texte -->
                 <div class="col-md-10 mb-3">
@@ -53,6 +53,7 @@
                             <th scope="col">COULEUR</th>
                             <th scope="col">QUANTITE</th>
                             <th scope="col">DATE RETOUR</th>
+                            <th scope="col">Bon sortie</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -65,6 +66,7 @@
                                 <td style="text-align: center">
                                     {{ \Carbon\Carbon::parse($details->date_retour)->translatedFormat('d F Y') }}
                                 </td>
+                                <td>{{$details->bon_sortie }}</td>
                             </tr>
                         @endforeach                      
                     </tbody>
@@ -80,12 +82,11 @@
                     </thead>
                 </table>
                 <!-- Bouton pour exporter -->
-                <form id="form2" method="GET" action="{{ route('CommandeController.export')}}">
+                <form id="form2" method="GET" action="{{ route('ArticleRetourController.exportPdf')}}">
                     <input type="hidden" name="id_artisan" value={{ $detail->first()->id_artisan ?? '' }}>
                     <input type="hidden" name="id_saison" value={{ $detail->first()->id_saison ?? '' }}>
-                    <input type="hidden" name="type_select" id="type_select"> <!-- Valeur du select -->
-                 
-                    <button type="button" class="btn btn-primary" id="btnExport"> Exporter en PDF </button>
+
+                    <button type="submit" class="btn btn-primary" id="btnExport"> Exporter en PDF </button>
                 </form>
             </div>
         </div>
@@ -95,19 +96,5 @@
     </form>
 
 </div>
-<!-- Modal ---------------------------------------------------------------------------------------------------------------------------->
-  <script>
-    document.getElementById('btnExport').addEventListener('click', function () {
-        var myModal = new bootstrap.Modal(document.getElementById('exportModal'));
-        myModal.show();
-        });
-
-    document.getElementById('validerExport').addEventListener('click', function () {
-        const selectSaison = document.getElementById('selectType').value;
-        document.getElementById('type_select').value = selectSaison;
-
-        document.getElementById('form2').submit();
-});
-</script>
 
 @endsection

@@ -43,9 +43,9 @@
         </div>
 
         <div class="form-floating mb-3">
-            <input type="text" class="form-control" name="numero_bs">
+            <input type="text" class="form-control" name="bon_sortie">
             <label>Numero BS</label>
-            @error('numero_bs')
+            @error('bon_sortie')
             <div class="invalid-feedback">
                 {{ $message }}
             </div>

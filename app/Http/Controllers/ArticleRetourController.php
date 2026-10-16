@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use App\Models\ArticleRetourDetail;
 use App\Models\Stock;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\Client;
+use Carbon\Carbon;
 
 
 class ArticleRetourController extends Controller
@@ -65,6 +68,7 @@ class ArticleRetourController extends Controller
         $id_artisan = $request->input('id_artisan');
         $id_client = session('id_client');
         $date_retour = $request->input('date_retour');
+        $bon_sortie = $request->input('bon_sortie');
         $id_article_retour;
 
         $maxCounter = $request->input('maxCounter');
@@ -86,11 +90,13 @@ class ArticleRetourController extends Controller
         Validator::make($request->all(), [
             'id_saison' => 'required',
             'id_artisan' => 'required',    
-            'date_retour' => 'required',    
+            'date_retour' => 'required',   
+            'bon_sortie' => 'required',    
         ],[
             'id_saison.required' => 'date requis',
             'id_artisan.required' => 'artisan requis',
             'date_retour.required' => 'date requise',
+            'bon_sortie.required' => 'bon de sortie requis',
 
         ])-> validate();
 
@@ -103,7 +109,7 @@ class ArticleRetourController extends Controller
             $id_couleur = $request->input('couleur_'.$i);
             $quantite = $request->input('qte_'.$i);
 
-            $erreur = $this->verifierStock($id_produit, $id_couleur, $quantite, $id_saison);
+            $erreur = $this->verifierStock($id_produit, $id_couleur, $quantite, $id_saison, $id_client);
             if($erreur != null){
                 $messages[] = $erreur;
             }
@@ -120,7 +126,7 @@ class ArticleRetourController extends Controller
         $id_couleur = $request->input('couleur_'.$i);
         $qte = $request->input('qte_'.$i);
 
-        $this->updateStock($id_produit, $id_couleur, $qte, $id_saison);
+        $this->updateStock($id_produit, $id_couleur, $qte, $id_saison, $id_client);
 
             $detail = ArticleRetourDetail::create([
                 'id_article_retour' => $articleRetour->id,
@@ -128,6 +134,7 @@ class ArticleRetourController extends Controller
                 'id_couleur' => $id_couleur,
                 'qte' => $qte,
                 'date_retour' => $date_retour,
+                'bon_sortie' => $bon_sortie,
             ]);
 
         }
@@ -214,21 +221,23 @@ class ArticleRetourController extends Controller
         return view('Consultation.ArticleRetourDetail', compact('detail', 'somme','selectionType'));
     }
 
-    public function updateStock($id_produit, $id_couleur, $quantite, $id_saison){
+    public function updateStock($id_produit, $id_couleur, $quantite, $id_saison, $id_client){
         $stock = Stock::create([
             'id_saison' => $id_saison,
             'id_produit' => $id_produit,
             'id_couleur' => $id_couleur,
             'qte_livre' => -$quantite,
+            'id_client' => $id_client,
         ]);
     }
 
-    public function verifierStock($id_produit, $id_couleur, $quantite, $id_saison){
+    public function verifierStock($id_produit, $id_couleur, $quantite, $id_saison, $id_client){
         $stockRestant = DB::table('v_stock')
         ->select('qte_livre', 'designation_produit', 'artisan', 'qte_livre', 'id_saison')
         ->where('id_saison', $id_saison)
         ->where('id_produit', $id_produit)
         ->where('id_couleur', $id_couleur)
+        ->where('id_client', $id_client)
         ->first();
 
         if($stockRestant->qte_livre < $quantite){
@@ -244,5 +253,36 @@ class ArticleRetourController extends Controller
             return null;
         }
 
+    }
+
+     public function exportPdf(Request $request) {
+        $id_artisan = $request->input('id_artisan'); 
+        $id_saison = $request->input('id_saison');
+        $id_client = session('id_client');
+
+       $query = DB::table('v_article_retour_detail')
+                ->where('id_artisan', $id_artisan)
+                ->where('id_saison', $id_saison)
+                ->where('id_client', $id_client);
+
+        $total = DB::table('v_article_retour_detail')
+                ->select('id_artisan','id_saison', DB::raw('SUM(qte) as total_qte'))
+                ->where('id_client', $id_client)
+                ->groupBy('id_artisan', 'id_saison')
+                ->get();
+
+        $detail = $query->get();
+
+        $pdf = Pdf::loadView('PDF.articleRetour', compact('detail','total'));
+
+        // pour le nom du fichier
+        $artisan = Artisan::find($id_artisan);
+        $saison = Saison::find($id_saison);
+        $client = Client::find(session('id_client'));
+        $date = Carbon::now()->format('d-m-Y');
+
+        $nomFichier = "Article_retour_{$artisan->nom}_{$saison->nom_saison}_{$client->nom_client}_{$date}.pdf";
+
+        return $pdf->download($nomFichier);
     }
 }

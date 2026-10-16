@@ -17,5 +17,6 @@ class ArticleRetourDetail extends Model
         'id_couleur',
         'qte',
         'date_retour',
+        'bon_sortie',
     ];
 }
