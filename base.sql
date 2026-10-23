@@ -471,6 +471,14 @@ p.id= cd.id_produit
 join couleur co on
 co.id= cd.id_couleur
 
--- insert into users (username, password, level) values ('Admin', '$2y$10$sOuApahdYD3FmIzKE8tZd.9eOznQlAYrxZzs4BisX013VW3l/J5.2', 0); 
+-- insert into users (username, password, level) values ('Admin', '$2y$10$wB0lWLxhK3MEke6QpNx4Z./a5ozQOpNDqmA767DddaRtES/fEe8bm', 0); 
 
 -- php -r "echo password_hash('0000', PASSWORD_BCRYPT);"
+
+select rd.id_article_retour, ar.id_artisan, ar.id_saison, ar.id_client, rd.id_produit, p.designation_produit, p.designation_catalogue, rd.id_couleur, c.nom as couleur, rd.qte, rd.date_retour, rd.bon_sortie from article_retour_detail rd 
+join produit p on
+p.id = rd.id_produit
+join couleur c on 
+c.id = rd.id_couleur
+join article_retour ar on
+rd.id_article_retour = ar.id

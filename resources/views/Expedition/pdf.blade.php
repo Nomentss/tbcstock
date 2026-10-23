@@ -61,7 +61,7 @@
             @foreach($expedition as $e)
                 <tr>
                     <td>{{ $e->nom_saison}}</td>
-                    <td style="text-align: center">{{ $e->conteneur}}</td>
+                    <td style="text-align: center">{{ $e->expedition_route}}</td>
                     <td>{{ $e->artisan}}</td>
                     <td>{{ $e->designation_produit}}</td>
                     <td>{{ $e->designation_catalogue}}</td>

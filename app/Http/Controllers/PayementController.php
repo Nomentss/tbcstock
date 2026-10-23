@@ -11,6 +11,7 @@ use App\Models\Artisan;
 use App\Models\Saison;
 use Barryvdh\DomPDF\Facade\Pdf;
 
+
 class PayementController extends Controller
 {
     public function payementFormulaire(){
@@ -118,5 +119,45 @@ class PayementController extends Controller
 
         $pdf = Pdf::loadView('PDF.payement', compact('detail','resume'));
         return $pdf->download('payement_detail.pdf'); 
+    }
+
+    public function modifierListe($id_artisan, $id_saison, $id_client){
+        $detail = Payement::where('id_saison', $id_saison)
+            ->where('id_artisan', $id_artisan)
+            ->where('id_client', $id_client)
+            ->get();
+
+        return view('Consultation.PayementModifier', compact('detail'));
+    }
+
+    public function update(Request $request, $id){
+        $validated = $request->validate([
+            'montant' => 'required|min:0',
+            'detail' => 'required',
+        ]);
+
+        $detail = Payement::findOrFail($id);
+
+        $detail->montant = $validated['montant'];
+        $detail->detail_payement = $validated['detail'];
+
+        $detail->save();
+
+        return response()->json([
+            'success' => true,
+            'montant' => $detail->montant,
+            'detail' => $detail->detail_payement
+        ]);
+    }
+
+    public function delete($id){
+        $detail = Payement::findOrFail($id);
+
+        $detail->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Ligne supprimée avec succès'
+        ]);
     }
 }

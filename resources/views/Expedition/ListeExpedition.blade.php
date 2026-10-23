@@ -130,11 +130,13 @@
                 <!-- Bouton pour exporter -->
                 <form id="form2" method="GET" action="{{ route('ExpeditionController.export')}}">
                     <input type="hidden" name="saison_select" id="saison_select"> <!-- Valeur du select -->
-                    <input type="hidden" name="conteneur_select" id="conteneur_select"> <!-- Valeur du select -->
                     <input type="hidden" name="artisan_select" id="artisan_select"> <!-- Valeur du select -->
                     <input type="hidden" name="catalogue_select" id="catalogue_select"> <!-- Valeur du select -->
 
                     <button type="button" class="btn btn-primary" id="btnExport"> Exporter en PDF </button>
+                    <a href="{{ route('ExpeditionController.modifierListe', ['id_client' => session('id_client') ]) }}" class="btn btn-success">
+                        Modifier la liste
+                    </a>
                 </form>
             </div>
             
@@ -196,9 +198,6 @@
     document.getElementById('validerExport').addEventListener('click', function () {
         const selectSaison = document.getElementById('selectSaison').value;
         document.getElementById('saison_select').value = selectSaison;
-
-        const selectConteneur = document.getElementById('selectConteneur').value;
-        document.getElementById('conteneur_select').value = selectConteneur;
 
         const selectArtisan = document.getElementById('selectArtisan').value;
         document.getElementById('artisan_select').value = selectArtisan;

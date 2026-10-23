@@ -64,6 +64,7 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @if ($payement->isNotEmpty())
                         @foreach ($payement as $p)
                         <tr>
                             <th>{{$p->nom_saison}}</th>
@@ -83,6 +84,11 @@
                             <td style="text-align: center"><a href="{{ route('PayementController.payementDetail', ['id_artisan' => $p->id_artisan, 'id_saison' => $p->id_saison]) }}" class="btn btn-primary w-55">Voir détail</a></td>                          
                         </tr>
                         @endforeach
+                        @else
+                        <tr>
+                            <td colspan="8" class="text-center">Aucune donnée disponible.</td>
+                        </tr>
+                        @endif 
                     </tbody>
                 </table>
             </div>

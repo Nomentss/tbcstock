@@ -60,13 +60,19 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @if ($articleRetours->isNotEmpty())
                         @foreach ($articleRetours as $articleRetour)
                         <tr>
                             <th>{{$articleRetour-> artisan}}</th>
                             <th>{{$articleRetour-> saison}}</th>
                             <th style="text-align: center"><a href="{{ route('ArticleRetourController.detailArticleRetour', ['id_artisan' => $articleRetour->id_artisan, 'id_saison' => $articleRetour->id_saison, 'id_client' => $articleRetour->id_client ]) }}" class="btn btn-primary w-50">Voir détail</a></th>                        
                         </tr>
-                        @endforeach                   
+                        @endforeach 
+                        @else
+                        <tr>
+                            <td colspan="8" class="text-center">Aucune donnée disponible.</td>
+                        </tr>
+                        @endif                  
                     </tbody>
                 </table>
             </div>

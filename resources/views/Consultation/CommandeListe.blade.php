@@ -60,13 +60,19 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @if ($commandes->isNotEmpty())
                         @foreach ($commandes as $commande)
                         <tr>
                             <th>{{$commande-> artisan}}</th>
                             <th>{{$commande-> saison}}</th>
                             <th style="text-align: center"><a href="{{ route('CommandeController.detailCommande', ['id_artisan' => $commande->id_artisan, 'id_saison' => $commande->id_saison, 'id_client' => $commande->id_client ]) }}" class="btn btn-primary w-50">Voir détail</a></th>                        
                         </tr>
-                        @endforeach                   
+                        @endforeach
+                        @else
+                        <tr>
+                            <td colspan="8" class="text-center">Aucune donnée disponible.</td>
+                        </tr>
+                        @endif                   
                     </tbody>
                 </table>
             </div>

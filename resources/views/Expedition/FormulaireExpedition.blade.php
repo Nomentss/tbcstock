@@ -161,7 +161,7 @@ let counter= 0;
                 </div>
                 <div class="col-md-3">
                     <div class="form-floating mb-3">
-                        <input type="number" class="form-control @error('qte_livre_0') is-invalid @enderror" id="floatingInput" name="qte_${counter}">
+                        <input type="text" class="form-control @error('qte_livre_0') is-invalid @enderror" id="floatingInput" name="qte_${counter}">
                         <label for="floatingInput">Quantité</label>
                         @error('qte_0')
                         <div class="invalid-feedback">

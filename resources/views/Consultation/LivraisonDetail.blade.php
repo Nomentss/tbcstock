@@ -84,6 +84,13 @@
                  
                     <button type="button" class="btn btn-primary" id="btnExport"> Exporter en PDF </button>
                     <button type="button" class="btn btn-primary" id="btnExportExcel"> Exporter en EXCEL </button>
+                    <a href="{{ route('livraisonController.modifierListe', [
+                        'id_artisan' => $id_artisan,
+                        'id_saison' => $id_saison,
+                        'id_client' => session('id_client')
+                        ]) }}" class="btn btn-success">
+                        Modifier la liste
+                    </a>
                 </form>
             </div>
         </div>

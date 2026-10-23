@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Imports\GeneralImport;
 use App\Imports\LivraisonImport;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\DB;
 
 class ImportController extends Controller
 {
@@ -70,5 +71,38 @@ class ImportController extends Controller
             ->with('fail', $e->getMessage())
             ->withInput();
         }
+    }
+
+    public function confirmerImport(){
+        $donnees = session('livraisons_en_attente', []);
+        $parametres = session('parametres_livraison');
+
+        // pour iserer id_livraison
+        $livraison = session('parametres_livraison');
+
+
+        if (empty($donnees)) {
+            return back()->with('error', 'Aucune livraison à confirmer');
+        }
+
+        DB::transaction(function () use ($donnees, $parametres, $livraison) {
+
+            $import = new LivraisonImport(
+                $parametres['saison'],
+                $parametres['dateLivraison'],
+                $parametres['id_artisan'],
+                $parametres['bon_reception']
+            );
+
+            $import->confirmerLivraison($donnees, $livraison);
+        });
+
+        session()->forget([
+            'parametres_livraison',
+            'livraisons_en_attente',
+            'livraison'
+        ]);
+
+        return back()->with('success', 'Livraison enregistrée avec succès');
     }
 }

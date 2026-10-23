@@ -126,7 +126,7 @@ class ArticleRetourController extends Controller
         $id_couleur = $request->input('couleur_'.$i);
         $qte = $request->input('qte_'.$i);
 
-        $this->updateStock($id_produit, $id_couleur, $qte, $id_saison, $id_client);
+        $this->updateStock($id_produit, $id_couleur, $qte, $id_saison, $id_client, $date_retour);
 
             $detail = ArticleRetourDetail::create([
                 'id_article_retour' => $articleRetour->id,
@@ -218,16 +218,17 @@ class ArticleRetourController extends Controller
         // pour eviter la valuer null de selectionType
         $selectionType = "";
         
-        return view('Consultation.ArticleRetourDetail', compact('detail', 'somme','selectionType'));
+        return view('Consultation.ArticleRetourDetail', compact('detail', 'somme','selectionType', 'id_artisan', 'id_saison'));
     }
 
-    public function updateStock($id_produit, $id_couleur, $quantite, $id_saison, $id_client){
+    public function updateStock($id_produit, $id_couleur, $quantite, $id_saison, $id_client, $date_retour){
         $stock = Stock::create([
             'id_saison' => $id_saison,
             'id_produit' => $id_produit,
             'id_couleur' => $id_couleur,
             'qte_livre' => -$quantite,
             'id_client' => $id_client,
+            'date_livraison' => $date_retour,
         ]);
     }
 
@@ -243,7 +244,8 @@ class ArticleRetourController extends Controller
         if($stockRestant->qte_livre < $quantite){
             // return back()->with('fail', 'stock insuffisant pour le produit : "'.$stockRestant->designation_produit. '" de : "' .$stockRestant->artisan. '" stock restant:'.$stockRestant->qte_livre);
             return 'Stock insuffisant pour le produit : "' . 
-            $stockRestant->designation_produit . 
+            $stockRestant->designation_produit 
+            . 
             '" de : "' . 
             $stockRestant->artisan. 
             '", Stock restant : ' . 
@@ -286,14 +288,25 @@ class ArticleRetourController extends Controller
         return $pdf->download($nomFichier);
     }
 
-    public function filtre(Request $request)
-    {
-        $id_artisan = $request->input('id_artisan');
-        $id_saison  = $request->input('id_saison');
+    public function filtre(Request $request){
+        $id_artisan = $request->input('id_artisan') ?? session('id_artisan');
+        $id_saison = $request->input('id_saison') ?? session('id_saison');
         $id_client  = session('id_client');
         $recherche  = $request->input('recherche');
 
-        // ... session ...
+        // Enregistrer les identifiants dans la session
+        $nom_artisan = $id_artisan ? Artisan::find($id_artisan) : null;
+
+        if ($request->filled('id_artisan') && $request->filled('id_saison')) {
+            session([
+                'id_artisan' => $id_artisan,
+                'id_saison' => $id_saison
+            ]);
+
+            if ($nom_artisan) {
+                session(['nom_artisan' => $nom_artisan->nom]);
+            }
+        }
 
         // Filtre de recherche réutilisable
         $appliquerRecherche = function ($q) use ($recherche) {
@@ -327,6 +340,105 @@ class ArticleRetourController extends Controller
         $selectionType = "";
         $detail = $query->paginate(150)->appends($request->all());
 
-        return view('Consultation.ArticleRetourDetail', compact('detail', 'somme', 'selectionType'));
+        return view('Consultation.ArticleRetourDetail', compact('detail', 'somme', 'selectionType', 'id_artisan', 'id_saison'));
+    }
+
+    public function modifierListe($id_artisan, $id_saison, $id_client){
+        $detail = DB::table('article_retour_detail as rd')
+        ->join('produit as p', 'p.id', '=', 'rd.id_produit')
+        ->join('couleur as c', 'c.id', '=', 'rd.id_couleur')
+        ->join('article_retour as ar', 'ar.id', '=', 'rd.id_article_retour')
+        ->select(
+            'rd.id',
+            'rd.id_article_retour',
+            'ar.id_artisan',
+            'ar.id_saison',
+            'ar.id_client',
+            'rd.id_produit',
+            'p.designation_produit',
+            'p.designation_catalogue',
+            'rd.id_couleur',
+            'c.nom as couleur',
+            'rd.qte',
+            'rd.date_retour',
+            'rd.bon_sortie'
+            )
+            ->where('ar.id_saison', $id_saison)
+            ->where('ar.id_artisan', $id_artisan)
+            ->where('ar.id_client', $id_client)
+            ->get();
+            return view('Consultation.ArticleRetourModifier', compact('detail'));
+    }
+
+     public function update(Request $request, $id){
+
+        $validated = $request->validate([
+            'qte' => 'required|integer|min:0',
+            'date_retour' => 'required|date'    
+        ]);
+
+        $detail = ArticleRetourDetail::findOrFail($id);
+        $ancien_qte = $detail->qte;
+        $ancien_qte = -$ancien_qte;
+
+        $detail->qte = $validated['qte'];
+
+        $detail->save();
+
+        $id_artisan = $request->input('id_artisan');
+        $id_saison = $request->input('id_saison');
+        $id_client = $request->input('id_client');
+
+        // modifier stock
+        $stock = Stock::where('date_livraison', $validated['date_retour'])
+        ->where('id_saison', $id_saison)
+        ->where('id_client', $id_client)
+        ->where('id_produit', $detail->id_produit)
+        ->where('id_couleur', $detail->id_couleur)
+        ->where('qte_livre', $ancien_qte)
+        ->first();
+        
+        $stock->qte_livre = -$validated['qte'];
+        $stock->save();
+
+        return response()->json([
+            'success' => true,
+            'qte' => $detail->qte
+        ]);
+    }
+
+    public function delete(Request $request, $id){
+        $detail = ArticleRetourDetail::findOrFail($id);
+        $ancien_qte = $detail->qte;
+        $ancien_qte = -$ancien_qte;
+
+        $date_retour = $request->input('date_retour');
+        $id_artisan = $request->input('id_artisan');
+        $id_saison = $request->input('id_saison');
+        $id_client = $request->input('id_client');
+
+        // modifier stock
+        $stock = Stock::where('date_livraison', $date_retour)
+        ->where('id_saison', $id_saison)
+        ->where('id_client', $id_client)
+        ->where('id_produit', $detail->id_produit)
+        ->where('id_couleur', $detail->id_couleur)
+        ->where('qte_livre', $ancien_qte)
+        ->first();
+
+        if (!$stock) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Stock correspondant introuvable.'
+            ], 404);
+        }
+
+        $detail->delete();
+        $stock->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Ligne supprimée avec succès'
+        ]);
     }
 }

@@ -128,6 +128,58 @@
         <button type="submit" class="btn btn-primary" formaction="{{ route('LivraisonController.insert') }}"> Enregistrer </button>
     </div>
     </form>
+@if(session('erreurs_commande'))
+<div class="modal fade" id="modalErreurs"
+     tabindex="-1"
+     data-bs-backdrop="static">
+
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content">
+
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    Erreurs de quantité détectées
+                </h5>
+            </div>
+
+            <div class="modal-body">
+
+                <p>Les erreurs suivantes ont été détectées :</p>
+
+                <ul class="text-danger">
+                    @foreach(session('erreurs_commande') as $erreur)
+                        <li>{{ $erreur }}</li>
+                    @endforeach
+                </ul>
+
+                <p class="fw-bold">
+                    Voulez-vous continuer a inserer la livraison?
+                </p>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button type="button"
+                        class="btn btn-secondary"
+                        data-bs-dismiss="modal">
+                    Annuler
+                </button>
+
+                <form action="{{ session('route_confirmation') }}"
+                      method="POST">
+                    @csrf
+
+                    <button type="submit"
+                            class="btn btn-primary">
+                        Continuer
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
 </div>
 
 <script>
@@ -337,4 +389,17 @@
     }
 
 </script>
+@if(session('erreurs_commande'))
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    const modal = new bootstrap.Modal(
+        document.getElementById('modalErreurs')
+    );
+
+    modal.show();
+
+});
+</script>
+@endif
 @endsection

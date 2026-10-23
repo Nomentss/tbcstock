@@ -61,6 +61,7 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @if ($livraison->isNotEmpty())
                         @foreach ($livraison as $l)
                         <tr>
                             <th>{{$l->nom_saison }}</th>
@@ -68,7 +69,12 @@
                             <th style="text-align: center"><a href="{{ route('LivraisonController.detailLivraison', ['id_artisan' => $l->id_artisan, 'id_saison' => $l->id_saison, 'id_client' => $l->id_client]) }}"  class="btn btn-primary w-55">Voir détail par date</a></th>
                             <th style="text-align: center"><a href="{{ route('LivraisonController.resumeLivraison', ['id_artisan' => $l->id_artisan, 'id_saison' => $l->id_saison, 'id_client' => $l->id_client]) }}"  class="btn btn-primary w-5">Voir résumé quantités livrées</a></th>                        
                         </tr>
-                        @endforeach                   
+                        @endforeach 
+                        @else
+                        <tr>
+                            <td colspan="8" class="text-center">Aucune donnée disponible.</td>
+                        </tr>
+                        @endif                  
                     </tbody>
                 </table>
             </div>

@@ -39,6 +39,9 @@ class LivraisonImport implements ToCollection, WithHeadingRow
             // inserer livraison
             $livraison = $this->getLivraison($this->saison, $this->id_artisan);
 
+            $erreurs = [];
+            $donneesLivraison = [];
+
             foreach($rows as $index => $row){
 
             // Ignorer les lignes totalement vides
@@ -51,20 +54,77 @@ class LivraisonImport implements ToCollection, WithHeadingRow
                 $couleur = $row['couleur'] ?? null;
                 $quantite = $row['quantite'] ?? null;
 
+                // 2. Vérifier les données obligatoires
+                $champs = [
+                    'produit'               => $nomProduit,
+                    'designation_catalogue' => $designationCatalogue,
+                    'couleur'               => $couleur,
+                    'quantite'              => $quantite,
+                ];
                 // dd($row);
 
-                // 2. Vérifier les données obligatoires
-                if (!$nomProduit || !$designationCatalogue || !$couleur || !$quantite ) {
-                    throw new \Exception(
-                        'Veuillez vérifier votre fichier'
-                    );
+                $manquants = [];
+                foreach ($champs as $nom => $valeur) {
+                    // on teste vide, mais on accepte 0 pour la quantité
+                    if ($valeur === null || trim((string) $valeur) === '') {
+                        $manquants[] = $nom;
+                    }
                 }
-                    $produit = $this->getProduit($nomProduit, $designationCatalogue, $couleur, $this->saison, $this->id_artisan);
-                    // insertion detail livraison
-                    $this->insertDetailLivraison($livraison->id, $produit->id_produit, $produit->id_couleur, $quantite, $this->dateLivraison, $this->bon_reception);
 
-                    // insertion stock
-                    $this->addStock($this->saison, $produit->id_produit, $produit->id_couleur, $quantite, $this->dateLivraison);
+                    if (!empty($manquants)) {
+                        throw new \Exception(
+                            'Fichier invalide : champ(s) manquant(s) [' . implode(', ', $manquants) . ']'
+                            . ' à la ligne ' . $numeroLigne
+                        );
+                    }
+
+                    $produit = $this->getProduit($nomProduit, $designationCatalogue, $couleur, $this->saison, $this->id_artisan);
+
+                    $message = $this->verifierQuantite($produit, $quantite);
+
+                    if ($message !== null) {
+                        $erreurs[] = $message;
+                    }
+
+                    $donneesLivraison[] = [
+                        'id_produit' => $produit->id_produit,
+                        'id_couleur' => $produit->id_couleur,
+                        'quantite' => $quantite,
+                    ];
+
+                    // // insertion detail livraison
+                    // $this->insertDetailLivraison($livraison->id, $produit->id_produit, $produit->id_couleur, $quantite, $this->dateLivraison, $this->bon_reception);
+
+                    // // insertion stock
+                    // $this->addStock($this->saison, $produit->id_produit, $produit->id_couleur, $quantite, $this->dateLivraison);
+            }
+                // Après la boucle
+            if (!empty($erreurs)) {
+
+                session([
+                    'livraisons_en_attente' => $donneesLivraison,
+                ]);
+
+                session([
+                    'livraison' => $livraison,
+                ]);
+
+                session([
+                    'parametres_livraison' => [
+                        'saison' => $this->saison,
+                        'dateLivraison' => $this->dateLivraison,
+                        'id_artisan' => $this->id_artisan,
+                        'bon_reception' => $this->bon_reception,
+                    ]
+                ]);
+
+                return back()
+                    ->withInput()
+                    ->with('erreurs_commande', $erreurs)
+                    ->with('route_confirmation', route('importController.confirmerImport'));
+            }else{
+                //insertion directe
+                $this->confirmerLivraison($donneesLivraison, $livraison);
             }
         });   
     }
@@ -107,15 +167,35 @@ class LivraisonImport implements ToCollection, WithHeadingRow
         // ->where('designation_catalogue', 'ILIKE', $designationCatalogue)
         // ->first();
 
-        $produitExistant = DB::table('v_detail_commande')
-        ->where('designation_produit', 'ILIKE', $nomProduit)
-        ->where('designation_catalogue', 'ILIKE', $designationCatalogue)
-        ->where('couleur', 'ILIKE', $couleur)
+        // $query = DB::table('v_detail_commande')
+        // ->where('designation_produit', 'ILIKE', $nomProduit)
+        // ->where('designation_catalogue', 'ILIKE', $designationCatalogue)
+        // ->where('couleur', 'ILIKE', $couleur)
+        // ->where('id_artisan', $id_artisan)
+        // ->where('id_saison', $id_saison);
+        // ->first();
+
+        $query = DB::table('v_detail_commande')
+        ->whereRaw(
+            "REGEXP_REPLACE(TRIM(designation_produit), '\s+', ' ', 'g') ILIKE REGEXP_REPLACE(TRIM(?), '\s+', ' ', 'g')",
+            [$nomProduit]
+        )
+        ->whereRaw(
+            "REGEXP_REPLACE(TRIM(designation_catalogue), '\s+', ' ', 'g') ILIKE REGEXP_REPLACE(TRIM(?), '\s+', ' ', 'g')",
+            [$designationCatalogue]
+        )
+        ->whereRaw(
+            "REGEXP_REPLACE(TRIM(couleur), '\s+', ' ', 'g') ILIKE REGEXP_REPLACE(TRIM(?), '\s+', ' ', 'g')",
+            [$couleur]
+        )
         ->where('id_artisan', $id_artisan)
         ->where('id_saison', $id_saison)
-        ->first();
+        ->where('id_client', session('id_client'));
+
+        $produitExistant = $query->first();
 
         if(!$produitExistant){
+        
             throw new \Exception(
                 "Le produit \"$nomProduit\" avec le nom catalogue \"$designationCatalogue\" de couleur \"$couleur\" n'existe pas dans la commande."
             );
@@ -134,5 +214,54 @@ class LivraisonImport implements ToCollection, WithHeadingRow
             'date_livraison' => $dateLivraison,
             'id_client' => session('id_client'),
         ]);
+    }
+
+    public function verifierQuantite($produit, $quantite_livre){
+        $quantite_commande = $produit->qte;
+
+        if($quantite_commande < $quantite_livre){
+
+            return "le produit \"$produit->designation_produit\" de couleur \"$produit->couleur\", quantité commande = $quantite_commande et quantité livraison = $quantite_livre.";
+        }
+
+        return null;
+    }
+
+    public function confirmerLivraison($donnees, $livraison){
+
+        if (empty($donnees)) {
+            return back()->with('error', 'Aucune livraison en attente');
+        }
+
+        DB::transaction(function () use ($donnees, $livraison) {
+
+            foreach ($donnees as $ligne) {
+
+                // Insertion détail livraison
+                $this->insertDetailLivraison(
+                    $livraison->id,
+                    $ligne['id_produit'],
+                    $ligne['id_couleur'],
+                    $ligne['quantite'],
+                    $this->dateLivraison,
+                    $this->bon_reception
+                );
+
+                // Insertion stock
+                $this->addStock(
+                    $this->saison,
+                    $ligne['id_produit'],
+                    $ligne['id_couleur'],
+                    $ligne['quantite'],
+                    $this->dateLivraison
+                );
+            }
+        });
+
+        session()->forget('livraisons_en_attente');
+        session()->forget('livraison');
+        session()->forget('erreurs_commande');
+
+        return back()->with('success', 'Livraisons enregistrées');
     }
 }

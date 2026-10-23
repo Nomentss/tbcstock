@@ -71,6 +71,9 @@ Route::middleware(['auth', 'role:0'])->group(function () {
         Route::get('/payementListe', 'payementListe')->name('PayementController.payementListe');
         Route::get('/payementDetail/{id_artisan}/{id_saison}', 'DetailPayement')->name('PayementController.payementDetail');
         Route::get('/payement/pdf', 'exportPdfPayement')->name('PayementController.export');
+        Route::get('/PayementModifier/{id_artisan}/{id_saison}/{id_client}', 'modifierListe')->name('PayementController.modifierListe');
+        Route::PUT('/update-payement/{id}', 'update')->name('PayementController.update');
+        Route::DELETE('/delete-payement/{id}', 'delete')->name('PayementController.delete');
     });
     
     Route::controller(LivraisonController::class)->group(function () {
@@ -89,6 +92,10 @@ Route::middleware(['auth', 'role:0'])->group(function () {
         Route::get('/livraisonChoix', 'livraisonChoix')->name('LivraisonController.livraisonChoix');
         Route::get('/livraisonSansCommandeForm', 'livraisonSansCommandeFormulaire')->name('LivraisonController.livraisonSansCommandeFormulaire');
         Route::get('/livraison/excelDetail', 'exportExcel')->name('LivraisonController.exportDetailExcel');
+        Route::post('/confirm_livraison', 'confirmerLivraison')->name('LivraisonController.confirmerLivraison');
+        Route::get('/livraisonModifier/{id_artisan}/{id_saison}/{id_client}', 'modifierListe')->name('livraisonController.modifierListe');
+        Route::PUT('/update-livraison/{id}', 'update')->name('LivraisonController.update');
+        Route::DELETE('/delete-livraison/{id}', 'delete')->name('LivraisonController.delete');
     });  
     
     Route::controller(CommandeController::class)->group(function () {
@@ -128,6 +135,9 @@ Route::middleware(['auth', 'role:0'])->group(function () {
         Route::post('/insert_expedition', 'insertExpedition')->name('ExpeditionController.insertExpedition');
         Route::get('/liste_expedition', 'listeExpedition')->name('ExpeditionController.listeExpedition');
         Route::get('/expedition/pdf', 'exportPdf')->name('ExpeditionController.export');
+        Route::get('/expeditionModifier/{id_client}', 'modifierListe')->name('ExpeditionController.modifierListe');
+        Route::PUT('/update-expedition/{id}', 'update')->name('ExpeditionController.update');
+        Route::DELETE('/delete-expedition/{id}', 'delete')->name('ExpeditionController.delete');
 
     });
 
@@ -141,6 +151,9 @@ Route::middleware(['auth', 'role:0'])->group(function () {
         Route::get('/listeArticleRetourDetail/{id_artisan}/{id_saison}/{id_client}', 'detailArticleRetour')->name('ArticleRetourController.detailArticleRetour');
         Route::get('/ArticleRetour/pdf', 'exportPdf')->name('ArticleRetourController.exportPdf');
         Route::get('/filtre', 'filtre')->name('ArticleRetourController.filtre');
+        Route::get('/ArticleRetourModifier/{id_artisan}/{id_saison}/{id_client}', 'modifierListe')->name('ArticleRetourController.modifierListe');
+        Route::PUT('/update-articleRetour/{id}', 'update')->name('ArticleRetourController.update');
+        Route::DELETE('/delete-articleRetour/{id}', 'delete')->name('ArticleRetourController.delete');
 
     });
 
@@ -168,6 +181,7 @@ Route::controller(PageController::class)->group(function () {
 Route::controller(ImportController::class)->group(function () {
     Route::post('/importAction', 'importAction')->name('ImportController.importAction');
     Route::post('/importLivraison', 'importLivraison')->name('ImportController.importLivraison');
+    Route::post('/confirm_livraison_import', 'confirmerImport')->name('importController.confirmerImport');
 });
 
 // // controlleur pour login

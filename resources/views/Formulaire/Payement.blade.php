@@ -5,7 +5,7 @@
     <form action="{{ route('PayementController.insert') }}" method="POST">
     @csrf
     <div class="bg-light rounded h-100 p-4">
-        <h5 class="mb-4 text-center">Formulaire payement artisan</h5>
+        <h5 class="mb-4 text-center">Formulaire paiement artisan</h5>
 
         @if(session('success'))
             <div class="alert alert-success">
@@ -67,7 +67,7 @@
         </div>
         <div class="form-floating mb-3">
             <textarea type="text" class="form-control @error('detail_payement') is-invalid @enderror" id="floatingInput" name="detail_payement" value="{{ old('detail_payement') }}"></textarea>
-            <label for="floatingInput">Detail payement</label>
+            <label for="floatingInput">Detail paiement</label>
             @error('detail_payement')
                 <div class="invalid-feedback">
                     {{ $message }}
@@ -85,7 +85,7 @@
         </div>
         <div class="form-floating mb-3">
             <input type="date" class="form-control @error('date_payement') is-invalid @enderror" id="floatingInput" name="date_payement" value="{{ old('date_payement') }}">
-            <label for="floatingInput">Date payement</label>
+            <label for="floatingInput">Date paiement</label>
             @error('date_payement')
                 <div class="invalid-feedback">
                     {{ $message }}

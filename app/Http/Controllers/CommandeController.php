@@ -273,15 +273,28 @@ class CommandeController extends Controller
     }
 
     public function filtreCommande(Request $request){
-        $id_artisan= $request->input('id_artisan');
-        $id_saison= $request->input('id_saison');
-        $id_client= session('id_client');
-        $type_commande_select= $request->input('type_commande_select');
+
+        $id_artisan = $request->input('id_artisan') ?? session('id_artisan');
+        $id_saison = $request->input('id_saison') ?? session('id_saison');
+        $id_client = session('id_client');
+
+        $type_commande_select = $request->input('type_commande_select');
         $recherche = $request->input('recherche');
 
         $nom_artisan = Artisan::find($id_artisan);
 
-        if($id_artisan != null){
+        if ($request->filled('id_artisan') && $request->filled('id_saison')) {
+            session([
+                'id_artisan' => $id_artisan,
+                'id_saison' => $id_saison
+            ]);
+
+            if ($nom_artisan) {
+                session(['nom_artisan' => $nom_artisan->nom]);
+            }
+        }
+
+        if($id_artisan != null && $nom_artisan != null){
             session(['nom_artisan' => $nom_artisan->nom]);
             session(['id_artisan' => $id_artisan]);
             session(['id_saison' => $id_saison]);            
@@ -329,7 +342,7 @@ class CommandeController extends Controller
             });
         }
 
-        $detail= $query->paginate(150);
+        $detail = $query->paginate(150)->withQueryString();
 
         $selectionType = $type_commande_select;
         return view('Consultation.CommandeDetail', compact('detail', 'type_commande', 'somme', 'selectionType', 'id_artisan', 'id_saison', 'id_client'));

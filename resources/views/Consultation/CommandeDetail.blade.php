@@ -108,7 +108,7 @@
                         'id_artisan' => $id_artisan,
                         'id_saison' => $id_saison,
                         'id_client' => session('id_client')
-                        ]) }}" class="btn btn-success">
+                    ]) }}" class="btn btn-success">
                         Modifier la liste
                     </a>
                 </form>

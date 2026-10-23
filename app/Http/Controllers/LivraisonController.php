@@ -13,6 +13,7 @@ use App\Models\Saison;
 use App\Models\Produit;
 use App\Models\Produit_couleur;
 use App\Models\Stock;
+use App\Models\Couleur;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Exports\LivraisonDetailExport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -28,6 +29,7 @@ class LivraisonController extends Controller
         $date_livraison = $request->input('date_livraison');
         $bon_reception = $request->input('bon_reception');
         $id_livraison;
+
 
         $maxCounter = $request->input('maxCounter');
 
@@ -60,7 +62,9 @@ class LivraisonController extends Controller
             $messages['couleur_' . $i . '.required'] = 'couleur requis' . ($i + 1) . ' est requis.';
     
             $rules['qte_livre_' . $i] = 'required';
+            $rules['qte_livre_' . $i] = 'required|numeric';
             $messages['qte_livre_' . $i . '.required'] = 'quantite requis' . ($i + 1) . ' est requis.';
+            $messages['qte_livre_' . $i . '.numeric'] = 'La quantité ' . ($i + 1) . ' doit être un nombre.';
 
         }
 
@@ -76,34 +80,44 @@ class LivraisonController extends Controller
             'bon_reception.required' => 'bon reception requis',
         ])-> validate();
 
-        $validated = Validator::make($request->all(), $rules, $messages)->validate();       
+        $validated = Validator::make($request->all(), $rules, $messages)->validate();   
+        
+        $erreurs = [];
 
         for ($i = 0; $i <= $maxCounter; $i++) {
 
-        $id_produit = $request->input('id_produit_'.$i);
-        $id_couleur = $request->input('couleur_'.$i);
-        $qte_livre = $request->input('qte_livre_'.$i);
+            $id_produit = $request->input('id_produit_'.$i);
+            $id_couleur = $request->input('couleur_'.$i);
+            $qte_livre = $request->input('qte_livre_'.$i);
 
-            $detail = Livraison_detail::create([
-                'id_livraison' => $id_livraison,
-                'id_produit' => $id_produit,
-                'id_couleur' => $id_couleur,
-                'qte_livre' => $qte_livre,
-                'date_livraison' => $date_livraison,
-                'bon_reception' => $bon_reception,
-            ]);
+            $message = $this->verifierCommande($id_produit, $id_couleur, $qte_livre, $id_client, $id_artisan, $id_saison);
 
-            $stock = Stock::create([
-                'id_saison' => $id_saison,
-                'id_client' => $id_client,
-                'id_produit' => $id_produit,
-                'id_couleur' => $id_couleur,
-                'qte_livre' => $qte_livre,
-                'date_livraison' => $date_livraison,
-            ]);
+            if ($message !== null) {
+                $erreurs[] = $message;
+            }
+
         }
 
-        return back()->with('success', 'livraison sauvegardé');
+        if (!empty($erreurs)) {
+
+            // Conserver les données pour l'insertion
+            session([
+                'livraison_en_attente' => array_merge(
+                    $request->all(),
+                    ['id_livraison' => $id_livraison]
+                )
+            ]);
+
+            return back()
+                ->withInput()
+                ->with('erreurs_commande', $erreurs)
+                ->with('route_confirmation', route('LivraisonController.confirmerLivraison'));
+        }
+
+        // return back()->with('success', 'livraison sauvegardé');
+
+        // Aucune erreur : insertion directe
+        return $this->insertionDetailLivraison($request->all(), $id_livraison);
     }
 
     public function verifierBase($id_artisan, $id_saison, $id_client){
@@ -366,4 +380,204 @@ class LivraisonController extends Controller
             $nomFichier
         );
     }
-}
+
+    // pour verifier la quantite si quantite de commande >= quantite livraison avant insertion
+    public function verifierCommande($id_produit, $id_couleur, $qte_livre, $id_client, $id_artisan, $id_saison){
+        $qte_commande = DB::table('v_detail_commande')
+        ->where('id_artisan', $id_artisan)
+        ->where('id_saison', $id_saison)
+        ->where('id_client', $id_client)
+        ->where('id_produit', $id_produit)
+        ->where('id_couleur', $id_couleur)
+        ->value('qte');
+
+        $produit = Produit::find($id_produit);
+        $couleur = Couleur::find($id_couleur);
+
+        $qte_commande = (int) ($qte_commande ?? 0);
+        $qte_livre = (int) ($qte_livre ?? 0);
+        
+        if($qte_commande < $qte_livre){
+            return "le produit \"$produit->designation_produit\" de couleur \"$couleur->nom\", quantité commande = $qte_commande et quantité livraison = $qte_livre.";
+        }
+
+        return null;
+    }
+
+    private function insertionDetailLivraison(array $donnees, $id_livraison){
+        $maxCounter = (int) ($donnees['maxCounter'] ?? 0);
+
+        $id_artisan = $donnees['id_artisan'];
+        $id_saison = $donnees['id_saison'];
+        $date_livraison = $donnees['date_livraison'];
+        $bon_reception = $donnees['bon_reception'];
+
+        DB::transaction(function () use (
+            $donnees,
+            $id_livraison,
+            $maxCounter,
+            $id_artisan,
+            $id_saison,
+            $date_livraison,
+            $bon_reception
+        ) {
+
+            for ($i = 0; $i <= $maxCounter; $i++) {
+
+                $id_produit = $donnees['id_produit_'.$i] ?? null;
+                $id_couleur = $donnees['couleur_'.$i] ?? null;
+                $qte_livre = $donnees['qte_livre_'.$i] ?? null;
+
+
+                if ($id_produit === null) {
+                    continue;
+                }
+
+                $detail = Livraison_detail::create([
+                'id_livraison' => $id_livraison,
+                'id_produit' => $id_produit,
+                'id_couleur' => $id_couleur,
+                'qte_livre' => $qte_livre,
+                'date_livraison' => $date_livraison,
+                'bon_reception' => $bon_reception,
+                ]);
+
+                $stock = Stock::create([
+                'id_saison' => $id_saison,
+                'id_client' => session('id_client'),
+                'id_produit' => $id_produit,
+                'id_couleur' => $id_couleur,
+                'qte_livre' => $qte_livre,
+                'date_livraison' => $date_livraison,
+                ]);
+                
+            }
+        });
+
+        return redirect()
+            ->back()
+            ->with('success', 'Livraison enregistrée avec succès');
+    }
+
+    public function confirmerLivraison(Request $request){
+        $donnees = session('livraison_en_attente');
+
+        if (!$donnees) {
+            return back()->with(
+                'error',
+                'Aucune livraison en attente.'
+            );
+        }
+
+        $id_livraison = $donnees['id_livraison'] ?? null;
+
+        // Réutiliser les données sauvegardées
+        $resultat = $this->insertionDetailLivraison($donnees, $id_livraison);
+
+        // Supprimer les données après insertion réussie
+        session()->forget('livraison_en_attente');
+        session()->forget('erreurs_commande');
+
+        return $resultat;
+    }
+
+     public function modifierListe($id_artisan, $id_saison, $id_client){
+        $detail = DB::table('livraison_detail as ld')
+            ->join('produit as p', 'p.id', '=', 'ld.id_produit')
+            ->join('couleur as c', 'c.id', '=', 'ld.id_couleur')
+            ->join('livraison as li', 'ld.id_livraison', '=', 'li.id')
+            ->select(
+                'ld.id',
+                'ld.id_livraison',
+                'li.id_artisan',
+                'li.id_client',
+                'li.id_saison',
+                'ld.id_produit',
+                'p.designation_produit',
+                'p.designation_catalogue',
+                'ld.id_couleur',
+                'c.nom as couleur',
+                'ld.qte_livre',
+                'ld.date_livraison',
+                'ld.bon_reception'
+            )
+            ->where('li.id_saison', $id_saison)
+            ->where('li.id_artisan', $id_artisan)
+            ->where('li.id_client', $id_client)
+            ->get();
+
+        return view('Consultation.LivraisonModifier', compact('detail'));
+
+    }
+
+    public function update(Request $request, $id){
+
+        $validated = $request->validate([
+            'qte' => 'required|integer|min:0',
+            'date_livraison' => 'required|date'
+        ]);
+
+        $detail = Livraison_detail::findOrFail($id);
+        $ancien_qte = $detail->qte_livre;
+        // $ancien_qte = -$ancien_qte;
+
+        $detail->qte_livre = $validated['qte'];
+
+        $detail->save();
+
+        $id_artisan = $request->input('id_artisan');
+        $id_saison = $request->input('id_saison');
+        $id_client = $request->input('id_client');
+
+        // modifier stock
+        $stock = Stock::where('date_livraison', $validated['date_livraison'])
+        ->where('id_saison', $id_saison)
+        ->where('id_client', $id_client)
+        ->where('id_produit', $detail->id_produit)
+        ->where('id_couleur', $detail->id_couleur)
+        ->where('qte_livre', $ancien_qte)
+        ->first();
+        
+        $stock->qte_livre = $validated['qte'];
+        $stock->save();
+
+        return response()->json([
+            'success' => true,
+            'qte' => $detail->qte_livre
+        ]);
+    }
+
+    public function delete(Request $request, $id){
+        $detail = Livraison_detail::findOrFail($id);
+         $ancien_qte = $detail->qte_livre;
+
+        $date_livraison = $request->input('date_livraison');
+        $id_artisan = $request->input('id_artisan');
+        $id_saison = $request->input('id_saison');
+        $id_client = $request->input('id_client');
+
+        // modifier stock
+        $stock = Stock::where('date_livraison', $date_livraison)
+        ->where('id_saison', $id_saison)
+        ->where('id_client', $id_client)
+        ->where('id_produit', $detail->id_produit)
+        ->where('id_couleur', $detail->id_couleur)
+        ->where('qte_livre', $ancien_qte)
+        ->first();
+
+        if (!$stock) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Stock correspondant introuvable.'
+            ], 404);
+        }
+
+        $detail->delete();
+        $stock->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Ligne supprimée avec succès'
+        ]);
+    }
+}  

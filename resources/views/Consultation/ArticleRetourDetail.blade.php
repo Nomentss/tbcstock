@@ -87,6 +87,13 @@
                     <input type="hidden" name="id_saison" value={{ $detail->first()->id_saison ?? '' }}>
 
                     <button type="submit" class="btn btn-primary" id="btnExport"> Exporter en PDF </button>
+                    <a href="{{ route('ArticleRetourController.modifierListe', [
+                        'id_artisan' => $id_artisan ?? '',
+                        'id_saison' => $id_saison ?? '',
+                        'id_client' => session('id_client')
+                        ]) }}" class="btn btn-success">
+                        Modifier la liste
+                    </a>
                 </form>
             </div>
         </div>

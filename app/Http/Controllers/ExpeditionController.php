@@ -15,6 +15,8 @@ use App\Models\Expedition;
 use App\Models\Expedition_detail;
 use App\Models\Conteneur;
 use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\Client;
+use Carbon\Carbon;
 
 
 class ExpeditionController extends Controller
@@ -119,27 +121,6 @@ class ExpeditionController extends Controller
 
         $validated = Validator::make($request->all(), $rules, $messages)->validate();  
 
-        // // verifier si conteneur deja dans expedition
-        // $verifierExpedition = Expedition::select('id')
-        //                     ->where('id_conteneur', $expedition_depot)
-        //                     ->first();
-
-        // if($verifierExpedition == null ){
-        //     // dump("tsy mi existe");
-        //     $expedition = Expedition::create([
-        //         'id_conteneur' => $expedition_depot,
-        //     ]);
-
-        //     $id_expedition = $expedition->id;
-        //     // dd($id_expedition);
-
-        // }
-        // else{
-        //     // dump("mi existe");
-        //     $id_expedition = $verifierExpedition->id;
-        //     // dd($id_expedition);
-        // }
-
         // boucle pour verifier l'etat de stock avant l'insertion
         $messages = [];
         for ($i=0; $i <= $maxCounter; $i++) { 
@@ -164,7 +145,7 @@ class ExpeditionController extends Controller
             $id_couleur = $request->input('couleur_'.$i);
             $quantite = $request->input('qte_'.$i);
 
-            $this->updateStock($id_produit, $id_couleur, $quantite, $id_saison, $id_client);
+            $this->updateStock($id_produit, $id_couleur, $quantite, $id_saison, $id_client, $date_expedition);
             
             $expedition_detail= Expedition_detail::create([
                 'id_saison' => $id_saison,
@@ -280,13 +261,14 @@ class ExpeditionController extends Controller
 
     }
 
-    public function updateStock($id_produit, $id_couleur, $quantite, $id_saison, $id_client){
+    public function updateStock($id_produit, $id_couleur, $quantite, $id_saison, $id_client, $date_livraison){
             $stock = Stock::create([
                 'id_saison' => $id_saison,
                 'id_produit' => $id_produit,
                 'id_couleur' => $id_couleur,
                 'qte_livre' => -$quantite,
                 'id_client' => $id_client,
+                'date_livraison' => $date_livraison
             ]);
     }
 
@@ -316,23 +298,21 @@ class ExpeditionController extends Controller
 
     public function exportPdf(Request $request) {
         $saisonSelect = $request->input('saison_select');
-        $conteneurSelect = $request->input('conteneur_select');
         $artisanSelect = $request->input('artisan_select');
         $catalogueSelect = $request->input('catalogue_select');
+        $id_client = session('id_client');
 
-        $query = DB::table('v_reference_somme_expedition');
+        $query = DB::table('v_reference_somme_expedition')
+        ->where('id_client', $id_client);
 
         $query2 = DB::table('v_reference_somme_expedition')
-                  ->selectRaw('SUM(qte) as qte, SUM(qte*prix_unitaire) as total'); 
+                  ->selectRaw('SUM(qte) as qte, SUM(qte*prix_unitaire) as total')
+                  ->where('id_client', $id_client);
+                   
 
         if($saisonSelect){
             $query->where('id_saison', $saisonSelect);
             $query2->where('id_saison', $saisonSelect);
-        }
-
-        if($conteneurSelect){
-            $query->where('id_conteneur', $conteneurSelect);
-            $query2->where('id_conteneur', $conteneurSelect);
         }
 
         if($artisanSelect){
@@ -350,6 +330,113 @@ class ExpeditionController extends Controller
         $total = $query2->get();
 
         $pdf = Pdf::loadView('Expedition.pdf', compact('expedition','total'));
-        return $pdf->download('Expedition.pdf');
+
+        $client = Client::find($id_client);
+        $date = Carbon::now()->format('d-m-Y');
+
+        $nomFichier = "Expedition_{$client->nom_client}_{$date}.pdf";
+
+        return $pdf->download($nomFichier);
+    }
+
+    public function modifierListe($id_client){
+        
+        $detail = DB::table('expedition_detail as ed')
+            ->join('produit as p', 'p.id', '=', 'ed.id_produit')
+            ->join('couleur as c', 'c.id', '=', 'ed.id_couleur')
+            ->join('artisan as a', 'a.id', '=', 'ed.id_artisan')
+            ->join('saison as sa', 'sa.id', '=', 'ed.id_saison')
+            ->select(
+                'ed.id',
+                'ed.id_saison',
+                'sa.nom_saison',
+                'ed.expedition_route',
+                'ed.id_artisan',
+                'a.nom as artisan',
+                'ed.id_client',
+                'ed.id_produit',
+                'p.designation_produit',
+                'p.designation_catalogue',
+                'ed.id_couleur',
+                'c.nom as couleur',
+                'ed.qte',
+                'ed.date_expedition'
+            )
+            ->where('ed.id_client', $id_client)
+            ->get();
+
+        return view('Consultation.ExpeditionModifier', compact('detail'));
+    }
+
+    public function update(Request $request, $id){
+
+        $validated = $request->validate([
+            'qte' => 'required|integer|min:0',
+            'date_expedition' => 'required|date'
+        ]);
+
+        $detail = Expedition_detail::findOrFail($id);
+        $ancien_qte = $detail->qte;
+        $ancien_qte = -$ancien_qte;
+
+        $detail->qte = $validated['qte'];
+
+        $detail->save();
+
+        $id_artisan = $request->input('id_artisan');
+        $id_saison = $request->input('id_saison');
+        $id_client = $request->input('id_client');
+
+        // modifier stock
+        $stock = Stock::where('date_livraison', $validated['date_expedition'])
+        ->where('id_saison', $id_saison)
+        ->where('id_client', $id_client)
+        ->where('id_produit', $detail->id_produit)
+        ->where('id_couleur', $detail->id_couleur)
+        ->where('qte_livre', $ancien_qte)
+        ->first();
+        
+        $stock->qte_livre = -$validated['qte'];
+        $stock->save();
+
+        return response()->json([
+            'success' => true,
+            'qte' => $detail->qte
+        ]);
+    }
+
+    public function delete(Request $request, $id){
+        $detail = Expedition_detail::findOrFail($id);
+        $ancien_qte = $detail->qte;
+        $ancien_qte = -$ancien_qte;
+
+        $date_expedition = $request->input('date_expedition');
+        $id_artisan = $request->input('id_artisan');
+        $id_saison = $request->input('id_saison');
+        $id_client = $request->input('id_client');
+
+        // modifier stock
+        $stock = Stock::where('date_livraison', $date_expedition)
+        ->where('id_saison', $id_saison)
+        ->where('id_client', $id_client)
+        ->where('id_produit', $detail->id_produit)
+        ->where('id_couleur', $detail->id_couleur)
+        ->where('qte_livre', $ancien_qte)
+        ->first();
+
+        if (!$stock) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Stock correspondant introuvable.'
+            ], 404);
+        }
+
+        $detail->delete();
+        $stock->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Ligne supprimée avec succès'
+        ]);
     }
 }
