@@ -133,9 +133,9 @@ class ExpeditionController extends Controller
                 $messages[] = $erreur;
             }
         }
-        if (!empty($messages)) {
-            return back()->with('fail', $messages);
-        }
+        // if (!empty($messages)) {
+        //     return back()->with('fail', $messages);
+        // }
         // fin de verification
 
         // boucle pour insertion
@@ -159,7 +159,10 @@ class ExpeditionController extends Controller
             ]);    
         }
 
-        return back()->with('success', 'expedition sauvegardé');
+        return back()->with([
+            'success' => 'Expédition sauvegardée',
+            'messages' => $messages
+        ]);
     }
 
     public function SaisonCorrespondante($date){

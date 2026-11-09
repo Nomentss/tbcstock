@@ -59,6 +59,16 @@
                 {{ session('success') }}
             </div>
             @endif
+            {{-- Messages d'erreur --}}
+            @if (session('messages'))
+            <div class="alert alert-danger">
+                @foreach (session('messages') as $message)
+                    <li>
+                        {{ $message }}
+                    </li>
+                @endforeach
+            </div>
+            @endif
             @if(session('fail'))
             <div class="alert alert-danger">
                 @if(is_array(session('fail')))
